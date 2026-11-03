@@ -9,6 +9,7 @@ import type { RootStackParamList } from './routes';
 
 import { CocHomeScreen } from '@/screens/coc/CocHomeScreen';
 import { CocWarScreen } from '@/screens/coc/CocWarScreen';
+import { CocWarRoundScreen } from '@/screens/coc/CocWarRoundScreen';
 import { CocClanScreen } from '@/screens/coc/CocClanScreen';
 import { CocLeaderboardScreen } from '@/screens/coc/CocLeaderboardScreen';
 import { CocBuilderScreen } from '@/screens/coc/CocBuilderScreen';
@@ -30,6 +31,7 @@ export function RootNavigator() {
     >
       <Stack.Screen name="CocHome" component={CocHomeScreen} />
       <Stack.Screen name="CocWar" component={CocWarScreen} />
+      <Stack.Screen name="CocWarRound" component={CocWarRoundScreen} />
       <Stack.Screen name="CocClan" component={CocClanScreen} />
       <Stack.Screen name="CocLeaderboard" component={CocLeaderboardScreen} />
       <Stack.Screen name="CocBuilder" component={CocBuilderScreen} />

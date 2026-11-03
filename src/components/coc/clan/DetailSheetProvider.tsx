@@ -8,20 +8,11 @@ export type SheetEntry =
   | { kind: 'player'; tag: string }
   | { kind: 'capital'; tag: string }
   | { kind: 'warLog'; tag: string }
-  /** `tag` is the clan whose league season this is; `round` is 0-based. */
-  | { kind: 'cwlRound'; tag: string; round: number }
   /** `tag` is a *war* tag. `clanTag` orients the board, when it is known. */
   | { kind: 'cwlWar'; tag: string; clanTag?: string };
 
-/**
- * What makes two entries the same view.
- *
- * Not just kind and tag: every round of a league season is pushed with the
- * same clan tag and the same kind, so comparing those alone would treat
- * "Round 2" as a repeat of "Round 1" and refuse to open it.
- */
 function entryKey(entry: SheetEntry): string {
-  return entry.kind === 'cwlRound' ? `cwlRound:${entry.tag}:${entry.round}` : `${entry.kind}:${entry.tag}`;
+  return `${entry.kind}:${entry.tag}`;
 }
 
 type Ctx = {

@@ -23,7 +23,7 @@ export function ClashBook() {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
 
-  const [village, setVillage] = useState<'home' | 'builder'>('home');
+  const [village, setVillage] = useState<'home' | 'builder' | 'capital'>('home');
   const [category, setCategory] = useState('All');
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<BookItem>();
@@ -39,7 +39,9 @@ export function ClashBook() {
     return undefined;
   };
 
-  const villageItems = BOOK_ITEMS.filter((i) => i.base === village || i.base === 'magic-items');
+  const villageItems = BOOK_ITEMS.filter(
+    (i) => i.base === village || (village !== 'capital' && i.base === 'magic-items'),
+  );
   const categories = ['All', ...new Set(villageItems.map((i) => bookCategory(i.category)))];
   const items = filterBook(village, category, query);
   const groups = [...new Set(items.map((i) => bookCategory(i.category)))];
@@ -55,6 +57,7 @@ export function ClashBook() {
         tabs={[
           { id: 'home', label: 'Home Village' },
           { id: 'builder', label: 'Builder Base' },
+          { id: 'capital', label: 'Clan Capital' },
         ]}
       />
 

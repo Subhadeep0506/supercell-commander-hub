@@ -41,6 +41,7 @@ const ANDROID_FONTS = resolve(root, 'android/app/src/main/assets/fonts');
 // below are converted into the bundle.
 const COC_DATA = resolve(root, 'node_modules/clash-of-clans-data');
 const CATALOG = resolve(root, 'src/data/clash-book/catalog.json');
+const CATALOG_EXTRA = resolve(root, 'src/data/clash-book/catalog-extra.json');
 
 const force = process.argv.includes('--force');
 
@@ -117,34 +118,6 @@ const RESOURCE_ICONS = [
   { file: 'images/other/ore/shiny-ore.png', name: 'Shiny Ore' },
   { file: 'images/other/ore/glowy-ore.png', name: 'Glowing Ore' },
   { file: 'images/other/ore/starry-ore.png', name: 'Starry Ore' },
-];
-
-/**
- * Home Village Super Troops.
- *
- * The player API returns these in `troops` once unlocked, but the Clash Book
- * catalog has no entries for them at all, so every one rendered as a text
- * placeholder. They are temporary boosts of a base troop rather than separate
- * units, which is why the community dataset does not list them.
- *
- * Seven share a name with a Clan Capital troop, and that artwork *is* the
- * Super variant -- gold-armoured Barbarian, glowing-eyed Wizard -- so it is
- * used directly. The remaining ten fall back to their base troop's book
- * artwork at lookup time (see SUPER_TROOP_BASE in src/assets/art.ts), which
- * needs no extra image.
- *
- * Note this is artwork only. Clan Capital stats are not Home Village Super
- * Troop stats, so tapping one still reports that the reference has no entry
- * rather than showing numbers for a different unit.
- */
-const SUPER_TROOP_ICONS = [
-  { name: 'Super Barbarian', file: 'images/clan-capital/troops/super-barbarian/icon.png' },
-  { name: 'Super Giant', file: 'images/clan-capital/troops/super-giant/icon.png' },
-  { name: 'Super Wizard', file: 'images/clan-capital/troops/super-wizard/icon.png' },
-  { name: 'Super Dragon', file: 'images/clan-capital/troops/super-dragon/icon.png' },
-  { name: 'Super Miner', file: 'images/clan-capital/troops/super-miner/icon.png' },
-  { name: 'Inferno Dragon', file: 'images/clan-capital/troops/inferno-dragon/icon.png' },
-  { name: 'Rocket Balloon', file: 'images/clan-capital/troops/rocket-balloon/icon.png' },
 ];
 
 /**
@@ -283,6 +256,10 @@ function bestOf(files) {
  * fallback over the image tree is for.
  */
 function resolvePackageImage(item, index) {
+  // Generated entries name their own artwork. This has to win over the
+  // sourcePath probe: a nested sub-item shares its parent's source file, so
+  // probing it would hand Super Barbarian the plain Barbarian's icon.
+  if (item.imagePath) return item.imagePath;
   if (item.sourcePath) {
     const p = join(COC_DATA, 'data', item.sourcePath);
     if (existsSync(p)) {
@@ -351,7 +328,7 @@ async function convert(source, targetDir, name, max, { trim = false } = {}) {
 }
 
 /** Registry name -> [{ lookup, path }]. */
-const registries = { coc: [], cocDetail: [], cocCapital: [], cocLeague: [], book: [], bookExtra: [], arena: [], logo: [], nav: [], resource: [], super: [] };
+const registries = { coc: [], cocDetail: [], cocCapital: [], cocLeague: [], book: [], bookExtra: [], arena: [], logo: [], nav: [], resource: [] };
 
 /** Guard against two packs contributing the same key to one registry. */
 function add(registry, lookup, path) {
@@ -409,18 +386,6 @@ for (const icon of RESOURCE_ICONS) {
   const name = slugify(icon.name);
   const ok = await convert(source, join(IMG, 'resource'), name, 96, { trim: true });
   if (ok) add('resource', icon.name, `./img/resource/${name}.webp`);
-}
-
-// Super Troop artwork, which the Clash Book catalog has no entries for.
-for (const icon of SUPER_TROOP_ICONS) {
-  const source = join(COC_DATA, icon.file);
-  if (!existsSync(source)) {
-    failures.push(`missing super troop icon: ${icon.file}`);
-    continue;
-  }
-  const key = slugify(icon.name);
-  const ok = await convert(source, join(IMG, 'super'), key, 256, { trim: true });
-  if (ok) add('super', icon.name, `./img/super/${key}.webp`);
 }
 
 // Clan Capital districts, capital leagues and clan labels.
@@ -520,8 +485,15 @@ if (!existsSync(warLeagueDir)) {
 // Fill Clash Book gaps: the fan-kit pack covers 205 of the 265 catalog items,
 // and the design has shown a text fallback for the other 60 since the
 // reference app. The upstream dataset has artwork for all of them.
+//
+// catalog-extra.json is read alongside it so the generated entries -- Super
+// Troops, Ruin Knight and the whole Clan Capital -- get tiles the same way.
+// The fan kit has artwork for none of them, so every one takes this path.
 if (pkgIndex.count > 0 && existsSync(CATALOG)) {
-  const catalog = JSON.parse(readFileSync(CATALOG, 'utf8'));
+  const catalog = [
+    ...JSON.parse(readFileSync(CATALOG, 'utf8')),
+    ...(existsSync(CATALOG_EXTRA) ? JSON.parse(readFileSync(CATALOG_EXTRA, 'utf8')) : []),
+  ];
   const haveFanKit = new Set(
     existsSync(join(PACKS, 'coc/clash-book'))
       ? readdirSync(join(PACKS, 'coc/clash-book')).map((f) => basename(f, extname(f)))
@@ -530,6 +502,9 @@ if (pkgIndex.count > 0 && existsSync(CATALOG)) {
   for (const item of catalog) {
     const key = item.id.replace(/\//g, '_');
     if (haveFanKit.has(key)) continue;
+    // Entries the dataset does not cover at all declare it, so the tile
+    // falling back to a name is the intended result rather than a failure.
+    if (item.noArtwork) continue;
     const rel = resolvePackageImage(item, pkgIndex);
     if (!rel || !existsSync(join(COC_DATA, rel))) {
       failures.push(`no artwork anywhere for ${item.id}`);

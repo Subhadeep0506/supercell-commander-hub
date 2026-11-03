@@ -78,7 +78,15 @@ export function VillageGrid({
                   maxed={entry.maxed}
                   progress={entry.maxLevel > 0 ? entry.level / entry.maxLevel : 0}
                   onPress={() => onOpenItem(entry.item.id, entry.level)}
-                  accessibilityLabel={`View ${entry.item.name}`}
+                  // A crafted defense has no single level, so its three module
+                  // levels are named here rather than hidden behind one number.
+                  accessibilityLabel={
+                    entry.owned?.modules?.length
+                      ? `View ${entry.item.name} · ${entry.owned.modules
+                          .map((m) => `${m.name} ${m.level}`)
+                          .join(' · ')}`
+                      : `View ${entry.item.name}`
+                  }
                 />
               ))}
             </View>
@@ -136,7 +144,9 @@ const build = (t: Theme) =>
     sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     sectionTitle: { fontFamily: t.fonts.display, fontSize: 13, color: t.foreground },
     sectionPct: { fontFamily: t.fonts.display, fontSize: 12, color: t.primary },
-    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
+    // 6px read as one solid block of artwork. 10 still fits five 62px tiles
+    // across a 372px panel, so no column is lost to the extra breathing room.
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 },
 
     walls: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10 },
     wallsText: { flex: 1, minWidth: 0 },

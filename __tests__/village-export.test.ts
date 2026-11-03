@@ -59,6 +59,47 @@ describe('parseVillageExport', () => {
     expect(v.builder.owned.some((o) => o.name === 'Raged Barbarian')).toBe(true);
   });
 
+  // Crafted defenses are not buildings in the export: the Crafting Station
+  // carries them in a `types` array, each upgrading three modules on its own
+  // track. The parser used to walk straight past the whole subtree, so none of
+  // the twelve ever reached the Builder Plan.
+  describe('crafted defenses', () => {
+    const crafted = v.home.owned.filter((o) => o.category === 'crafted-defense');
+
+    it('reads all three out of the Crafting Station', () => {
+      expect(crafted.map((o) => o.catalogId).sort()).toEqual([
+        'home/cake-a-pult',
+        'home/hero-hunter',
+        'home/hot-candle',
+      ]);
+    });
+
+    it('resolves module ids onto the right track', () => {
+      const hunter = crafted.find((o) => o.catalogId === 'home/hero-hunter')!;
+      expect(hunter.modules).toEqual([
+        { name: 'Hitpoints', level: 2 },
+        { name: 'Damage', level: 1 },
+        { name: 'Poison Level', level: 1 },
+      ]);
+    });
+
+    it('reports the weakest module as the building level', () => {
+      const hunter = crafted.find((o) => o.catalogId === 'home/hero-hunter')!;
+      expect(hunter.level).toBe(1);
+      expect(crafted.every((o) => o.count === 1)).toBe(true);
+    });
+
+    it('leaves the Crafting Station itself out of the owned list', () => {
+      expect(v.home.owned.some((o) => o.catalogId === 'home/crafting-station')).toBe(false);
+    });
+  });
+
+  it("recognises B.O.T.O's Shack, which the dataset has no entry for", () => {
+    expect(v.builder.owned.find((o) => o.catalogId === 'builder/botos-shack')?.name).toBe(
+      "B.O.T.O's Shack",
+    );
+  });
+
   it('rejects junk with a readable message', () => {
     expect(() => parseVillageExport('not json')).toThrow(/valid JSON/);
     expect(() => parseVillageExport('{"a":1}')).toThrow(/village export/);

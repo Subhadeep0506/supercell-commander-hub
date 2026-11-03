@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { COC_ART, bookArt, resourceArt, townHallArt } from '@/assets/art';
 import { StatIcon, STAT_ICON_FOR, type StatIconName } from '@/components/ui/StatIcon';
@@ -11,6 +11,7 @@ import {
   itemArt,
   levelSections,
   playerLevelIndex,
+  relatedItems,
   type BookItem,
   type BookRecord,
 } from '@/lib/clash-book';
@@ -192,12 +193,81 @@ export function BookItemModal({
 }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  const levels = bookLevels(item);
+  const [stack, setStack] = useState<Layer[]>(() => [layerFor(item, initialLevel)]);
 
-  const [index, setIndex] = useState(
-    initialLevel === undefined ? Math.max(0, levels.length - 1) : playerLevelIndex(item, initialLevel),
+  const top = stack[stack.length - 1]!;
+  const topRow = bookLevels(top.item)[top.index];
+
+  return (
+    <Sheet
+      open={open}
+      onClose={onClose}
+      // Only the top card is interactive, so a back arrow appears exactly when
+      // there is something underneath it.
+      onBack={stack.length > 1 ? () => setStack((st) => st.slice(0, -1)) : undefined}
+      title={
+        <Text style={s.title} numberOfLines={2}>
+          {top.item.name}
+          {topRow ? <Text style={s.titleLevel}> · Level {String(topRow['level'])}</Text> : null}
+        </Text>
+      }
+    >
+      {stack.map((layer, i) => (
+        <BookItemCard
+          key={`${layer.item.id}-${i}`}
+          layer={layer}
+          hidden={i !== stack.length - 1}
+          onIndex={(index) =>
+            setStack((st) => st.map((l, n) => (n === st.length - 1 ? { ...l, index } : l)))
+          }
+          onOpen={(next) => setStack((st) => [...st, layerFor(next)])}
+        />
+      ))}
+    </Sheet>
   );
+}
+
+/**
+ * One entry in the modal's own stack.
+ *
+ * The selected level lives here rather than inside the card so that popping
+ * back restores the level the player was looking at, and so the sheet header
+ * can show it. Same reasoning as the clan DetailSheet's layer stack.
+ */
+type Layer = { item: BookItem; initialLevel?: number; index: number };
+
+function layerFor(item: BookItem, initialLevel?: number): Layer {
+  const levels = bookLevels(item);
+  return {
+    item,
+    initialLevel,
+    index:
+      initialLevel === undefined
+        ? Math.max(0, levels.length - 1)
+        : playerLevelIndex(item, initialLevel),
+  };
+}
+
+function BookItemCard({
+  layer,
+  hidden,
+  onIndex,
+  onOpen,
+}: {
+  layer: Layer;
+  hidden: boolean;
+  onIndex: (index: number) => void;
+  onOpen: (item: BookItem) => void;
+}) {
+  const theme = useTheme();
+  const s = useMemo(() => build(theme), [theme]);
+  const { item, initialLevel, index } = layer;
+  const levels = bookLevels(item);
+  const setIndex = (next: number | ((i: number) => number)) =>
+    onIndex(typeof next === 'function' ? next(index) : next);
+
   const [expanded, setExpanded] = useState(false);
+  const related = relatedItems(item);
 
   const row = levels[index];
   const sections = row ? levelSections(row) : undefined;
@@ -267,6 +337,12 @@ export function BookItemModal({
           'sourcePath',
           'availablePerTownHall',
           'availablePerBuilderHall',
+          // Rendered by their own sections, and far too large to flatten into
+          // a label/value list.
+          'modules',
+          'baseItemId',
+          'imagePath',
+          'noArtwork',
           ...DETAIL_KEYS,
         ].includes(key),
     ),
@@ -277,15 +353,14 @@ export function BookItemModal({
     item.base === 'builder' ? 'Builder Base' : item.base === 'magic-items' ? 'Magic Items' : 'Home Village';
 
   return (
-    <Sheet
-      open={open}
-      onClose={onClose}
-      title={
-        <Text style={s.title} numberOfLines={2}>
-          {item.name}
-          {row ? <Text style={s.titleLevel}> · Level {String(row['level'])}</Text> : null}
-        </Text>
-      }
+    <View
+      style={[s.layer, hidden && s.hiddenLayer]}
+      pointerEvents={hidden ? 'none' : 'auto'}
+      // `display: none` drops a layer out of the browser's accessibility tree
+      // but not reliably out of Android's, so it is hidden explicitly too.
+      aria-hidden={hidden}
+      accessibilityElementsHidden={hidden}
+      importantForAccessibility={hidden ? 'no-hide-descendants' : 'auto'}
     >
       <ScrollView contentContainerStyle={s.scroll}>
         <View style={s.intro}>
@@ -317,10 +392,43 @@ export function BookItemModal({
           </View>
         </View>
 
-        {initialLevel !== undefined ? (
+        {related.length > 0 ? (
+          <View style={s.related}>
+            <Text style={s.relatedLabel}>Related</Text>
+            <View style={s.relatedRow}>
+              {related.map((entry) => {
+                const art = itemArt(entry);
+                return (
+                  <Pressable
+                    key={entry.id}
+                    accessibilityRole="button"
+                    // Deliberately not "View X": the book grid behind the
+                    // sheet labels its own tiles that way, and the two would
+                    // be indistinguishable to both a screen reader and the
+                    // click-path checks.
+                    accessibilityLabel={`Open related ${entry.name}`}
+                    style={s.relatedTile}
+                    onPress={() => onOpen(entry)}
+                  >
+                    {art ? (
+                      <Image source={art.source} resizeMode="contain" style={s.relatedArt} />
+                    ) : null}
+                    <Text style={s.relatedName} numberOfLines={2}>
+                      {entry.name}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
+
+        {/* A crafted defense has no level of its own -- its three module
+            tracks below carry the levels -- so neither line applies to it. */}
+        {initialLevel !== undefined && !item.modules?.length ? (
           <Text style={s.playerLevel}>Your player level: {initialLevel}</Text>
         ) : null}
-        {!row && initialLevel !== undefined ? (
+        {!row && initialLevel !== undefined && !item.modules?.length ? (
           <Text style={s.missingLevel}>
             Level {initialLevel} is not included in this community reference. No estimated stats are
             shown.
@@ -366,6 +474,8 @@ export function BookItemModal({
           </View>
         ) : null}
 
+        {item.modules?.length ? <ModuleTracks modules={item.modules} /> : null}
+
         {nextSections ? (
           <Section title={`Next upgrade · Level ${String(nextRow?.['level'])}`}>
             <Fields values={mergeCostRows(nextSections.costs)} />
@@ -407,7 +517,60 @@ export function BookItemModal({
           level.
         </Text>
       </ScrollView>
-    </Sheet>
+    </View>
+  );
+}
+
+/**
+ * Crafted defenses have no single level: each upgrades three modules
+ * independently, so a Bomb Hive is "HP 4 · Damage 2 · Range 1" rather than
+ * "level 4". The catalog carries them as `modules` with no `levels` at all,
+ * which is why these twelve items showed a description and nothing else.
+ *
+ * One track per module, each with its own slider over its ten upgrades.
+ */
+function ModuleTracks({ modules }: { modules: NonNullable<BookItem['modules']> }) {
+  return (
+    <>
+      {modules.map((module) => (
+        <ModuleTrack key={module.name} module={module} />
+      ))}
+    </>
+  );
+}
+
+function ModuleTrack({ module }: { module: NonNullable<BookItem['modules']>[number] }) {
+  const theme = useTheme();
+  const s = useMemo(() => build(theme), [theme]);
+  const upgrades = module.upgrades ?? [];
+  const [index, setIndex] = useState(0);
+  const row = upgrades[index];
+  if (!row) return null;
+
+  // The module's own name is a better label for its stat than the raw key,
+  // which is just "stat" for every track.
+  const sections = levelSections(row);
+  const stats = sections.stats.map((f) =>
+    f.label === 'Stat' ? { ...f, label: module.controls || module.name } : f,
+  );
+
+  return (
+    <View style={s.section}>
+      <View style={s.moduleHeading}>
+        <Text style={s.sectionTitle}>{module.name}</Text>
+        <Text style={s.moduleLevel}>
+          Level {String(row['level'])} / {upgrades.length}
+        </Text>
+      </View>
+      <Slider
+        accessibilityLabel={`Select ${module.name} level`}
+        value={index}
+        max={Math.max(0, upgrades.length - 1)}
+        onChange={setIndex}
+      />
+      {stats.length > 0 ? <Fields values={stats} /> : null}
+      {sections.costs.length > 0 ? <Fields values={mergeCostRows(sections.costs)} /> : null}
+    </View>
   );
 }
 
@@ -424,9 +587,45 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 const build = (t: Theme) =>
   StyleSheet.create({
+    // A definite height, not flex:1 -- Yoga reads flexBasis:0 as a literal
+    // 0px against the sheet body, which collapses the card to nothing on
+    // Android while the browser renders it correctly.
+    layer: { width: '100%', height: '100%' },
+    hiddenLayer: { display: 'none' },
+
     scroll: { padding: 14 },
     title: { color: t.bookFrameText, fontFamily: t.fonts.display, fontSize: 16 },
     titleLevel: { color: t.cocHighlight },
+
+    related: { marginTop: 14 },
+    relatedLabel: {
+      fontFamily: t.fonts.display,
+      fontSize: 12,
+      color: t.mutedForeground,
+      marginBottom: 8,
+    },
+    relatedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    relatedTile: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      backgroundColor: t.muted,
+      borderWidth: 1,
+      borderColor: t.border,
+      borderRadius: 8,
+    },
+    relatedArt: { width: 28, height: 28 },
+    relatedName: {
+      fontFamily: t.fonts.display,
+      fontSize: 12,
+      color: t.foreground,
+      maxWidth: 140,
+    },
+
+    moduleHeading: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+    moduleLevel: { fontFamily: t.fonts.sans, fontSize: 12, color: t.mutedForeground },
 
     intro: { gap: 16 },
     stage: {

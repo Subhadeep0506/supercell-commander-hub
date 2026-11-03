@@ -1,4 +1,5 @@
 import catalog from '@/data/clash-book/catalog.json';
+import catalogExtra from '@/data/clash-book/catalog-extra.json';
 import { bookArt } from '@/assets/art';
 
 /**
@@ -15,9 +16,36 @@ export type BookItem = BookRecord & {
   description?: string;
   sourcePath: string;
   levels?: BookRecord[];
+  /** Set on a nested sub-item: the entry it is a variant of. */
+  baseItemId?: string;
+  /** Crafted defenses upgrade per module instead of having a single level. */
+  modules?: { name: string; controls?: string; upgrades: BookRecord[] }[];
 };
 
-export const BOOK_ITEMS = catalog as BookItem[];
+/**
+ * `catalog.json` is copied verbatim from the reference app, so the entries it
+ * never exposed live in a sibling file (scripts/build-catalog-extra.mjs)
+ * rather than being appended to it -- the next sync would discard them.
+ */
+export const BOOK_ITEMS = [...(catalog as BookItem[]), ...(catalogExtra as BookItem[])];
+
+/** Sub-item <-> base item, resolved both ways off `baseItemId`. */
+const RELATED = new Map<string, BookItem[]>();
+for (const item of BOOK_ITEMS) {
+  if (!item.baseItemId) continue;
+  const base = BOOK_ITEMS.find((i) => i.id === item.baseItemId);
+  if (!base) continue;
+  RELATED.set(item.id, [...(RELATED.get(item.id) ?? []), base]);
+  RELATED.set(base.id, [...(RELATED.get(base.id) ?? []), item]);
+}
+
+/**
+ * Entries worth linking from this one's card: a base troop offers its Super
+ * Troop, and the Super Troop offers the base troop back.
+ */
+export function relatedItems(item: BookItem): BookItem[] {
+  return RELATED.get(item.id) ?? [];
+}
 
 export function itemArt(item: BookItem) {
   return bookArt(item.id);
@@ -47,6 +75,8 @@ export function bookCategory(category: string) {
       'other',
       'town-hall',
       'builder-hall',
+      'capital-hall',
+      'district-hall',
       'wall',
       'research',
     ].includes(category)
@@ -58,6 +88,7 @@ export function bookCategory(category: string) {
       {
         trap: 'Traps',
         troop: 'Troops',
+        'super-troop': 'Super Troops',
         spell: 'Spells',
         hero: 'Heroes',
         pet: 'Pets',
@@ -73,7 +104,9 @@ export function bookCategory(category: string) {
 export function filterBook(village: string, category: string, query: string) {
   return BOOK_ITEMS.filter(
     (item) =>
-      (item.base === village || item.base === 'magic-items') &&
+      // Magic items are shown under both villages, as in the reference app --
+      // but the Clan Capital has none, so they stay out of that tab.
+      (item.base === village || (village !== 'capital' && item.base === 'magic-items')) &&
       (category === 'All' || bookCategory(item.category) === category) &&
       item.name.toLowerCase().includes(query.trim().toLowerCase()),
   );

@@ -19,6 +19,10 @@ const GROUPS = [
   { name: 'Heroes', key: 'heroes', icon: 'Barbarian King' },
   { name: 'Pets', key: 'troops', icon: 'pets', category: 'pet' },
   { name: 'Troops', key: 'troops', icon: 'Barbarian', category: 'troop' },
+  // Super Troops come back in `troops` alongside the rest, and used to pad
+  // the Troops row with 17 extra tiles. They are a catalog category of their
+  // own now, so the same category filter separates them.
+  { name: 'Super Troops', key: 'troops', icon: 'Super Barbarian', category: 'super-troop' },
   { name: 'Spells', key: 'spells', icon: 'Spell Factory' },
   { name: 'Siege Machines', key: 'troops', icon: 'Wall Wrecker', category: 'siege-machine' },
   { name: 'Hero Equipment', key: 'heroEquipment', icon: 'Giant Gauntlet' },

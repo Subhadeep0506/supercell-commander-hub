@@ -63,105 +63,105 @@
   ],
   "troops": [
     {
-      "name": "Super Barbarian",
-      "level": 1,
-      "maxLevel": 5,
-      "village": "home"
-    },
-    {
       "name": "Super Archer",
-      "level": 2,
-      "maxLevel": 5,
-      "village": "home"
-    },
-    {
-      "name": "Super Giant",
-      "level": 3,
-      "maxLevel": 5,
-      "village": "home"
-    },
-    {
-      "name": "Sneaky Goblin",
-      "level": 4,
-      "maxLevel": 5,
-      "village": "home"
-    },
-    {
-      "name": "Super Wall Breaker",
-      "level": 5,
-      "maxLevel": 5,
-      "village": "home"
-    },
-    {
-      "name": "Rocket Balloon",
-      "level": 1,
-      "maxLevel": 5,
-      "village": "home"
-    },
-    {
-      "name": "Super Wizard",
-      "level": 2,
-      "maxLevel": 5,
-      "village": "home"
-    },
-    {
-      "name": "Super Dragon",
-      "level": 3,
-      "maxLevel": 5,
+      "level": 9,
+      "maxLevel": 14,
       "village": "home"
     },
     {
       "name": "Inferno Dragon",
-      "level": 4,
-      "maxLevel": 5,
+      "level": 7,
+      "maxLevel": 12,
       "village": "home"
     },
     {
-      "name": "Super Minion",
-      "level": 5,
-      "maxLevel": 5,
+      "name": "Rocket Balloon",
+      "level": 9,
+      "maxLevel": 12,
       "village": "home"
     },
     {
-      "name": "Super Valkyrie",
-      "level": 1,
-      "maxLevel": 5,
-      "village": "home"
-    },
-    {
-      "name": "Super Witch",
-      "level": 2,
-      "maxLevel": 5,
-      "village": "home"
-    },
-    {
-      "name": "Ice Hound",
-      "level": 3,
-      "maxLevel": 5,
+      "name": "Super Barbarian",
+      "level": 9,
+      "maxLevel": 12,
       "village": "home"
     },
     {
       "name": "Super Bowler",
-      "level": 4,
-      "maxLevel": 5,
+      "level": 5,
+      "maxLevel": 10,
       "village": "home"
     },
     {
-      "name": "Super Miner",
-      "level": 5,
-      "maxLevel": 5,
+      "name": "Super Dragon",
+      "level": 4,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Super Giant",
+      "level": 10,
+      "maxLevel": 14,
+      "village": "home"
+    },
+    {
+      "name": "Sneaky Goblin",
+      "level": 8,
+      "maxLevel": 9,
       "village": "home"
     },
     {
       "name": "Super Hog Rider",
-      "level": 1,
-      "maxLevel": 5,
+      "level": 11,
+      "maxLevel": 15,
+      "village": "home"
+    },
+    {
+      "name": "Ice Hound",
+      "level": 2,
+      "maxLevel": 8,
+      "village": "home"
+    },
+    {
+      "name": "Super Miner",
+      "level": 8,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Super Minion",
+      "level": 9,
+      "maxLevel": 14,
+      "village": "home"
+    },
+    {
+      "name": "Super Valkyrie",
+      "level": 8,
+      "maxLevel": 11,
+      "village": "home"
+    },
+    {
+      "name": "Super Wall Breaker",
+      "level": 8,
+      "maxLevel": 14,
+      "village": "home"
+    },
+    {
+      "name": "Super Witch",
+      "level": 6,
+      "maxLevel": 8,
+      "village": "home"
+    },
+    {
+      "name": "Super Wizard",
+      "level": 10,
+      "maxLevel": 14,
       "village": "home"
     },
     {
       "name": "Super Yeti",
-      "level": 2,
-      "maxLevel": 5,
+      "level": 4,
+      "maxLevel": 7,
       "village": "home"
     },
     {

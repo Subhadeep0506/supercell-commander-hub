@@ -24,6 +24,12 @@ export function useLeagueWars(group: ApiRecord | undefined) {
     queries: tags.map((tag) => ({
       ...gameQuery({ game: 'coc', resource: 'leagueWar' as const, tag }),
       select: parseWar,
+      // A war being fought moves; a finished or unstarted one cannot. Polling
+      // only the live ones keeps a round at ~4 requests a minute, not 28.
+      refetchInterval: (q: { state: { data?: GameResult } }) =>
+        parseWar(q.state.data ?? { ok: false, status: 0, error: '' })?.['state'] === 'inWar'
+          ? 30000
+          : false,
     })),
   });
 

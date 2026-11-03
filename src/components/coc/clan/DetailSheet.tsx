@@ -11,8 +11,7 @@ import { EmptyState } from './ClanBits';
 import { ClanOverview } from './ClanOverview';
 import { ClanCapitalRaids } from './ClanCapitalRaids';
 import { ClanWarLog } from './ClanWarLog';
-import { LeagueRound } from '../war/LeagueRound';
-import { WarBoard } from '../war/WarBoard';
+import { WarDetail } from '../war/WarDetail';
 import { useDetailSheet, type SheetEntry } from './DetailSheetProvider';
 
 /**
@@ -48,8 +47,6 @@ export function DetailSheet({
         <Layer key={`${entry.kind}-${entry.tag}-${i}`} hidden={i !== stack.length - 1}>
           {entry.kind === 'player' ? (
             <PlayerEntry tag={entry.tag} />
-          ) : entry.kind === 'cwlRound' ? (
-            <LeagueRound tag={entry.tag} round={entry.round} />
           ) : entry.kind === 'cwlWar' ? (
             <LeagueWarEntry tag={entry.tag} clanTag={entry.clanTag} />
           ) : (
@@ -106,9 +103,7 @@ function SheetTitle({ entry }: { entry: SheetEntry }) {
       ? `Capital raids · ${name}`
       : entry.kind === 'warLog'
         ? `War history · ${name}`
-        : entry.kind === 'cwlRound'
-          ? `Round ${entry.round + 1} · War League`
-          : entry.kind === 'cwlWar'
+        : entry.kind === 'cwlWar'
             ? record_
               ? `${text(record(record_['clan'])['name'])} vs ${text(record(record_['opponent'])['name'])}`
               : 'War League battle'
@@ -144,7 +139,7 @@ function LeagueWarEntry({ tag, clanTag }: { tag: string; clanTag?: string }) {
 
   return (
     <>
-      <WarBoard war={war} clanTag={clanTag} />
+      <WarDetail war={war} clanTag={clanTag} />
       {result ? <Source result={result} /> : null}
     </>
   );

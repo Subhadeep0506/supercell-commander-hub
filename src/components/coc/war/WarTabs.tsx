@@ -8,7 +8,7 @@ import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Source } from '../CocBits';
 import { EmptyState } from '../clan/ClanBits';
 import { LeagueSeason } from './LeagueSeason';
-import { WarBoard } from './WarBoard';
+import { WarDetail } from './WarDetail';
 
 type WarTab = 'war' | 'league';
 
@@ -59,7 +59,7 @@ export function WarTabs({ tag, warResult }: { tag: string; warResult?: GameResul
       {tab === 'war' ? (
         inWar ? (
           <View>
-            <WarBoard war={war!} clanTag={tag} />
+            <WarDetail war={war!} clanTag={tag} />
             {warResult ? <Source result={warResult} /> : null}
           </View>
         ) : (

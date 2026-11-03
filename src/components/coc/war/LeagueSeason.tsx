@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { warLeagueArt } from '@/assets/capital';
-import { rows, text, type ApiRecord } from '@/api/game-api';
+import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import {
   ROUND_LABELS,
   averageTh,
   buildRounds,
   currentRound,
   thRange,
+  warSides,
   type SeasonRound,
 } from '@/lib/cwl';
 import { useLeagueWars } from '@/hooks/use-league-wars';
@@ -16,8 +17,9 @@ import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { ClanBadge } from '../clan/ClanBits';
 import { useDetailSheet } from '../clan/DetailSheetProvider';
+import { navigate } from '@/navigation/navigationRef';
 import { LeagueStandings } from './LeagueStandings';
-import { Hall, ThBar, ThLegend } from './WarBits';
+import { Hall, Scoreboard, ThBar, ThLegend } from './WarBits';
 
 /**
  * A Clan War League season: where the clan is in it, the seven rounds, the
@@ -38,11 +40,17 @@ export function LeagueSeason({
 }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  const { pushView } = useDetailSheet();
 
   const { warsByTag, loading, loaded, expected } = useLeagueWars(group);
   const rounds = buildRounds(group, warsByTag);
   const active = currentRound(rounds);
+
+  const mineIn = (war: ApiRecord) => {
+    const a = text(record(war['clan'])['tag']).toUpperCase();
+    const b = text(record(war['opponent'])['tag']).toUpperCase();
+    return a === tag.toUpperCase() || b === tag.toUpperCase();
+  };
+  const liveWar = (rounds[active]?.wars ?? []).find(mineIn);
 
   const clans = rows(group['clans']);
   const mine = clans.find((c) => text(c['tag']).toUpperCase() === tag.toUpperCase());
@@ -94,6 +102,15 @@ export function LeagueSeason({
         </View>
       </Panel>
 
+      {liveWar ? (
+        <Scoreboard
+          war={liveWar}
+          clanTag={tag}
+          label={`Round ${active + 1} · ${ROUND_LABELS[rounds[active]?.status ?? 'upcoming']}`}
+          onPress={() => navigate('CocWarRound', { tag, round: active })}
+        />
+      ) : null}
+
       <LeagueStandings
         group={group}
         warsByTag={warsByTag}
@@ -111,9 +128,11 @@ export function LeagueSeason({
             key={round.index}
             round={round}
             active={round.index === active}
+            war={round.wars.find(mineIn)}
+            clanTag={tag}
             onPress={
               round.warTags.length
-                ? () => pushView({ kind: 'cwlRound', tag, round: round.index })
+                ? () => navigate('CocWarRound', { tag, round: round.index })
                 : undefined
             }
           />
@@ -142,14 +161,19 @@ export function LeagueSeason({
 function RoundRow({
   round,
   active,
+  war,
+  clanTag,
   onPress,
 }: {
   round: SeasonRound;
   active: boolean;
+  war?: ApiRecord;
+  clanTag: string;
   onPress?: () => void;
 }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
+  const sides = war ? warSides(war, clanTag) : undefined;
   const body = (
     <>
       <View style={[s.roundNumber, active && s.roundNumberActive]}>
@@ -157,10 +181,18 @@ function RoundRow({
           {round.index + 1}
         </Text>
       </View>
+      {sides ? <ClanBadge clan={sides.them} size={26} level /> : null}
       <View style={s.roundText}>
-        <Text style={s.roundTitle}>Round {round.index + 1}</Text>
+        <Text style={s.roundTitle} numberOfLines={1}>
+          {sides ? text(sides.them['name']) : `Round ${round.index + 1}`}
+        </Text>
         <Text style={s.roundStatus}>{ROUND_LABELS[round.status]}</Text>
       </View>
+      {sides ? (
+        <Text style={s.roundScore}>
+          {text(sides.us['stars'] ?? 0)}-{text(sides.them['stars'] ?? 0)}
+        </Text>
+      ) : null}
       {onPress ? <Text style={s.chevron}>›</Text> : null}
     </>
   );
@@ -305,6 +337,7 @@ const build = (t: Theme) =>
     roundTitle: { fontFamily: t.fonts.display, fontSize: 14, color: t.foreground },
     roundStatus: { marginTop: 2, fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
     chevron: { fontSize: 15, color: t.mutedForeground },
+    roundScore: { fontFamily: t.fonts.display, fontSize: 14, color: t.foreground },
 
     clansHead: {
       flexDirection: 'row',

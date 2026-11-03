@@ -98,6 +98,35 @@ check('slider changes level', /Laboratory · Level (?!16)\d+/.test(afterSlider)
 await clickLabel('Close item details');
 check('sheet closes', !(await body()).includes('Laboratory ·'));
 
+// Super Troops: the catalog shipped all 17 nested inside their base troop and
+// nothing ever read them, so each one rendered as a text tile that reported no
+// stats when tapped. Both directions of the cross-link are asserted, plus the
+// back arrow, because the modal now keeps its own stack.
+await clickLabel('View Barbarian');
+check('base troop card opens', (await body()).includes('Barbarian · Level'));
+await clickLabel('Open related Super Barbarian');
+const superBody = await body();
+check('related tile pushes the super troop', /Super Barbarian · Level \d+/.test(superBody), superBody.match(/Super Barbarian · Level \d+/)?.[0] ?? '');
+check('super troop shows real stats', /Boost Cost|Dark Elixir/i.test(superBody));
+await clickLabel('Back');
+check('back pops to the base troop', /(?<!Super )Barbarian · Level/.test(await body()));
+await clickLabel('Close item details');
+
+// Crafted defenses carry `modules` instead of `levels`, so this modal used to
+// render a description and nothing else -- no slider, no stats.
+await clickLabel('View Bomb Hive');
+const craftedBody = await body();
+check('crafted defense lists its module tracks', ['Hitpoints', 'Damage', 'Range'].every((m) => craftedBody.includes(m)), craftedBody.slice(0, 90).replace(/\n/g, ' '));
+check('crafted defense shows upgrade costs', /Build Cost/i.test(craftedBody));
+await clickLabel('Close item details');
+
+// Clan Capital was absent from the book entirely.
+await clickLabel('Clan Capital');
+await settle(1200);
+const capitalBody = await body();
+check('clan capital tab renders', capitalBody.includes('Super Barbarian') && capitalBody.includes('Troops'), capitalBody.slice(0, 90).replace(/\n/g, ' '));
+check('capital tab excludes magic items', !/Magic Items/.test(capitalBody));
+
 // Passport round-trip: type a tag, save, reload, confirm it persisted.
 await page.goto(`${BASE}/passport`, { waitUntil: 'networkidle2' });
 await settle(1500);

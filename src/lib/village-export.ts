@@ -20,11 +20,29 @@ import { BOOK_ITEMS, type BookItem } from './clash-book';
 const ID_MAP = DATA_IDS as Record<string, string>;
 
 /**
+ * One crafted defense inside the Crafting Station, with its module levels.
+ *
+ * Crafted defenses are not buildings in their own right in the export: the
+ * Crafting Station (dataId 1000097) carries a `types` array, and each entry
+ * there is one crafted defense identified by a `103xxxxxx` id, upgrading
+ * three modules independently rather than having a single level.
+ */
+const TypeSchema = z
+  .object({
+    data: z.number(),
+    modules: z
+      .array(z.object({ data: z.number(), lvl: z.number().optional() }).passthrough())
+      .optional()
+      .default([]),
+  })
+  .passthrough();
+
+/**
  * Every array in the export is a list of `{data, lvl?, cnt?, timer?}`.
  *
- * Deliberately loose: Supercell adds fields (`gear_up`, `weapon`, `types`)
- * without warning, and an unknown field must not reject an otherwise good
- * paste. Only `data` is required.
+ * Deliberately loose: Supercell adds fields (`gear_up`, `weapon`) without
+ * warning, and an unknown field must not reject an otherwise good paste. Only
+ * `data` is required.
  */
 const RowSchema = z
   .object({
@@ -32,6 +50,7 @@ const RowSchema = z
     lvl: z.number().optional(),
     cnt: z.number().optional(),
     timer: z.number().optional(),
+    types: z.array(TypeSchema).optional(),
   })
   .passthrough();
 
@@ -70,6 +89,12 @@ export type Owned = {
   count: number;
   /** Per-level breakdown, so walls can report "Lv 13 x58 · Lv 12 x242". */
   byLevel: { level: number; count: number }[];
+  /**
+   * Set only for crafted defenses, which upgrade three modules independently
+   * instead of having one level. `level` carries the lowest of them, so the
+   * usual "what is holding this back" reading still works.
+   */
+  modules?: { name: string; level: number }[];
 };
 
 export type Upgrade = {
@@ -108,6 +133,50 @@ function lookup(dataId: number): BookItem | undefined {
 }
 
 type Row = z.infer<typeof RowSchema>;
+type CraftedType = z.infer<typeof TypeSchema>;
+
+/**
+ * Module ids follow from the crafted defense's own id.
+ *
+ * Each crafted defense owns three consecutive module ids starting at
+ * `102000000 + (typeId - 103000000) * 3`, in the same order the catalog lists
+ * them. Verified against a real export: Hero Hunter is 103000012, its modules
+ * are 102000036-38, and 102000036 is the Hitpoints track.
+ *
+ * The ids are matched rather than trusted positionally so that a module the
+ * formula does not account for is dropped instead of mislabelled.
+ */
+function moduleIndex(typeId: number, moduleId: number): number {
+  return moduleId - (102000000 + (typeId - 103000000) * 3);
+}
+
+/** Crafted defenses read out of the Crafting Station's `types` array. */
+function craftedFrom(types: CraftedType[]): Owned[] {
+  const out: Owned[] = [];
+  for (const type of types) {
+    const item = lookup(type.data);
+    if (!item) continue;
+    const tracks = (item.modules ?? []) as { name: string }[];
+    const modules = type.modules
+      .map((m) => {
+        const i = moduleIndex(type.data, m.data);
+        const track = tracks[i];
+        return track ? { name: track.name, level: m.lvl ?? 1 } : undefined;
+      })
+      .filter((m): m is { name: string; level: number } => m !== undefined);
+    out.push({
+      catalogId: item.id,
+      name: item.name,
+      category: item.category,
+      // The weakest module is what actually limits the building.
+      level: modules.length ? Math.min(...modules.map((m) => m.level)) : 1,
+      count: 1,
+      byLevel: [],
+      modules,
+    });
+  }
+  return out;
+}
 
 /**
  * Collapses the rows of one village into owned items and in-progress upgrades.
@@ -123,9 +192,17 @@ function collapse(rows: Row[], exportedAt: number) {
   const inProgress: Upgrade[] = [];
 
   for (const row of rows) {
+    // The Crafting Station holds the crafted defenses rather than being an
+    // upgradeable building itself, so its subtree is read and the row that
+    // carried it contributes nothing of its own.
+    if (row.types?.length) {
+      for (const crafted of craftedFrom(row.types)) owned.set(crafted.catalogId, crafted);
+      continue;
+    }
+
     const item = lookup(row.data);
-    // Unmapped ids are skipped rather than guessed: magic items never appear
-    // here, and the newest buildings have no dataId upstream yet.
+    // Unmapped ids are skipped rather than guessed. Magic items never appear
+    // here, and a handful of items have no dataId upstream at all.
     if (!item) continue;
     const level = row.lvl ?? 1;
 

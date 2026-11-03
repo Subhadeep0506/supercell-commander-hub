@@ -445,7 +445,7 @@ export function ownedOf(side: VillageSide, catalogId: string): Owned | undefined
 /** Items for one "Your village" section, in the order the game lists them. */
 export function sectionItems(side: VillageSide, categories: readonly string[]) {
   const gates = gatesFor(side);
-  return reachable(side, gates)
+  const rows = reachable(side, gates)
     .filter((item) => categories.includes(item.category))
     .map((item) => {
       const owned = ownedOf(side, item.id);
@@ -459,8 +459,36 @@ export function sectionItems(side: VillageSide, categories: readonly string[]) {
         maxCount: maxCountAt(item, side.hallLevel, side.base),
         maxed: (owned?.level ?? 0) >= maxLevel && maxLevel > 0,
       };
-    })
-    .sort((a, b) => b.count - a.count || a.item.name.localeCompare(b.item.name));
+    });
+
+  // Anything the player owns that `reachable` could not account for is
+  // appended here. It gates on a level table, which two kinds of item do not
+  // have: crafted defenses upgrade three modules independently instead, and
+  // B.O.T.O's Shack has no entry in the dataset at all. Both were parsed and
+  // then silently vanished from the grid, which is the failure the stub
+  // entry exists to prevent.
+  //
+  // They stay out of the completion percentages either way -- only three of
+  // the twelve crafted defenses can be crafted at a time, so counting the
+  // other nine as "not maxed" would be wrong, and a stub has nothing to max.
+  const shown = new Set(rows.map((r) => r.item.id));
+  for (const owned of side.owned) {
+    if (shown.has(owned.catalogId) || !categories.includes(owned.category)) continue;
+    const item = BOOK_ITEMS.find((i) => i.id === owned.catalogId);
+    if (!item) continue;
+    const maxLevel = Math.max(0, ...(item.modules ?? []).map((m) => m.upgrades?.length ?? 0));
+    rows.push({
+      item,
+      owned,
+      level: owned.level,
+      count: owned.count,
+      maxLevel,
+      maxCount: owned.count,
+      maxed: maxLevel > 0 && (owned.modules ?? []).every((m) => m.level >= maxLevel),
+    });
+  }
+
+  return rows.sort((a, b) => b.count - a.count || a.item.name.localeCompare(b.item.name));
 }
 
 export type { Upgrade };

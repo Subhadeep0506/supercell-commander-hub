@@ -11,6 +11,7 @@ export type RootStackParamList = {
   Passport: undefined;
   CocHome: { tag?: string } | undefined;
   CocWar: { tag?: string } | undefined;
+  CocWarRound: { tag?: string; round?: number } | undefined;
   CocClan: { tag?: string } | undefined;
   CocLeaderboard: undefined;
   CocBuilder: undefined;
@@ -31,6 +32,7 @@ export const ROUTE_PATHS: Record<RouteName, string> = {
   CocLeaderboard: 'coc/leaderboard',
   CocBuilder: 'coc/builder',
   CocBook: 'coc/book',
+  CocWarRound: 'coc/war/round',
   CocWar: 'coc/war',
   CocClan: 'coc/clan',
   CocHome: 'coc',

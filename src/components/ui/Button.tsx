@@ -73,7 +73,9 @@ export function Button({
       {...rest}
     >
       {typeof children === 'string' || typeof children === 'number' ? (
-        <Text style={[s.text, s[`text_${variant}`], s[`text_${size}`], textStyle]}>{children}</Text>
+        <Text style={[s.text, s[`text_${variant}`], s[`textSize_${size}`], textStyle]}>
+          {children}
+        </Text>
       ) : (
         <View style={s.row}>{children}</View>
       )}
@@ -112,6 +114,8 @@ const build = (t: Theme) =>
     variant_link: { backgroundColor: 'transparent', paddingHorizontal: 0, minHeight: 0 },
 
     text: { fontFamily: t.fonts.display, fontSize: 14, textAlign: 'center' },
+
+    // Colour, by variant.
     text_default: { color: t.primaryForeground },
     text_secondary: { color: t.secondaryForeground },
     text_outline: { color: t.foreground },
@@ -119,7 +123,13 @@ const build = (t: Theme) =>
     text_destructive: { color: t.destructiveForeground },
     text_link: { color: t.primary, textDecorationLine: 'underline' },
 
-    text_sm: { fontSize: 12 },
-    text_icon: { fontSize: 18 },
-    text_auto: {},
+    // Size, under its own prefix. `default` is a member of both ButtonVariant
+    // and ButtonSize, so a shared `text_` namespace made the size lookup
+    // resolve to the *variant* entry: every non-default variant at the default
+    // size had its colour overwritten with primaryForeground. An outline
+    // button then rendered near-black text on a near-black background.
+    textSize_default: {},
+    textSize_sm: { fontSize: 12 },
+    textSize_icon: { fontSize: 18 },
+    textSize_auto: {},
   });

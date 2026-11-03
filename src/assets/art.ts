@@ -6,7 +6,6 @@ import { logoImages } from './registry.logo';
 import { navImages } from './registry.nav';
 import { bookExtraImages } from './registry.bookExtra';
 import { resourceImages } from './registry.resource';
-import { superImages } from './registry.super';
 import artTitles from '@/data/clash-book/art-titles.json';
 
 /**
@@ -137,45 +136,6 @@ export function bookArt(id: string): { source: ImageSourcePropType; title: strin
   // the rest fall back to clash-of-clans-data, which has the other 60.
   const source = bookImages[key] ?? bookExtraImages[key];
   return source ? { source, title: TITLES[id] ?? '' } : undefined;
-}
-
-/**
- * Home Village Super Troops, mapped to the troop they are a boost of.
- *
- * The player API returns these once unlocked, but the Clash Book catalog has
- * no entries for them -- they are temporary boosts, not separate units -- so
- * every one of them rendered as a text placeholder in the army grid.
- *
- * Seven have their own artwork (see SUPER_TROOP_ICONS in the asset pipeline).
- * The rest show their base troop's artwork, which is the same character; the
- * tile's own label still reads "Super Archer", so nothing is misrepresented.
- */
-const SUPER_TROOP_BASE: Record<string, string> = {
-  'Super Barbarian': 'home/barbarian',
-  'Super Archer': 'home/archer',
-  'Super Giant': 'home/giant',
-  'Sneaky Goblin': 'home/goblin',
-  'Super Wall Breaker': 'home/wall-breaker',
-  'Rocket Balloon': 'home/balloon',
-  'Super Wizard': 'home/wizard',
-  'Super Dragon': 'home/dragon',
-  'Inferno Dragon': 'home/baby-dragon',
-  'Super Minion': 'home/minion',
-  'Super Valkyrie': 'home/valkyrie',
-  'Super Witch': 'home/witch',
-  'Ice Hound': 'home/lava-hound',
-  'Super Bowler': 'home/bowler',
-  'Super Miner': 'home/miner',
-  'Super Hog Rider': 'home/hog-rider',
-  'Super Yeti': 'home/yeti',
-};
-
-/** Artwork for a Super Troop: its own icon, else its base troop's. */
-export function superTroopArt(name: string): ImageSourcePropType | undefined {
-  const own = superImages[name];
-  if (own) return own;
-  const base = SUPER_TROOP_BASE[name];
-  return base ? bookArt(base)?.source : undefined;
 }
 
 /**

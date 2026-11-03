@@ -7,6 +7,7 @@
     "web:build": "bun run keys && vite build",
     "web:preview": "vite preview",
     "keys": "node scripts/make-keys.mjs",
+    "build:catalog": "node scripts/build-catalog-extra.mjs",
     "build:assets": "node scripts/build-assets.mjs",
     "build:data-ids": "node scripts/build-data-ids.mjs",
     "build:fixtures": "node scripts/make-fixtures.mjs",

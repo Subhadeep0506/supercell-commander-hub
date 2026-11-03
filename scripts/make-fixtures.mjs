@@ -16,7 +16,10 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(root, 'scripts/fixtures');
-const catalog = JSON.parse(readFileSync(resolve(root, 'src/data/clash-book/catalog.json'), 'utf8'));
+const catalog = [
+  ...JSON.parse(readFileSync(resolve(root, 'src/data/clash-book/catalog.json'), 'utf8')),
+  ...JSON.parse(readFileSync(resolve(root, 'src/data/clash-book/catalog-extra.json'), 'utf8')),
+];
 
 const TAG = '#LJ9V8LCYQ';
 const TH = 13;
@@ -64,17 +67,28 @@ const heroes = [
   ...pick('hero', 'home', 4).map((h, i) => unit(h, [43, 41, 31, 40][i] ?? 30, 75)),
   ...pick('hero', 'builder', 2).map((h, i) => unit(h, [14, 16][i] ?? 10, 35, 'builderBase')),
 ];
-// Super Troops: returned by the API but absent from the Clash Book catalog,
-// which is exactly the case that used to render as text placeholders.
-const SUPER_TROOPS = [
-  'Super Barbarian', 'Super Archer', 'Super Giant', 'Sneaky Goblin',
-  'Super Wall Breaker', 'Rocket Balloon', 'Super Wizard', 'Super Dragon',
-  'Inferno Dragon', 'Super Minion', 'Super Valkyrie', 'Super Witch',
-  'Ice Hound', 'Super Bowler', 'Super Miner', 'Super Hog Rider', 'Super Yeti',
-];
+/**
+ * Super Troops, taken from the catalog like everything else.
+ *
+ * Their levels continue the base troop's numbering -- Super Barbarian is
+ * levels 8-12, not 1-5 -- which is what the live API reports and what the
+ * book's level table expects. The previous hardcoded 1..5 matched neither and
+ * made every Super Troop look like an unknown level.
+ */
+const superTroops = catalog
+  .filter((i) => i.category === 'super-troop')
+  .map((i) => {
+    const levels = i.levels.map((l) => l.level);
+    return {
+      name: i.name,
+      level: levels[Math.min(1, levels.length - 1)],
+      maxLevel: levels[levels.length - 1],
+      village: 'home',
+    };
+  });
 
 const troops = [
-  ...SUPER_TROOPS.map((name, i) => ({ name, level: 1 + (i % 5), maxLevel: 5, village: 'home' })),
+  ...superTroops,
   ...pick('troop', 'home', 14).map((t, i) => unit(t, 5 + (i % 8), 12)),
   ...pick('pet', 'home', 4).map((p, i) => unit(p, 4 + i, 10)),
   ...pick('siege-machine', 'home', 3).map((s, i) => unit(s, 2 + i, 5)),

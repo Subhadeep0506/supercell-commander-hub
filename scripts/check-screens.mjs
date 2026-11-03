@@ -121,7 +121,7 @@ if (!input.asElement()) {
 // The army grids are horizontal scrollers now, not wrapping lists, and the
 // row count is a function of group size: one row up to eight items, three
 // above. Column counts are asserted because they are what proves which branch
-// ran -- 4 heroes in one row is 4 columns, 31 troops in three rows is 11.
+// ran -- 4 heroes in one row is 4 columns, 14 troops in three rows is 5.
 //
 // Spells sits exactly on the boundary at 8, which is the case most likely to
 // come out wrong if the comparison ever flips to `<`.
@@ -132,7 +132,13 @@ const spells = await gridShape('Spells');
 check('eight spells stay on one row', spells?.columns === 8, JSON.stringify(spells));
 
 const troops = await gridShape('Troops');
-check('31 troops take three rows', troops?.columns === Math.ceil(31 / 3), JSON.stringify(troops));
+check('14 troops take three rows', troops?.columns === Math.ceil(14 / 3), JSON.stringify(troops));
+
+// Super Troops are their own group now. They used to sit inside Troops with no
+// catalog entry behind them, so every tile fell back to a text placeholder and
+// tapping one said the reference had no stats.
+const supers = await gridShape('Super Troops');
+check('super troops have their own group', supers?.columns === Math.ceil(17 / 3), JSON.stringify(supers));
 check(
   'army grid actually scrolls sideways',
   Boolean(troops && troops.scrollWidth > troops.clientWidth),
@@ -349,39 +355,38 @@ check('a league roster row opens that player', (await body()).includes('Town Hal
 await clickLabel('Close sheet', 1200);
 await clickLabel('Roster of THE DRAGONS', 1000);
 
-// A round opens its matchups; a matchup opens the full board. Both are sheet
-// layers, so the screen behind them stays mounted.
+// A round now opens its own screen: match tabs, then Summary / War Events /
+// both rosters.
 await clickLabel('Round 4', 2500);
 const round = await body();
-check('a round opens its matchups', round.includes('Round 4 · War League') && round.includes('4 wars'));
-check('matchups are oriented onto your own clan', round.includes('bruh') && round.includes('kolok kolok'));
+check('a round opens its own screen', round.includes('Round 4') && round.includes('Season:'));
+check('matches are tabbed, yours first', round.includes('Your Match') && round.includes('Match 2'));
+check('summary counts what is still to attack', /attacks left/.test(round));
+check('summary compares the two clans', round.includes('Head to head') && round.includes('Avg. stars'));
 
-await clickLabel('bruh versus kolok kolok', 2500);
-const leagueWar = await body();
-check('a matchup opens the full war board', leagueWar.includes('bruh · War roster'));
-// attacksPerMember is 1 in a league war and 2 in a regular one; reading it off
-// the response rather than defaulting to 2 is the difference.
-check('league wars allow one attack each', /\b1\/1\b/.test(leagueWar));
-check('attacks name the position they hit', /→ #\d+/.test(leagueWar));
-check('defences are reported', leagueWar.includes('Defended ·'));
+await clickLabel('War Events', 1500);
+const events = await body();
+check('war events list every attack', /\d+%/.test(events) && events.includes('War has begun!'));
+check('events carry a running score', /\d+-\d+/.test(events));
+
+await clickLabel('bruh', 1500);
+const warRoster = await body();
+check('a clan tab shows its war roster', warRoster.includes('#2PP') && warRoster.includes('War Stars'));
+check('roster rows show the attack made', /→ #\d+/.test(warRoster));
+check('roster rows show the defence taken', warRoster.includes('Not attacked'));
 
 await clickLabel('Back', 1500);
-check('back returns to the round, still mounted', (await body()).includes('4 wars'));
-await clickLabel('Close sheet', 1200);
-check('closing the sheet returns to the season', (await body()).includes('Round 4 of 7'));
+check('back returns to the season', (await body()).includes('Round 4 of 7'));
 
-// The regular war board is still there, behind its own tab.
+// The regular war board is behind its own tab, with the same views.
 await clickLabel('Current War', 1500);
 const board = await body();
-check('the current war board renders', board.includes('bruh · War roster'));
+check('the current war tab renders', board.includes('Still to attack'));
 check('the board counts down', /Ends in \d+h/.test(board));
-check('regular wars allow two attacks each', /\b0\/2\b/.test(board));
 
-// The two war rosters were dead rows; each one now opens that player.
 await clickLabel('View bruh 4', 2500);
 check('war roster row opens a player', (await body()).includes('Town Hall 13'));
 await clickLabel('Close sheet', 1200);
-check('closing the sheet returns to the war screen', (await body()).includes('War roster'));
 
 await go('/coc/leaderboard');
 await settle(2500);
@@ -444,10 +449,34 @@ check('walls counted against the hall allowance', /300\s*\n?\s*Walls left/.test(
 check('plan projects a completion date', /Everything maxed by/.test(plan));
 check('village grid sections render', /Defenses/.test(plan) && /Traps/.test(plan));
 
+// Crafted defenses live inside the Crafting Station's `types` array, not the
+// building list, so the parser walked past all three and the Defenses grid
+// never showed them. Their module levels ride on the tile's label because a
+// crafted defense has no single level to print.
+const craftedTile = await page.evaluate(() =>
+  [...document.querySelectorAll('[aria-label]')]
+    .map((n) => n.getAttribute('aria-label'))
+    .find((l) => l?.startsWith('View Hero Hunter')),
+);
+check('crafted defenses reach the builder plan', Boolean(craftedTile), String(craftedTile));
+check(
+  'crafted defense tile names its module levels',
+  /Hitpoints 2/.test(craftedTile ?? ''),
+  String(craftedTile),
+);
+
 await clickLabel('Builder Base', 2000);
 const bb = await body();
 check('builder base reads the *2 arrays', /Builder Hall 8/.test(bb));
 check('rushed villages are flagged', /Rushed/.test(bb));
+// Grid tiles carry no visible name -- art, count and level only -- so the
+// aria-label is where an item proves it reached the grid at all.
+const shackTile = await page.evaluate(() =>
+  [...document.querySelectorAll('[aria-label]')]
+    .map((n) => n.getAttribute('aria-label'))
+    .find((l) => l?.includes('B.O.T.O')),
+);
+check("B.O.T.O's Shack is recognised, not dropped", Boolean(shackTile), String(shackTile));
 
 await browser.close();
 const failed = results.filter((r) => !r).length;

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { COC_ART, superTroopArt } from '@/assets/art';
+import { COC_ART } from '@/assets/art';
 import { itemArt, playerBookItem, type BookItem } from '@/lib/clash-book';
 import { text, type ApiRecord } from '@/api/game-api';
 import { HGrid } from '@/components/ui/HGrid';
@@ -59,10 +59,7 @@ export function UnitGrid({
         renderItem={(unit) => {
           const entry = playerBookItem(unit['name'], unit['village']);
           const art = (entry && itemArt(entry)) ?? undefined;
-          // Super Troops have no catalog entry, so neither of the first two
-          // lookups finds them -- they are the reason this third step exists.
-          const source =
-            art?.source ?? COC_ART[text(unit['name'])] ?? superTroopArt(text(unit['name']));
+          const source = art?.source ?? COC_ART[text(unit['name'])];
           const level = Number(unit['level']);
           const max = Number(unit['maxLevel']);
           const pct = max > 0 ? Math.min(100, (level / max) * 100) : 0;

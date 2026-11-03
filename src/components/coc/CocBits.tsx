@@ -11,7 +11,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COC_ART, superTroopArt } from '@/assets/art';
+import { COC_ART } from '@/assets/art';
 import { itemArt, playerBookItem } from '@/lib/clash-book';
 import { text, type GameResult } from '@/api/game-api';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
@@ -36,7 +36,7 @@ export function Art({
   scale?: number;
   style?: StyleProp<ImageStyle>;
 }) {
-  const source = COC_ART[name] ?? bookFallback(name) ?? superTroopArt(name);
+  const source = COC_ART[name] ?? bookFallback(name);
   if (!source) return null;
   return (
     <Image

@@ -17,7 +17,22 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = resolve(root, 'node_modules/clash-of-clans-data/data');
 const CATALOG = resolve(root, 'src/data/clash-book/catalog.json');
+const CATALOG_EXTRA = resolve(root, 'src/data/clash-book/catalog-extra.json');
 const OUT = resolve(root, 'src/data/clash-book/data-ids.json');
+
+/**
+ * Ids confirmed against a real village export but absent upstream.
+ *
+ * Only pairs a player has verified in their own game belong here -- the rule
+ * everywhere else in this file is to skip rather than guess, and an override
+ * that turns out to be wrong mislabels a building instead of omitting it.
+ *
+ * B.O.T.O's Shack has no entry in clash-of-clans-data at all, so
+ * build-catalog-extra.mjs writes a stub for it to point at.
+ */
+const OVERRIDES = {
+  1000047: 'builder/botos-shack',
+};
 
 if (!existsSync(DATA)) {
   throw new Error('clash-of-clans-data is not installed -- run `bun install`');
@@ -55,7 +70,10 @@ const byUpstreamId = new Map();
   }
 })(DATA);
 
-const catalog = JSON.parse(readFileSync(CATALOG, 'utf8'));
+const catalog = [
+  ...JSON.parse(readFileSync(CATALOG, 'utf8')),
+  ...(existsSync(CATALOG_EXTRA) ? JSON.parse(readFileSync(CATALOG_EXTRA, 'utf8')) : []),
+];
 
 // Catalog ids are namespaced ("home/air-defense"); upstream ids are not
 // ("air-defense"). The namespace is what keeps the two Wall entries apart, so
@@ -63,6 +81,20 @@ const catalog = JSON.parse(readFileSync(CATALOG, 'utf8'));
 const map = {};
 const unlinked = [];
 for (const item of catalog) {
+  // Nested sub-items share their parent's source file, so resolving them here
+  // would hand them the parent's dataId and overwrite it -- every base troop
+  // with a Super Troop would then import as the Super Troop. None of them can
+  // appear in a village export anyway: a Super Troop is a temporary boost and
+  // the Ruin Knight is spawned, so neither is ever a thing you own.
+  if (item.baseItemId) continue;
+
+  // A village export covers the Home Village and Builder Base only, so Clan
+  // Capital entries have nothing to decode -- and nineteen of them share a
+  // bare id with a Home Village building ("wall", "inferno-tower"), which the
+  // byUpstreamId fallback happily matched. Left in, capital/wall took over
+  // dataId 1000010 and the player's 300 walls vanished from the Builder Plan.
+  if (item.base === 'capital') continue;
+
   const dataId =
     (item.sourcePath ? bySourcePath.get(String(item.sourcePath).split(sep).join('/')) : undefined) ??
     byUpstreamId.get(String(item.id).split('/').pop());
@@ -73,6 +105,15 @@ for (const item of catalog) {
   map[dataId] = item.id;
 }
 
+// Applied after the walk so a verified pair always wins over a slug collision.
+const known = new Set(catalog.map((i) => i.id));
+for (const [dataId, catalogId] of Object.entries(OVERRIDES)) {
+  if (!known.has(catalogId)) {
+    throw new Error(`override ${dataId} points at ${catalogId}, which is not in the catalog`);
+  }
+  map[dataId] = catalogId;
+}
+
 mkdirSync(dirname(OUT), { recursive: true });
 const sorted = Object.fromEntries(
   Object.entries(map).sort((a, b) => Number(a[0]) - Number(b[0])),
@@ -80,10 +121,14 @@ const sorted = Object.fromEntries(
 writeFileSync(OUT, `${JSON.stringify(sorted, null, 2)}\n`);
 
 console.log(`data ids: ${Object.keys(sorted).length} of ${catalog.length} catalog items linked`);
-// Magic items never appear in a village export, and a handful of the newest
-// buildings have no dataId upstream yet. Both are skipped at import rather
+// Magic items and Clan Capital entries never appear in a village export -- the
+// export covers the Home Village and Builder Base only -- and a handful of
+// Home Village items have no dataId upstream. All are skipped at import rather
 // than guessed, so this is a note and not a failure.
-const notable = unlinked.filter((id) => !id.startsWith('magic-items/'));
+const overridden = new Set(Object.values(OVERRIDES));
+const notable = unlinked.filter(
+  (id) => !id.startsWith('magic-items/') && !id.startsWith('capital/') && !overridden.has(id),
+);
 if (notable.length) {
   console.log(`  no dataId upstream (skipped at import): ${notable.join(', ')}`);
 }
