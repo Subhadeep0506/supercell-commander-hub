@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "id": 57000000,
+      "name": "Europe",
+      "isCountry": false
+    },
+    {
+      "id": 32000000,
+      "name": "United States",
+      "countryCode": "US",
+      "isCountry": true
+    },
+    {
+      "id": 32000001,
+      "name": "India",
+      "countryCode": "IN",
+      "isCountry": true
+    },
+    {
+      "id": 32000002,
+      "name": "Iraq",
+      "countryCode": "IQ",
+      "isCountry": true
+    },
+    {
+      "id": 32000003,
+      "name": "Germany",
+      "countryCode": "DE",
+      "isCountry": true
+    },
+    {
+      "id": 32000004,
+      "name": "Brazil",
+      "countryCode": "BR",
+      "isCountry": true
+    },
+    {
+      "id": 32000005,
+      "name": "Japan",
+      "countryCode": "JP",
+      "isCountry": true
+    },
+    {
+      "id": 32000006,
+      "name": "Iran",
+      "countryCode": "IR",
+      "isCountry": true
+    },
+    {
+      "id": 32000007,
+      "name": "Nicaragua",
+      "countryCode": "NI",
+      "isCountry": true
+    }
+  ]
+}

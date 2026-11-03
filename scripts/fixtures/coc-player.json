@@ -1,0 +1,494 @@
+{
+  "tag": "#LJ9V8LCYQ",
+  "name": "DenCT",
+  "townHallLevel": 13,
+  "expLevel": 131,
+  "trophies": 2645,
+  "bestTrophies": 2911,
+  "warStars": 91,
+  "attackWins": 0,
+  "defenseWins": 0,
+  "builderHallLevel": 9,
+  "donations": 0,
+  "donationsReceived": 0,
+  "clanCapitalContributions": 545913,
+  "warPreference": "in",
+  "role": "member",
+  "league": {
+    "id": 29000011,
+    "name": "Crystal League II"
+  },
+  "clan": {
+    "tag": "#2PP",
+    "name": "bruh",
+    "clanLevel": 10
+  },
+  "heroes": [
+    {
+      "name": "Archer Queen",
+      "level": 43,
+      "maxLevel": 75,
+      "village": "home"
+    },
+    {
+      "name": "Barbarian King",
+      "level": 41,
+      "maxLevel": 75,
+      "village": "home"
+    },
+    {
+      "name": "Dragon Duke",
+      "level": 31,
+      "maxLevel": 75,
+      "village": "home"
+    },
+    {
+      "name": "Grand Warden",
+      "level": 40,
+      "maxLevel": 75,
+      "village": "home"
+    },
+    {
+      "name": "Battle Copter",
+      "level": 14,
+      "maxLevel": 35,
+      "village": "builderBase"
+    },
+    {
+      "name": "Battle Machine",
+      "level": 16,
+      "maxLevel": 35,
+      "village": "builderBase"
+    }
+  ],
+  "troops": [
+    {
+      "name": "Super Barbarian",
+      "level": 1,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Archer",
+      "level": 2,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Giant",
+      "level": 3,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Sneaky Goblin",
+      "level": 4,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Wall Breaker",
+      "level": 5,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Rocket Balloon",
+      "level": 1,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Wizard",
+      "level": 2,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Dragon",
+      "level": 3,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Inferno Dragon",
+      "level": 4,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Minion",
+      "level": 5,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Valkyrie",
+      "level": 1,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Witch",
+      "level": 2,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Ice Hound",
+      "level": 3,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Bowler",
+      "level": 4,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Miner",
+      "level": 5,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Hog Rider",
+      "level": 1,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Super Yeti",
+      "level": 2,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Apprentice Warden",
+      "level": 5,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Archer",
+      "level": 6,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Baby Dragon",
+      "level": 7,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Balloon",
+      "level": 8,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Barbarian",
+      "level": 9,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Bowler",
+      "level": 10,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Dragon Rider",
+      "level": 11,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Dragon",
+      "level": 12,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Druid",
+      "level": 5,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Electro Dragon",
+      "level": 6,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Electro Titan",
+      "level": 7,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Furnace",
+      "level": 8,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Giant",
+      "level": 9,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Goblin",
+      "level": 10,
+      "maxLevel": 12,
+      "village": "home"
+    },
+    {
+      "name": "Angry Jelly",
+      "level": 4,
+      "maxLevel": 10,
+      "village": "home"
+    },
+    {
+      "name": "Diggy",
+      "level": 5,
+      "maxLevel": 10,
+      "village": "home"
+    },
+    {
+      "name": "Electro Owl",
+      "level": 6,
+      "maxLevel": 10,
+      "village": "home"
+    },
+    {
+      "name": "Frosty",
+      "level": 7,
+      "maxLevel": 10,
+      "village": "home"
+    },
+    {
+      "name": "Battle Blimp",
+      "level": 2,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Battle Drill",
+      "level": 3,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Flame Flinger",
+      "level": 4,
+      "maxLevel": 5,
+      "village": "home"
+    },
+    {
+      "name": "Baby Dragon",
+      "level": 10,
+      "maxLevel": 18,
+      "village": "builderBase"
+    },
+    {
+      "name": "Beta Minion",
+      "level": 11,
+      "maxLevel": 18,
+      "village": "builderBase"
+    },
+    {
+      "name": "Bomber",
+      "level": 12,
+      "maxLevel": 18,
+      "village": "builderBase"
+    },
+    {
+      "name": "Boxer Giant",
+      "level": 13,
+      "maxLevel": 18,
+      "village": "builderBase"
+    },
+    {
+      "name": "Cannon Cart",
+      "level": 14,
+      "maxLevel": 18,
+      "village": "builderBase"
+    },
+    {
+      "name": "Drop Ship",
+      "level": 15,
+      "maxLevel": 18,
+      "village": "builderBase"
+    },
+    {
+      "name": "Electrofire Wizard",
+      "level": 16,
+      "maxLevel": 18,
+      "village": "builderBase"
+    },
+    {
+      "name": "Hog Glider",
+      "level": 10,
+      "maxLevel": 18,
+      "village": "builderBase"
+    },
+    {
+      "name": "Night Witch",
+      "level": 11,
+      "maxLevel": 18,
+      "village": "builderBase"
+    }
+  ],
+  "spells": [
+    {
+      "name": "Angry Spell",
+      "level": 3,
+      "maxLevel": 9,
+      "village": "home"
+    },
+    {
+      "name": "Bat Spell",
+      "level": 4,
+      "maxLevel": 9,
+      "village": "home"
+    },
+    {
+      "name": "Clone Spell",
+      "level": 5,
+      "maxLevel": 9,
+      "village": "home"
+    },
+    {
+      "name": "Earthquake Spell",
+      "level": 6,
+      "maxLevel": 9,
+      "village": "home"
+    },
+    {
+      "name": "Freeze Spell",
+      "level": 7,
+      "maxLevel": 9,
+      "village": "home"
+    },
+    {
+      "name": "Haste Spell",
+      "level": 8,
+      "maxLevel": 9,
+      "village": "home"
+    },
+    {
+      "name": "Healing Spell",
+      "level": 3,
+      "maxLevel": 9,
+      "village": "home"
+    },
+    {
+      "name": "Ice Block Spell",
+      "level": 4,
+      "maxLevel": 9,
+      "village": "home"
+    }
+  ],
+  "heroEquipment": [
+    {
+      "name": "Action Figure",
+      "level": 9,
+      "maxLevel": 27,
+      "village": "home"
+    },
+    {
+      "name": "Archer Puppet",
+      "level": 11,
+      "maxLevel": 27,
+      "village": "home"
+    },
+    {
+      "name": "Barbarian Puppet",
+      "level": 13,
+      "maxLevel": 27,
+      "village": "home"
+    },
+    {
+      "name": "Dark Crown",
+      "level": 15,
+      "maxLevel": 27,
+      "village": "home"
+    },
+    {
+      "name": "Dark Orb",
+      "level": 17,
+      "maxLevel": 27,
+      "village": "home"
+    },
+    {
+      "name": "Earthquake Boots",
+      "level": 19,
+      "maxLevel": 27,
+      "village": "home"
+    }
+  ],
+  "achievements": [
+    {
+      "name": "Bigger Coffers",
+      "stars": 3,
+      "value": 10,
+      "target": 10,
+      "info": ""
+    },
+    {
+      "name": "Get those Goblins!",
+      "stars": 3,
+      "value": 150,
+      "target": 150,
+      "info": ""
+    },
+    {
+      "name": "Nice and Tidy",
+      "stars": 2,
+      "value": 400,
+      "target": 500,
+      "info": ""
+    },
+    {
+      "name": "Heroic Heist",
+      "stars": 1,
+      "value": 20000,
+      "target": 100000,
+      "info": ""
+    },
+    {
+      "name": "League All-Star",
+      "stars": 0,
+      "value": 3,
+      "target": 10,
+      "info": ""
+    },
+    {
+      "name": "Friend in Need",
+      "stars": 2,
+      "value": 5000,
+      "target": 25000,
+      "info": ""
+    },
+    {
+      "name": "Sharing is caring",
+      "stars": 1,
+      "value": 2000,
+      "target": 20000,
+      "info": ""
+    },
+    {
+      "name": "War Hero",
+      "stars": 2,
+      "value": 91,
+      "target": 1000,
+      "info": ""
+    }
+  ]
+}

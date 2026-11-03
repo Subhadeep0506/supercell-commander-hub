@@ -1,0 +1,29 @@
+{
+  // The browser entry and the build config are the only files that are not
+  // React Native code. They need DOM and Node libs, which the RN config
+  // deliberately omits, so they are checked separately.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "web/**/*.ts",
+    "web/**/*.tsx",
+    "vite.config.mts",
+    "src/**/*.web.ts",
+    "src/**/*.web.tsx",
+    "src/assets/images.d.ts"
+  ]
+}

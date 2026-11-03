@@ -1,0 +1,593 @@
+{
+  "tag": "#2PP",
+  "name": "bruh",
+  "type": "inviteOnly",
+  "description": "Chill clan. Wars twice a week, donate what you can, no pressure.\n— ⚡Rules⚡ —\nOpt out of war if you cannot attack. Two attacks every war, both used.\nCapital raids every weekend, all six attacks please.",
+  "clanLevel": 10,
+  "clanPoints": 28410,
+  "clanBuilderBasePoints": 37593,
+  "clanCapitalPoints": 5379,
+  "members": 24,
+  "requiredTownhallLevel": 12,
+  "requiredTrophies": 2000,
+  "warWins": 212,
+  "warLosses": 98,
+  "warTies": 6,
+  "warWinStreak": 3,
+  "warFrequency": "always",
+  "isWarLogPublic": true,
+  "warLeague": {
+    "id": 48000018,
+    "name": "Champion League I"
+  },
+  "capitalLeague": {
+    "id": 85000022,
+    "name": "Legend League"
+  },
+  "location": {
+    "name": "India",
+    "countryCode": "IN",
+    "isCountry": true
+  },
+  "chatLanguage": {
+    "id": 75000000,
+    "name": "English",
+    "languageCode": "EN"
+  },
+  "badgeUrls": {
+    "small": "https://api-assets.clashofclans.com/badges/70/fixture.png",
+    "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png",
+    "large": "https://api-assets.clashofclans.com/badges/512/fixture.png"
+  },
+  "labels": [
+    {
+      "id": 56000000,
+      "name": "Clan Wars",
+      "iconUrls": {
+        "medium": "https://api-assets.clashofclans.com/labels/128/wars.png"
+      }
+    },
+    {
+      "id": 56000001,
+      "name": "Clan War League",
+      "iconUrls": {
+        "medium": "https://api-assets.clashofclans.com/labels/128/cwl.png"
+      }
+    },
+    {
+      "id": 56000005,
+      "name": "Trophy Pushing",
+      "iconUrls": {
+        "medium": "https://api-assets.clashofclans.com/labels/128/push.png"
+      }
+    }
+  ],
+  "clanCapital": {
+    "capitalHallLevel": 10,
+    "districts": [
+      {
+        "id": 70000000,
+        "name": "Capital Peak",
+        "districtHallLevel": 10
+      },
+      {
+        "id": 70000001,
+        "name": "Barbarian Camp",
+        "districtHallLevel": 5
+      },
+      {
+        "id": 70000002,
+        "name": "Wizard Valley",
+        "districtHallLevel": 5
+      },
+      {
+        "id": 70000003,
+        "name": "Balloon Lagoon",
+        "districtHallLevel": 4
+      },
+      {
+        "id": 70000004,
+        "name": "Builder's Workshop",
+        "districtHallLevel": 4
+      },
+      {
+        "id": 70000005,
+        "name": "Dragon Cliffs",
+        "districtHallLevel": 3
+      },
+      {
+        "id": 70000006,
+        "name": "Golem Quarry",
+        "districtHallLevel": 3
+      },
+      {
+        "id": 70000007,
+        "name": "Skeleton Park",
+        "districtHallLevel": 2
+      },
+      {
+        "id": 70000008,
+        "name": "Goblin Mines",
+        "districtHallLevel": 1
+      }
+    ]
+  },
+  "memberList": [
+    {
+      "tag": "#L000",
+      "name": "Chief 1",
+      "role": "leader",
+      "townHallLevel": 17,
+      "expLevel": 240,
+      "clanRank": 1,
+      "previousClanRank": 2,
+      "trophies": 5200,
+      "builderBaseTrophies": 4100,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 1200,
+      "donationsReceived": 900
+    },
+    {
+      "tag": "#L002",
+      "name": "Raider 2",
+      "role": "coLeader",
+      "townHallLevel": 16,
+      "expLevel": 237,
+      "clanRank": 2,
+      "previousClanRank": 3,
+      "trophies": 5140,
+      "builderBaseTrophies": 4056,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 1163,
+      "donationsReceived": 879
+    },
+    {
+      "tag": "#L008",
+      "name": "Smasher 3",
+      "role": "coLeader",
+      "townHallLevel": 15,
+      "expLevel": 234,
+      "clanRank": 3,
+      "previousClanRank": 1,
+      "trophies": 5080,
+      "builderBaseTrophies": 4012,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 1126,
+      "donationsReceived": 858
+    },
+    {
+      "tag": "#L009",
+      "name": "Wizard 4",
+      "role": "admin",
+      "townHallLevel": 14,
+      "expLevel": 231,
+      "clanRank": 4,
+      "previousClanRank": 7,
+      "trophies": 5020,
+      "builderBaseTrophies": 3968,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 1089,
+      "donationsReceived": 837
+    },
+    {
+      "tag": "#L00P",
+      "name": "Archer 5",
+      "role": "admin",
+      "townHallLevel": 13,
+      "expLevel": 228,
+      "clanRank": 5,
+      "trophies": 4960,
+      "builderBaseTrophies": 3924,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 1052,
+      "donationsReceived": 816
+    },
+    {
+      "tag": "#L00Y",
+      "name": "Barb 6",
+      "role": "admin",
+      "townHallLevel": 12,
+      "expLevel": 225,
+      "clanRank": 6,
+      "previousClanRank": 4,
+      "trophies": 4900,
+      "builderBaseTrophies": 3880,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 1015,
+      "donationsReceived": 795
+    },
+    {
+      "tag": "#L00L",
+      "name": "Chief 7",
+      "role": "admin",
+      "townHallLevel": 17,
+      "expLevel": 222,
+      "clanRank": 7,
+      "previousClanRank": 8,
+      "trophies": 4840,
+      "builderBaseTrophies": 3836,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 978,
+      "donationsReceived": 774
+    },
+    {
+      "tag": "#L00Q",
+      "name": "Raider 8",
+      "role": "admin",
+      "townHallLevel": 16,
+      "expLevel": 219,
+      "clanRank": 8,
+      "previousClanRank": 11,
+      "trophies": 4780,
+      "builderBaseTrophies": 3792,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 941,
+      "donationsReceived": 753
+    },
+    {
+      "tag": "#L00G",
+      "name": "Smasher 9",
+      "role": "member",
+      "townHallLevel": 15,
+      "expLevel": 216,
+      "clanRank": 9,
+      "previousClanRank": 7,
+      "trophies": 4720,
+      "builderBaseTrophies": 3748,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 904,
+      "donationsReceived": 732
+    },
+    {
+      "tag": "#L00R",
+      "name": "Wizard 10",
+      "role": "member",
+      "townHallLevel": 14,
+      "expLevel": 213,
+      "clanRank": 10,
+      "trophies": 4660,
+      "builderBaseTrophies": 3704,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 867,
+      "donationsReceived": 711
+    },
+    {
+      "tag": "#L00J",
+      "name": "Archer 11",
+      "role": "member",
+      "townHallLevel": 13,
+      "expLevel": 210,
+      "clanRank": 11,
+      "previousClanRank": 12,
+      "trophies": 4600,
+      "builderBaseTrophies": 3660,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 830,
+      "donationsReceived": 690
+    },
+    {
+      "tag": "#L00C",
+      "name": "Barb 12",
+      "role": "member",
+      "townHallLevel": 12,
+      "expLevel": 207,
+      "clanRank": 12,
+      "previousClanRank": 15,
+      "trophies": 4540,
+      "builderBaseTrophies": 3616,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 793,
+      "donationsReceived": 669
+    },
+    {
+      "tag": "#L00U",
+      "name": "Chief 13",
+      "role": "member",
+      "townHallLevel": 17,
+      "expLevel": 204,
+      "clanRank": 13,
+      "previousClanRank": 14,
+      "trophies": 4480,
+      "builderBaseTrophies": 3572,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 756,
+      "donationsReceived": 648
+    },
+    {
+      "tag": "#L00V",
+      "name": "Raider 14",
+      "role": "member",
+      "townHallLevel": 16,
+      "expLevel": 201,
+      "clanRank": 14,
+      "previousClanRank": 15,
+      "trophies": 4420,
+      "builderBaseTrophies": 3528,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 719,
+      "donationsReceived": 627
+    },
+    {
+      "tag": "#L020",
+      "name": "Smasher 15",
+      "role": "member",
+      "townHallLevel": 15,
+      "expLevel": 198,
+      "clanRank": 15,
+      "trophies": 4360,
+      "builderBaseTrophies": 3484,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 682,
+      "donationsReceived": 606
+    },
+    {
+      "tag": "#L022",
+      "name": "Wizard 16",
+      "role": "member",
+      "townHallLevel": 14,
+      "expLevel": 195,
+      "clanRank": 16,
+      "previousClanRank": 19,
+      "trophies": 4300,
+      "builderBaseTrophies": 3440,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 645,
+      "donationsReceived": 585
+    },
+    {
+      "tag": "#L028",
+      "name": "Archer 17",
+      "role": "member",
+      "townHallLevel": 13,
+      "expLevel": 192,
+      "clanRank": 17,
+      "previousClanRank": 18,
+      "trophies": 4240,
+      "builderBaseTrophies": 3396,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 608,
+      "donationsReceived": 564
+    },
+    {
+      "tag": "#L029",
+      "name": "Barb 18",
+      "role": "member",
+      "townHallLevel": 12,
+      "expLevel": 189,
+      "clanRank": 18,
+      "previousClanRank": 16,
+      "trophies": 4180,
+      "builderBaseTrophies": 3352,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 571,
+      "donationsReceived": 543
+    },
+    {
+      "tag": "#L02P",
+      "name": "Chief 19",
+      "role": "member",
+      "townHallLevel": 17,
+      "expLevel": 186,
+      "clanRank": 19,
+      "previousClanRank": 20,
+      "trophies": 4120,
+      "builderBaseTrophies": 3308,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 534,
+      "donationsReceived": 522
+    },
+    {
+      "tag": "#L02Y",
+      "name": "Raider 20",
+      "role": "member",
+      "townHallLevel": 16,
+      "expLevel": 183,
+      "clanRank": 20,
+      "trophies": 4060,
+      "builderBaseTrophies": 3264,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 497,
+      "donationsReceived": 501
+    },
+    {
+      "tag": "#L02L",
+      "name": "Smasher 21",
+      "role": "member",
+      "townHallLevel": 15,
+      "expLevel": 180,
+      "clanRank": 21,
+      "previousClanRank": 19,
+      "trophies": 4000,
+      "builderBaseTrophies": 3220,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 460,
+      "donationsReceived": 480
+    },
+    {
+      "tag": "#L02Q",
+      "name": "Wizard 22",
+      "role": "member",
+      "townHallLevel": 14,
+      "expLevel": 177,
+      "clanRank": 22,
+      "previousClanRank": 23,
+      "trophies": 3940,
+      "builderBaseTrophies": 3176,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 423,
+      "donationsReceived": 459
+    },
+    {
+      "tag": "#L02G",
+      "name": "Archer 23",
+      "role": "member",
+      "townHallLevel": 13,
+      "expLevel": 174,
+      "clanRank": 23,
+      "previousClanRank": 24,
+      "trophies": 3880,
+      "builderBaseTrophies": 3132,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 386,
+      "donationsReceived": 438
+    },
+    {
+      "tag": "#L02R",
+      "name": "Barb 24",
+      "role": "member",
+      "townHallLevel": 12,
+      "expLevel": 171,
+      "clanRank": 24,
+      "previousClanRank": 27,
+      "trophies": 3820,
+      "builderBaseTrophies": 3088,
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      },
+      "donations": 349,
+      "donationsReceived": 417
+    }
+  ]
+}

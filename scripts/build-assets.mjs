@@ -1,0 +1,538 @@
+// Turns the raw fan-kit drop-in under assets/ into bundle-ready artwork under
+// src/assets/, and generates the image registries.
+//
+//   node scripts/build-assets.mjs [--force]
+//
+// Why a build step at all: the source packs are ~185 MB, and seven Town Hall
+// PNGs are 13-20 MB each while rendering at roughly 80 px. Shipping those
+// unchanged makes the village and leaderboard screens crawl in the browser and
+// bloats the APK for no visible gain.
+//
+// Why generated registries: React Native cannot resolve a dynamic image path.
+// Every image has to be referenced by a static import that the bundler can see
+// at build time, so the import list is written out rather than walked at
+// runtime. Metro resolves each one to an opaque asset id (a number) and Vite to
+// a URL string -- both are valid <Image source> values on their platform.
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
+import { basename, dirname, extname, join, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const PACKS = resolve(root, 'assets/packs');
+const FONTS_IN = resolve(root, 'assets/fonts');
+const OUT = resolve(root, 'src/assets');
+const IMG = join(OUT, 'img');
+const FONTS_OUT = join(OUT, 'fonts');
+// Anything under src/main/assets is packaged into the APK as-is.
+const ANDROID_FONTS = resolve(root, 'android/app/src/main/assets/fonts');
+
+// clash-of-clans-data: MIT, zero dependencies, no API key -- a static dataset
+// of game JSON plus 2,264 images, and the upstream source our catalog.json was
+// generated from. It is a devDependency: only the handful of images selected
+// below are converted into the bundle.
+const COC_DATA = resolve(root, 'node_modules/clash-of-clans-data');
+const CATALOG = resolve(root, 'src/data/clash-book/catalog.json');
+
+const force = process.argv.includes('--force');
+
+/**
+ * Each group maps one pack directory to one output directory and one registry.
+ *
+ * `max` is the longest edge after resize. Grid tiles never render above about
+ * 96 px even at 3x, so 256 is generous; full-bleed artwork (Town Halls, the
+ * book item stage, logos) can reach roughly 200 px, so 512 covers it.
+ */
+// One registry per source group, mirroring the reference app's own split
+// between coc-art.ts and coc-detail-art.ts. Merging them would collide:
+// trophy.png exists in both coc/main and coc/icons, and the reference relies
+// on the detail copy winning.
+const GROUPS = [
+  { from: 'coc/main', to: 'coc', max: 512, registry: 'coc' },
+  // Trimmed: these are small UI icons -- elixir, gold and clock fill only 4%
+  // of their 256px canvas, so untrimmed they render as a 4px speck inside a
+  // 20px box. Safe to trim because the ART_SCALE compensations all target
+  // coc/main artwork, never this set.
+  { from: 'coc/icons', to: 'coc-detail', max: 256, registry: 'cocDetail', trim: true },
+  // Trimmed so every book tile fills its box equally. Two things depend on
+  // this: the 60 gap-fillers from clash-of-clans-data are already tight, so
+  // untrimmed fan-kit art would render visibly smaller beside them; and it
+  // removes the need for the `_face` 2.8x correction, which only existed
+  // because three hero portraits are crops floating in a large canvas.
+  { from: 'coc/clash-book', to: 'coc-book', max: 256, registry: 'book', trim: true },
+  { from: 'cr/cards', to: 'arena', max: 256, registry: 'arena' },
+  { from: 'bs/main', to: 'arena', max: 256, registry: 'arena' },
+];
+
+/**
+ * Bottom-nav icons.
+ *
+ * These are trimmed to their content before resizing. The source art has wildly
+ * uneven transparent padding -- home_town-hall fills its canvas completely,
+ * home_army-camp fills 25% -- so scaling the raw files to a uniform box makes
+ * some icons look half the size of others. The reference stylesheet papered
+ * over this with per-image transform hacks (war 2.2x, builder 3.2x); trimming
+ * fixes the cause instead.
+ */
+const NAV_ICONS = [
+  { file: 'coc/clash-book/home_town-hall.png', name: 'home' },
+  // A shield reads as "war" at 24px. The catalog has no war building, and
+  // army-camp turns to mush at this size.
+  { file: 'coc/clash-book/home_seeking-shield.png', name: 'war' },
+  { file: 'coc/clash-book/builder_builder-hall.png', name: 'builder' },
+  { file: 'coc/clash-book/home_clan-castle.png', name: 'clan' },
+  { file: 'coc/icons/trophy.png', name: 'rankings' },
+  { file: 'coc/clash-book/book-icon.png', name: 'book' },
+];
+
+/**
+ * Resource and currency icons, taken from clash-of-clans-data.
+ *
+ * The fan kit covers Gold, Elixir and Dark Elixir but nothing else, so four of
+ * the seven upgrade-cost resources in the catalog -- Builder Gold, Builder
+ * Elixir, "Builder Gold or Builder Elixir" and "Gold or Elixir" -- currently
+ * render no icon at all. Keyed by the exact `upgradeCostResource` string the
+ * catalog uses, so lookups need no normalisation.
+ */
+const RESOURCE_ICONS = [
+  { file: 'images/other/gold.png', name: 'Gold' },
+  { file: 'images/other/elixir.png', name: 'Elixir' },
+  { file: 'images/other/dark-elixir.png', name: 'Dark Elixir' },
+  { file: 'images/other/gold-b.png', name: 'Builder Gold' },
+  { file: 'images/other/elixir-b.png', name: 'Builder Elixir' },
+  { file: 'images/other/gold-c.png', name: 'Capital Gold' },
+  { file: 'images/other/gem.png', name: 'Gems' },
+  { file: 'images/other/xp.png', name: 'XP' },
+  // Hero equipment is upgraded with ores, not elixir: the level rows carry
+  // upgradeShinyOre / upgradeGlowingOre / upgradeStarryOre. Named to match the
+  // field, so fieldLabel() output maps straight onto an icon.
+  { file: 'images/other/ore/shiny-ore.png', name: 'Shiny Ore' },
+  { file: 'images/other/ore/glowy-ore.png', name: 'Glowing Ore' },
+  { file: 'images/other/ore/starry-ore.png', name: 'Starry Ore' },
+];
+
+/**
+ * Home Village Super Troops.
+ *
+ * The player API returns these in `troops` once unlocked, but the Clash Book
+ * catalog has no entries for them at all, so every one rendered as a text
+ * placeholder. They are temporary boosts of a base troop rather than separate
+ * units, which is why the community dataset does not list them.
+ *
+ * Seven share a name with a Clan Capital troop, and that artwork *is* the
+ * Super variant -- gold-armoured Barbarian, glowing-eyed Wizard -- so it is
+ * used directly. The remaining ten fall back to their base troop's book
+ * artwork at lookup time (see SUPER_TROOP_BASE in src/assets/art.ts), which
+ * needs no extra image.
+ *
+ * Note this is artwork only. Clan Capital stats are not Home Village Super
+ * Troop stats, so tapping one still reports that the reference has no entry
+ * rather than showing numbers for a different unit.
+ */
+const SUPER_TROOP_ICONS = [
+  { name: 'Super Barbarian', file: 'images/clan-capital/troops/super-barbarian/icon.png' },
+  { name: 'Super Giant', file: 'images/clan-capital/troops/super-giant/icon.png' },
+  { name: 'Super Wizard', file: 'images/clan-capital/troops/super-wizard/icon.png' },
+  { name: 'Super Dragon', file: 'images/clan-capital/troops/super-dragon/icon.png' },
+  { name: 'Super Miner', file: 'images/clan-capital/troops/super-miner/icon.png' },
+  { name: 'Inferno Dragon', file: 'images/clan-capital/troops/inferno-dragon/icon.png' },
+  { name: 'Rocket Balloon', file: 'images/clan-capital/troops/rocket-balloon/icon.png' },
+];
+
+/**
+ * Clan Capital, clan label and league artwork, all from clash-of-clans-data.
+ *
+ * The clan detail sheet needs district tiles, a capital league badge and the
+ * clan's label icons. The fan kit has none of these; the upstream dataset has
+ * all of them, keyed by level or by a kebab-case name that matches what the
+ * API returns once slugified.
+ *
+ * `halls/capital-hall` covers Capital Peak, whose tile shows the *capital*
+ * hall level; `halls/district-hall` covers the other eight districts, each
+ * showing its own districtHallLevel.
+ */
+const CAPITAL_DIRS = [
+  { dir: 'images/clan-capital/halls/capital-hall/normal', prefix: 'capital-hall', max: 256 },
+  { dir: 'images/clan-capital/halls/district-hall/normal', prefix: 'district-hall', max: 256 },
+  { dir: 'images/clan-capital/leagues', prefix: 'capital-league', max: 128 },
+  { dir: 'images/clan/labels', prefix: 'label', max: 128 },
+];
+
+/**
+ * Artwork with no source in either the fan kit or clash-of-clans-data, to be
+ * dropped in by hand. Absent files are reported but do not fail the build --
+ * every call site falls back to a text chip or a plain empty state, so the app
+ * builds and runs without them.
+ *
+ *   assets/packs/coc/extra/raid-medal.png     Raid Medals currency icon
+ *   assets/packs/coc/extra/empty-state.png    sad character for empty states
+ *   assets/packs/coc/war-leagues/*.png        war league badges, kebab-named
+ *                                             ("champion-i.png", "bronze-iii.png")
+ */
+const CAPITAL_DROP_INS = [
+  { file: 'coc/extra/raid-medal.png', name: 'raid-medal', max: 128 },
+  { file: 'coc/extra/empty-state.png', name: 'empty-state', max: 512 },
+];
+const WAR_LEAGUE_DIR = 'coc/war-leagues';
+
+/** Optional artwork that is merely absent, as opposed to a build failure. */
+const notes = [];
+
+const kebab = (s) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+/** Every png in the package, indexed for slug lookup. */
+function indexPackageImages() {
+  const byDir = new Map();
+  const byFile = new Map();
+  if (!existsSync(join(COC_DATA, 'images'))) return { byDir, byFile, count: 0 };
+  const files = [];
+  (function walk(dir) {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const p = join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.name.endsWith('.png')) files.push(p.split(sep).join('/').slice(COC_DATA.length + 1));
+    }
+  })(join(COC_DATA, 'images'));
+  for (const f of files) {
+    const parts = f.split('/');
+    byFile.set(slugify(parts[parts.length - 1].replace(/\.png$/, '')), f);
+    for (let i = 1; i < parts.length - 1; i++) {
+      const k = slugify(parts[i]);
+      if (!byDir.has(k)) byDir.set(k, []);
+      byDir.get(k).push(f);
+    }
+  }
+  return { byDir, byFile, count: files.length };
+}
+
+const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/** Prefer an explicit icon, then the highest level artwork, then anything. */
+function bestOf(files) {
+  const icon = files.find((f) => /\/icon\.png$/.test(f));
+  if (icon) return icon;
+  const levels = files
+    .map((f) => [Number((f.match(/level-(\d+)\.png$/) || [])[1] ?? -1), f])
+    .filter(([n]) => n >= 0)
+    .sort((a, b) => b[0] - a[0]);
+  if (levels.length) return levels[0][1];
+  return files.find((f) => /\/normal\.png$/.test(f)) ?? files[0];
+}
+
+/**
+ * Package artwork for a catalog item.
+ *
+ * `sourcePath` is exact -- it names the upstream data file this catalog entry
+ * was generated from -- so it is tried first. Fifteen items have no `images`
+ * field upstream even though their artwork exists, which is what the slug
+ * fallback over the image tree is for.
+ */
+function resolvePackageImage(item, index) {
+  if (item.sourcePath) {
+    const p = join(COC_DATA, 'data', item.sourcePath);
+    if (existsSync(p)) {
+      const up = JSON.parse(readFileSync(p, 'utf8'));
+      if (up.images?.icon) return up.images.icon;
+      const withArt = (up.levels || []).filter((r) => r.images);
+      const last = withArt[withArt.length - 1];
+      const img = last && (last.images.normal || Object.values(last.images)[0]);
+      if (img) return img;
+    }
+  }
+  for (const key of [slugify(item.id.split('/').pop()), slugify(item.name)]) {
+    if (index.byDir.has(key)) return bestOf(index.byDir.get(key));
+    if (index.byFile.has(key)) return index.byFile.get(key);
+  }
+  return undefined;
+}
+
+// The three game logos sit at the root of their own pack.
+const LOGOS = [
+  { file: 'coc/Clash_of_Clans_logo.png', name: 'coc', max: 512 },
+  { file: 'cr/Clash_Royale_Logo.png', name: 'cr', max: 512 },
+  { file: 'bs/Brawl_Stars_Logo.png', name: 'bs', max: 512 },
+];
+
+if (!existsSync(PACKS)) {
+  throw new Error(`No packs found at ${PACKS}. See assets/README.md.`);
+}
+
+if (force && existsSync(IMG)) rmSync(IMG, { recursive: true });
+mkdirSync(IMG, { recursive: true });
+
+let converted = 0;
+let skipped = 0;
+let bytesIn = 0;
+let bytesOut = 0;
+const failures = [];
+
+async function convert(source, targetDir, name, max, { trim = false } = {}) {
+  mkdirSync(targetDir, { recursive: true });
+  const target = join(targetDir, `${name}.webp`);
+  bytesIn += statSync(source).size;
+
+  // Skip work when the output is already newer than its input.
+  if (!force && existsSync(target) && statSync(target).mtimeMs >= statSync(source).mtimeMs) {
+    bytesOut += statSync(target).size;
+    skipped++;
+    return true;
+  }
+  try {
+    const pipeline = sharp(source);
+    // trim() crops to the alpha bounding box, so every nav icon ends up
+    // filling its own canvas and renders at the same visual weight.
+    if (trim) pipeline.trim({ threshold: 0 });
+    await pipeline
+      .resize({ width: max, height: max, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 90, effort: 4 })
+      .toFile(target);
+    bytesOut += statSync(target).size;
+    converted++;
+    return true;
+  } catch (error) {
+    failures.push(`${source}: ${error.message}`);
+    return false;
+  }
+}
+
+/** Registry name -> [{ lookup, path }]. */
+const registries = { coc: [], cocDetail: [], cocCapital: [], book: [], bookExtra: [], arena: [], logo: [], nav: [], resource: [], super: [] };
+
+/** Guard against two packs contributing the same key to one registry. */
+function add(registry, lookup, path) {
+  const existing = registries[registry].find((e) => e.lookup === lookup);
+  if (existing) {
+    failures.push(`duplicate key "${lookup}" in registry ${registry}: ${existing.path} vs ${path}`);
+    return;
+  }
+  registries[registry].push({ lookup, path });
+}
+
+for (const group of GROUPS) {
+  const dir = join(PACKS, group.from);
+  if (!existsSync(dir)) {
+    failures.push(`missing pack directory: ${group.from}`);
+    continue;
+  }
+  const files = readdirSync(dir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f));
+  for (const file of files) {
+    const name = basename(file, extname(file));
+    const ok = await convert(join(dir, file), join(IMG, group.to), name, group.max, {
+      trim: group.trim === true,
+    });
+    // Lookup key is the bare filename. For the Clash Book the catalog id
+    // "home/hero-hall" maps to the file "home_hero-hall", so callers translate
+    // with id.replace(/\//g, '_') -- inverting the filename here instead would
+    // be guesswork about which underscore was originally a slash.
+    if (ok) add(group.registry, name, `./img/${group.to}/${name}.webp`);
+  }
+}
+
+for (const logo of LOGOS) {
+  const source = join(PACKS, logo.file);
+  if (!existsSync(source)) {
+    failures.push(`missing logo: ${logo.file}`);
+    continue;
+  }
+  const ok = await convert(source, join(IMG, 'logo'), logo.name, logo.max);
+  if (ok) add('logo', logo.name, `./img/logo/${logo.name}.webp`);
+}
+
+// --- clash-of-clans-data passes -------------------------------------------
+const pkgIndex = indexPackageImages();
+if (pkgIndex.count === 0) {
+  failures.push('clash-of-clans-data is not installed -- run `bun install` (devDependency)');
+}
+
+// Resource icons the fan kit has no equivalent for.
+for (const icon of RESOURCE_ICONS) {
+  const source = join(COC_DATA, icon.file);
+  if (!existsSync(source)) {
+    failures.push(`missing resource icon: ${icon.file}`);
+    continue;
+  }
+  const name = slugify(icon.name);
+  const ok = await convert(source, join(IMG, 'resource'), name, 96, { trim: true });
+  if (ok) add('resource', icon.name, `./img/resource/${name}.webp`);
+}
+
+// Super Troop artwork, which the Clash Book catalog has no entries for.
+for (const icon of SUPER_TROOP_ICONS) {
+  const source = join(COC_DATA, icon.file);
+  if (!existsSync(source)) {
+    failures.push(`missing super troop icon: ${icon.file}`);
+    continue;
+  }
+  const key = slugify(icon.name);
+  const ok = await convert(source, join(IMG, 'super'), key, 256, { trim: true });
+  if (ok) add('super', icon.name, `./img/super/${key}.webp`);
+}
+
+// Clan Capital districts, capital leagues and clan labels.
+for (const group of CAPITAL_DIRS) {
+  const dir = join(COC_DATA, group.dir);
+  if (!existsSync(dir)) {
+    failures.push(`missing capital art directory: ${group.dir}`);
+    continue;
+  }
+  for (const file of readdirSync(dir).filter((f) => f.endsWith('.png'))) {
+    // "level-7.png" -> "capital-hall-7"; "legend.png" -> "capital-league-legend".
+    const stem = basename(file, '.png').replace(/^level-/, '');
+    const key = `${group.prefix}-${kebab(stem)}`;
+    const ok = await convert(join(dir, file), join(IMG, 'coc-capital'), key, group.max, {
+      trim: true,
+    });
+    if (ok) add('cocCapital', key, `./img/coc-capital/${key}.webp`);
+  }
+}
+
+// Hand-supplied artwork with no upstream source. Optional by design.
+for (const icon of CAPITAL_DROP_INS) {
+  const source = join(PACKS, icon.file);
+  if (!existsSync(source)) {
+    notes.push(`optional art not supplied: assets/packs/${icon.file}`);
+    continue;
+  }
+  const ok = await convert(source, join(IMG, 'coc-capital'), icon.name, icon.max, { trim: true });
+  if (ok) add('cocCapital', icon.name, `./img/coc-capital/${icon.name}.webp`);
+}
+
+// War league badges. The API exposes war leagues as id + name with no icon
+// URL, and neither source carries them, so these are drop-in only.
+const warLeagueDir = join(PACKS, WAR_LEAGUE_DIR);
+if (!existsSync(warLeagueDir)) {
+  notes.push(`optional art not supplied: assets/packs/${WAR_LEAGUE_DIR}/ (war league badges)`);
+} else {
+  for (const file of readdirSync(warLeagueDir).filter((f) => /\.(png|webp|jpe?g)$/i.test(f))) {
+    const key = `war-league-${kebab(basename(file, extname(file)))}`;
+    const ok = await convert(join(warLeagueDir, file), join(IMG, 'coc-capital'), key, 128, {
+      trim: true,
+    });
+    if (ok) add('cocCapital', key, `./img/coc-capital/${key}.webp`);
+  }
+}
+
+// Fill Clash Book gaps: the fan-kit pack covers 205 of the 265 catalog items,
+// and the design has shown a text fallback for the other 60 since the
+// reference app. The upstream dataset has artwork for all of them.
+if (pkgIndex.count > 0 && existsSync(CATALOG)) {
+  const catalog = JSON.parse(readFileSync(CATALOG, 'utf8'));
+  const haveFanKit = new Set(
+    existsSync(join(PACKS, 'coc/clash-book'))
+      ? readdirSync(join(PACKS, 'coc/clash-book')).map((f) => basename(f, extname(f)))
+      : [],
+  );
+  for (const item of catalog) {
+    const key = item.id.replace(/\//g, '_');
+    if (haveFanKit.has(key)) continue;
+    const rel = resolvePackageImage(item, pkgIndex);
+    if (!rel || !existsSync(join(COC_DATA, rel))) {
+      failures.push(`no artwork anywhere for ${item.id}`);
+      continue;
+    }
+    const ok = await convert(join(COC_DATA, rel), join(IMG, 'coc-book-extra'), key, 256, {
+      trim: true,
+    });
+    if (ok) add('bookExtra', key, `./img/coc-book-extra/${key}.webp`);
+  }
+}
+
+for (const icon of NAV_ICONS) {
+  const source = join(PACKS, icon.file);
+  if (!existsSync(source)) {
+    failures.push(`missing nav icon: ${icon.file}`);
+    continue;
+  }
+  // 96px: 4x the 24px render box, so it stays crisp on a 3x screen.
+  const ok = await convert(source, join(IMG, 'nav'), icon.name, 96, { trim: true });
+  if (ok) add('nav', icon.name, `./img/nav/${icon.name}.webp`);
+}
+
+/**
+ * Fonts are copied, and renamed on the way.
+ *
+ * On Android React Native resolves `fontFamily` to a file in
+ * `app/src/main/assets/fonts/`, so the filename *is* the family name. The
+ * fan-kit files ship as `cr-Clash_Bold.otf`, which would mean writing
+ * `fontFamily: 'cr-Clash_Bold'` everywhere; these names match the fonts' own
+ * PostScript names instead (verified from each file's name table).
+ *
+ * Copying straight into the Android assets directory also removes the need for
+ * a separate `npx react-native-asset` link step before every build.
+ */
+const FONT_FILES = [
+  { from: 'cr-Clash_Bold.otf', to: 'Clash-Bold.otf' },
+  { from: 'cr-Clash_Regular.otf', to: 'Clash-Regular.otf' },
+  { from: 'lilitaone-regular.ttf', to: 'LilitaOne.ttf' },
+];
+
+mkdirSync(FONTS_OUT, { recursive: true });
+mkdirSync(ANDROID_FONTS, { recursive: true });
+let fonts = 0;
+if (existsSync(FONTS_IN)) {
+  const { copyFileSync } = await import('node:fs');
+  for (const font of FONT_FILES) {
+    const source = join(FONTS_IN, font.from);
+    if (!existsSync(source)) {
+      failures.push(`missing font: assets/fonts/${font.from}`);
+      continue;
+    }
+    copyFileSync(source, join(FONTS_OUT, font.to));
+    copyFileSync(source, join(ANDROID_FONTS, font.to));
+    fonts++;
+  }
+}
+
+function writeRegistry(name, entries) {
+  const sorted = [...entries].sort((a, b) => a.lookup.localeCompare(b.lookup));
+  const ident = (i) => `a${i}`;
+  const imports = sorted.map((e, i) => `import ${ident(i)} from '${e.path}';`).join('\n');
+  const body = sorted.map((e, i) => `  ${JSON.stringify(e.lookup)}: ${ident(i)},`).join('\n');
+  const file = `// GENERATED by scripts/build-assets.mjs -- do not edit.
+// ${sorted.length} images. Rebuild with \`bun run build:assets\`.
+import type { ImageSourcePropType } from 'react-native';
+
+${imports}
+
+export const ${name}Images: Record<string, ImageSourcePropType> = {
+${body}
+};
+`;
+  writeFileSync(join(OUT, `registry.${name}.ts`), file);
+  return sorted.length;
+}
+
+const counts = Object.fromEntries(
+  Object.entries(registries).map(([name, entries]) => [name, writeRegistry(name, entries)]),
+);
+
+const mb = (n) => `${(n / 1024 / 1024).toFixed(1)} MB`;
+const summary = Object.entries(counts)
+  .map(([name, n]) => `${name} ${n}`)
+  .join(', ');
+console.log(
+  `assets: ${converted} converted, ${skipped} unchanged, ${fonts} fonts\n` +
+    `        ${mb(bytesIn)} source -> ${mb(bytesOut)} output\n` +
+    `        registries: ${summary}`,
+);
+if (notes.length) {
+  console.log(`\n${notes.length} optional, falling back in the UI:`);
+  for (const n of notes) console.log(`  ${n}`);
+}
+if (failures.length) {
+  console.error(`\n${failures.length} failed:`);
+  for (const f of failures.slice(0, 20)) console.error(`  ${f}`);
+  process.exit(1);
+}

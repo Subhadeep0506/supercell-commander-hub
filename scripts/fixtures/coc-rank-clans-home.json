@@ -1,0 +1,429 @@
+{
+  "items": [
+    {
+      "tag": "#J000",
+      "name": "ABO_FAHAD CLAN 1",
+      "rank": 1,
+      "previousRank": 2,
+      "location": {
+        "id": 32000000,
+        "name": "United States",
+        "countryCode": "US",
+        "isCountry": true
+      },
+      "members": 50,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-0.png"
+      },
+      "clanPoints": 303206
+    },
+    {
+      "tag": "#J002",
+      "name": "Confusion 2",
+      "rank": 2,
+      "previousRank": 3,
+      "location": {
+        "id": 32000001,
+        "name": "India",
+        "countryCode": "IN",
+        "isCountry": true
+      },
+      "members": 49,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-1.png"
+      },
+      "clanPoints": 302336
+    },
+    {
+      "tag": "#J008",
+      "name": "KING MAKER 3",
+      "rank": 3,
+      "previousRank": 1,
+      "location": {
+        "id": 32000002,
+        "name": "Iraq",
+        "countryCode": "IQ",
+        "isCountry": true
+      },
+      "members": 48,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-2.png"
+      },
+      "clanPoints": 301466
+    },
+    {
+      "tag": "#J009",
+      "name": "JK EMPIRE 4",
+      "rank": 4,
+      "previousRank": 7,
+      "location": {
+        "id": 32000003,
+        "name": "Germany",
+        "countryCode": "DE",
+        "isCountry": true
+      },
+      "members": 47,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-3.png"
+      },
+      "clanPoints": 300596
+    },
+    {
+      "tag": "#J00P",
+      "name": "July 5",
+      "rank": 5,
+      "previousRank": 6,
+      "location": {
+        "id": 32000004,
+        "name": "Brazil",
+        "countryCode": "BR",
+        "isCountry": true
+      },
+      "members": 46,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-4.png"
+      },
+      "clanPoints": 299726
+    },
+    {
+      "tag": "#J00Y",
+      "name": "ABO_FAHAD CLAN 6",
+      "rank": 6,
+      "previousRank": 4,
+      "location": {
+        "id": 32000005,
+        "name": "Japan",
+        "countryCode": "JP",
+        "isCountry": true
+      },
+      "members": 45,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-5.png"
+      },
+      "clanPoints": 298856
+    },
+    {
+      "tag": "#J00L",
+      "name": "Confusion 7",
+      "rank": 7,
+      "previousRank": 8,
+      "location": {
+        "id": 32000006,
+        "name": "Iran",
+        "countryCode": "IR",
+        "isCountry": true
+      },
+      "members": 44,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-6.png"
+      },
+      "clanPoints": 297986
+    },
+    {
+      "tag": "#J00Q",
+      "name": "KING MAKER 8",
+      "rank": 8,
+      "previousRank": 11,
+      "location": {
+        "id": 32000007,
+        "name": "Nicaragua",
+        "countryCode": "NI",
+        "isCountry": true
+      },
+      "members": 43,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-7.png"
+      },
+      "clanPoints": 297116
+    },
+    {
+      "tag": "#J00G",
+      "name": "JK EMPIRE 9",
+      "rank": 9,
+      "previousRank": 7,
+      "location": {
+        "id": 32000008,
+        "name": "United States",
+        "countryCode": "US",
+        "isCountry": true
+      },
+      "members": 42,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-8.png"
+      },
+      "clanPoints": 296246
+    },
+    {
+      "tag": "#J00R",
+      "name": "July 10",
+      "rank": 10,
+      "previousRank": 11,
+      "location": {
+        "id": 32000009,
+        "name": "India",
+        "countryCode": "IN",
+        "isCountry": true
+      },
+      "members": 41,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-9.png"
+      },
+      "clanPoints": 295376
+    },
+    {
+      "tag": "#J00J",
+      "name": "ABO_FAHAD CLAN 11",
+      "rank": 11,
+      "previousRank": 12,
+      "location": {
+        "id": 32000010,
+        "name": "Iraq",
+        "countryCode": "IQ",
+        "isCountry": true
+      },
+      "members": 40,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-10.png"
+      },
+      "clanPoints": 294506
+    },
+    {
+      "tag": "#J00C",
+      "name": "Confusion 12",
+      "rank": 12,
+      "previousRank": 15,
+      "location": {
+        "id": 32000011,
+        "name": "Germany",
+        "countryCode": "DE",
+        "isCountry": true
+      },
+      "members": 39,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-11.png"
+      },
+      "clanPoints": 293636
+    },
+    {
+      "tag": "#J00U",
+      "name": "KING MAKER 13",
+      "rank": 13,
+      "previousRank": 14,
+      "location": {
+        "id": 32000012,
+        "name": "Brazil",
+        "countryCode": "BR",
+        "isCountry": true
+      },
+      "members": 38,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-12.png"
+      },
+      "clanPoints": 292766
+    },
+    {
+      "tag": "#J00V",
+      "name": "JK EMPIRE 14",
+      "rank": 14,
+      "previousRank": 15,
+      "location": {
+        "id": 32000013,
+        "name": "Japan",
+        "countryCode": "JP",
+        "isCountry": true
+      },
+      "members": 37,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-13.png"
+      },
+      "clanPoints": 291896
+    },
+    {
+      "tag": "#J020",
+      "name": "July 15",
+      "rank": 15,
+      "previousRank": 13,
+      "location": {
+        "id": 32000014,
+        "name": "Iran",
+        "countryCode": "IR",
+        "isCountry": true
+      },
+      "members": 50,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-14.png"
+      },
+      "clanPoints": 291026
+    },
+    {
+      "tag": "#J022",
+      "name": "ABO_FAHAD CLAN 16",
+      "rank": 16,
+      "previousRank": 19,
+      "location": {
+        "id": 32000015,
+        "name": "Nicaragua",
+        "countryCode": "NI",
+        "isCountry": true
+      },
+      "members": 49,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-15.png"
+      },
+      "clanPoints": 290156
+    },
+    {
+      "tag": "#J028",
+      "name": "Confusion 17",
+      "rank": 17,
+      "previousRank": 18,
+      "location": {
+        "id": 32000016,
+        "name": "United States",
+        "countryCode": "US",
+        "isCountry": true
+      },
+      "members": 48,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-16.png"
+      },
+      "clanPoints": 289286
+    },
+    {
+      "tag": "#J029",
+      "name": "KING MAKER 18",
+      "rank": 18,
+      "previousRank": 16,
+      "location": {
+        "id": 32000017,
+        "name": "India",
+        "countryCode": "IN",
+        "isCountry": true
+      },
+      "members": 47,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-17.png"
+      },
+      "clanPoints": 288416
+    },
+    {
+      "tag": "#J02P",
+      "name": "JK EMPIRE 19",
+      "rank": 19,
+      "previousRank": 20,
+      "location": {
+        "id": 32000018,
+        "name": "Iraq",
+        "countryCode": "IQ",
+        "isCountry": true
+      },
+      "members": 46,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-18.png"
+      },
+      "clanPoints": 287546
+    },
+    {
+      "tag": "#J02Y",
+      "name": "July 20",
+      "rank": 20,
+      "previousRank": 23,
+      "location": {
+        "id": 32000019,
+        "name": "Germany",
+        "countryCode": "DE",
+        "isCountry": true
+      },
+      "members": 45,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-19.png"
+      },
+      "clanPoints": 286676
+    },
+    {
+      "tag": "#J02L",
+      "name": "ABO_FAHAD CLAN 21",
+      "rank": 21,
+      "previousRank": 19,
+      "location": {
+        "id": 32000020,
+        "name": "Brazil",
+        "countryCode": "BR",
+        "isCountry": true
+      },
+      "members": 44,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-20.png"
+      },
+      "clanPoints": 285806
+    },
+    {
+      "tag": "#J02Q",
+      "name": "Confusion 22",
+      "rank": 22,
+      "previousRank": 23,
+      "location": {
+        "id": 32000021,
+        "name": "Japan",
+        "countryCode": "JP",
+        "isCountry": true
+      },
+      "members": 43,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-21.png"
+      },
+      "clanPoints": 284936
+    },
+    {
+      "tag": "#J02G",
+      "name": "KING MAKER 23",
+      "rank": 23,
+      "previousRank": 24,
+      "location": {
+        "id": 32000022,
+        "name": "Iran",
+        "countryCode": "IR",
+        "isCountry": true
+      },
+      "members": 42,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-22.png"
+      },
+      "clanPoints": 284066
+    },
+    {
+      "tag": "#J02R",
+      "name": "JK EMPIRE 24",
+      "rank": 24,
+      "previousRank": 27,
+      "location": {
+        "id": 32000023,
+        "name": "Nicaragua",
+        "countryCode": "NI",
+        "isCountry": true
+      },
+      "members": 41,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-23.png"
+      },
+      "clanPoints": 283196
+    },
+    {
+      "tag": "#J02J",
+      "name": "July 25",
+      "rank": 25,
+      "previousRank": 26,
+      "location": {
+        "id": 32000024,
+        "name": "United States",
+        "countryCode": "US",
+        "isCountry": true
+      },
+      "members": 40,
+      "badgeUrls": {
+        "medium": "https://api-assets.clashofclans.com/badges/200/clan-24.png"
+      },
+      "clanPoints": 282326
+    }
+  ]
+}

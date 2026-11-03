@@ -1,0 +1,284 @@
+{
+  "items": [
+    {
+      "result": "win",
+      "endTime": "20261101T071025.000Z",
+      "teamSize": 15,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 30,
+        "stars": 45,
+        "destructionPercentage": 99.4,
+        "expEarned": 420
+      },
+      "opponent": {
+        "tag": "#V000",
+        "name": "Confusion",
+        "clanLevel": 18,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-0.png"
+        },
+        "stars": 30,
+        "destructionPercentage": 97.1
+      }
+    },
+    {
+      "result": "win",
+      "endTime": "20261030T071025.000Z",
+      "teamSize": 20,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 39,
+        "stars": 56,
+        "destructionPercentage": 97.7,
+        "expEarned": 409
+      },
+      "opponent": {
+        "tag": "#V002",
+        "name": "ABO_FAHAD CLAN",
+        "clanLevel": 17,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-1.png"
+        },
+        "stars": 40,
+        "destructionPercentage": 94.8
+      }
+    },
+    {
+      "result": "win",
+      "endTime": "20261028T071025.000Z",
+      "teamSize": 30,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 58,
+        "stars": 82,
+        "destructionPercentage": 96,
+        "expEarned": 398
+      },
+      "opponent": {
+        "tag": "#V008",
+        "name": "KING MAKER",
+        "clanLevel": 16,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-2.png"
+        },
+        "stars": 65,
+        "destructionPercentage": 92.5
+      }
+    },
+    {
+      "result": "win",
+      "endTime": "20261026T071025.000Z",
+      "teamSize": 15,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 27,
+        "stars": 33,
+        "destructionPercentage": 94.30000000000001,
+        "expEarned": 387
+      },
+      "opponent": {
+        "tag": "#V009",
+        "name": "JK EMPIRE",
+        "clanLevel": 15,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-3.png"
+        },
+        "stars": 15,
+        "destructionPercentage": 90.19999999999999
+      }
+    },
+    {
+      "result": "win",
+      "endTime": "20261024T071025.000Z",
+      "teamSize": 25,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 46,
+        "stars": 59,
+        "destructionPercentage": 92.60000000000001,
+        "expEarned": 376
+      },
+      "opponent": {
+        "tag": "#V00P",
+        "name": "July",
+        "clanLevel": 14,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-4.png"
+        },
+        "stars": 40,
+        "destructionPercentage": 87.89999999999999
+      }
+    },
+    {
+      "result": "win",
+      "endTime": "20261022T071025.000Z",
+      "teamSize": 15,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 30,
+        "stars": 25,
+        "destructionPercentage": 90.9,
+        "expEarned": 365
+      },
+      "opponent": {
+        "tag": "#V00Y",
+        "name": "Reckoning",
+        "clanLevel": 13,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-5.png"
+        },
+        "stars": 5,
+        "destructionPercentage": 85.6
+      }
+    },
+    {
+      "result": "lose",
+      "endTime": "20261020T071025.000Z",
+      "teamSize": 20,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 39,
+        "stars": 36,
+        "destructionPercentage": 89.2,
+        "expEarned": 354
+      },
+      "opponent": {
+        "tag": "#V00L",
+        "name": "Lost Vikings",
+        "clanLevel": 18,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-6.png"
+        },
+        "stars": 60,
+        "destructionPercentage": 83.3
+      }
+    },
+    {
+      "result": "win",
+      "endTime": "20261018T071025.000Z",
+      "teamSize": 30,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 58,
+        "stars": 90,
+        "destructionPercentage": 87.5,
+        "expEarned": 343
+      },
+      "opponent": {
+        "tag": "#V00Q",
+        "name": "Nine Tails",
+        "clanLevel": 17,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-7.png"
+        },
+        "stars": 85,
+        "destructionPercentage": 81
+      }
+    },
+    {
+      "result": "win",
+      "endTime": "20261016T071025.000Z",
+      "teamSize": 15,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 27,
+        "stars": 41,
+        "destructionPercentage": 85.80000000000001,
+        "expEarned": 332
+      },
+      "opponent": {
+        "tag": "#V00G",
+        "name": "Red Dawn",
+        "clanLevel": 16,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-8.png"
+        },
+        "stars": 35,
+        "destructionPercentage": 78.69999999999999
+      }
+    },
+    {
+      "result": "win",
+      "endTime": "20261014T071025.000Z",
+      "teamSize": 25,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#2PP",
+        "name": "bruh",
+        "clanLevel": 10,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/fixture.png"
+        },
+        "attacks": 46,
+        "stars": 67,
+        "destructionPercentage": 84.10000000000001,
+        "expEarned": 321
+      },
+      "opponent": {
+        "tag": "#V00R",
+        "name": "Valhalla",
+        "clanLevel": 15,
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/opponent-9.png"
+        },
+        "stars": 60,
+        "destructionPercentage": 76.39999999999999
+      }
+    }
+  ]
+}

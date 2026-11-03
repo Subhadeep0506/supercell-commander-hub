@@ -1,0 +1,579 @@
+{
+  "items": [
+    {
+      "tag": "#P000",
+      "name": "Builder 1",
+      "rank": 1,
+      "previousRank": 2,
+      "expLevel": 250,
+      "townHallLevel": 17,
+      "builderBaseTrophies": 5200,
+      "clan": {
+        "tag": "#G000",
+        "name": "Top Clan 0",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-0.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P002",
+      "name": "Builder 2",
+      "rank": 2,
+      "previousRank": 3,
+      "expLevel": 249,
+      "townHallLevel": 16,
+      "builderBaseTrophies": 5169,
+      "clan": {
+        "tag": "#G002",
+        "name": "Top Clan 1",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-1.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P008",
+      "name": "Builder 3",
+      "rank": 3,
+      "previousRank": 1,
+      "expLevel": 248,
+      "townHallLevel": 15,
+      "builderBaseTrophies": 5138,
+      "clan": {
+        "tag": "#G008",
+        "name": "Top Clan 2",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-2.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P009",
+      "name": "Builder 4",
+      "rank": 4,
+      "previousRank": 7,
+      "expLevel": 247,
+      "townHallLevel": 17,
+      "builderBaseTrophies": 5107,
+      "clan": {
+        "tag": "#G009",
+        "name": "Top Clan 3",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-3.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00P",
+      "name": "Builder 5",
+      "rank": 5,
+      "previousRank": 6,
+      "expLevel": 246,
+      "townHallLevel": 16,
+      "builderBaseTrophies": 5076,
+      "clan": {
+        "tag": "#G00P",
+        "name": "Top Clan 4",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-4.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00Y",
+      "name": "Builder 6",
+      "rank": 6,
+      "previousRank": 4,
+      "expLevel": 245,
+      "townHallLevel": 15,
+      "builderBaseTrophies": 5045,
+      "clan": {
+        "tag": "#G00Y",
+        "name": "Top Clan 5",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-5.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00L",
+      "name": "Builder 7",
+      "rank": 7,
+      "previousRank": 8,
+      "expLevel": 244,
+      "townHallLevel": 17,
+      "builderBaseTrophies": 5014,
+      "clan": {
+        "tag": "#G00L",
+        "name": "Top Clan 6",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-6.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00Q",
+      "name": "Builder 8",
+      "rank": 8,
+      "previousRank": 11,
+      "expLevel": 243,
+      "townHallLevel": 16,
+      "builderBaseTrophies": 4983,
+      "clan": {
+        "tag": "#G00Q",
+        "name": "Top Clan 0",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-7.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00G",
+      "name": "Builder 9",
+      "rank": 9,
+      "previousRank": 7,
+      "expLevel": 242,
+      "townHallLevel": 15,
+      "builderBaseTrophies": 4952,
+      "clan": {
+        "tag": "#G00G",
+        "name": "Top Clan 1",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-8.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00R",
+      "name": "Builder 10",
+      "rank": 10,
+      "previousRank": 11,
+      "expLevel": 241,
+      "townHallLevel": 17,
+      "builderBaseTrophies": 4921,
+      "clan": {
+        "tag": "#G00R",
+        "name": "Top Clan 2",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-9.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00J",
+      "name": "Builder 11",
+      "rank": 11,
+      "previousRank": 12,
+      "expLevel": 240,
+      "townHallLevel": 16,
+      "builderBaseTrophies": 4890,
+      "clan": {
+        "tag": "#G00J",
+        "name": "Top Clan 3",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-10.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00C",
+      "name": "Builder 12",
+      "rank": 12,
+      "previousRank": 15,
+      "expLevel": 239,
+      "townHallLevel": 15,
+      "builderBaseTrophies": 4859,
+      "clan": {
+        "tag": "#G00C",
+        "name": "Top Clan 4",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-11.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00U",
+      "name": "Builder 13",
+      "rank": 13,
+      "previousRank": 14,
+      "expLevel": 238,
+      "townHallLevel": 17,
+      "builderBaseTrophies": 4828,
+      "clan": {
+        "tag": "#G00U",
+        "name": "Top Clan 5",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-12.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P00V",
+      "name": "Builder 14",
+      "rank": 14,
+      "previousRank": 15,
+      "expLevel": 237,
+      "townHallLevel": 16,
+      "builderBaseTrophies": 4797,
+      "clan": {
+        "tag": "#G00V",
+        "name": "Top Clan 6",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-13.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P020",
+      "name": "Builder 15",
+      "rank": 15,
+      "previousRank": 13,
+      "expLevel": 236,
+      "townHallLevel": 15,
+      "builderBaseTrophies": 4766,
+      "clan": {
+        "tag": "#G020",
+        "name": "Top Clan 0",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-14.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P022",
+      "name": "Builder 16",
+      "rank": 16,
+      "previousRank": 19,
+      "expLevel": 235,
+      "townHallLevel": 17,
+      "builderBaseTrophies": 4735,
+      "clan": {
+        "tag": "#G022",
+        "name": "Top Clan 1",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-15.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P028",
+      "name": "Builder 17",
+      "rank": 17,
+      "previousRank": 18,
+      "expLevel": 234,
+      "townHallLevel": 16,
+      "builderBaseTrophies": 4704,
+      "clan": {
+        "tag": "#G028",
+        "name": "Top Clan 2",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-16.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P029",
+      "name": "Builder 18",
+      "rank": 18,
+      "previousRank": 16,
+      "expLevel": 233,
+      "townHallLevel": 15,
+      "builderBaseTrophies": 4673,
+      "clan": {
+        "tag": "#G029",
+        "name": "Top Clan 3",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-17.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P02P",
+      "name": "Builder 19",
+      "rank": 19,
+      "previousRank": 20,
+      "expLevel": 232,
+      "townHallLevel": 17,
+      "builderBaseTrophies": 4642,
+      "clan": {
+        "tag": "#G02P",
+        "name": "Top Clan 4",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-18.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P02Y",
+      "name": "Builder 20",
+      "rank": 20,
+      "previousRank": 23,
+      "expLevel": 231,
+      "townHallLevel": 16,
+      "builderBaseTrophies": 4611,
+      "clan": {
+        "tag": "#G02Y",
+        "name": "Top Clan 5",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-19.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P02L",
+      "name": "Builder 21",
+      "rank": 21,
+      "previousRank": 19,
+      "expLevel": 230,
+      "townHallLevel": 15,
+      "builderBaseTrophies": 4580,
+      "clan": {
+        "tag": "#G02L",
+        "name": "Top Clan 6",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-20.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P02Q",
+      "name": "Builder 22",
+      "rank": 22,
+      "previousRank": 23,
+      "expLevel": 229,
+      "townHallLevel": 17,
+      "builderBaseTrophies": 4549,
+      "clan": {
+        "tag": "#G02Q",
+        "name": "Top Clan 0",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-21.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P02G",
+      "name": "Builder 23",
+      "rank": 23,
+      "previousRank": 24,
+      "expLevel": 228,
+      "townHallLevel": 16,
+      "builderBaseTrophies": 4518,
+      "clan": {
+        "tag": "#G02G",
+        "name": "Top Clan 1",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-22.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P02R",
+      "name": "Builder 24",
+      "rank": 24,
+      "previousRank": 27,
+      "expLevel": 227,
+      "townHallLevel": 15,
+      "builderBaseTrophies": 4487,
+      "clan": {
+        "tag": "#G02R",
+        "name": "Top Clan 2",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-23.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    },
+    {
+      "tag": "#P02J",
+      "name": "Builder 25",
+      "rank": 25,
+      "previousRank": 26,
+      "expLevel": 226,
+      "townHallLevel": 17,
+      "builderBaseTrophies": 4456,
+      "clan": {
+        "tag": "#G02J",
+        "name": "Top Clan 3",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-24.png"
+        }
+      },
+      "league": {
+        "id": 29000022,
+        "name": "Legend League",
+        "iconUrls": {
+          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+        }
+      }
+    }
+  ]
+}

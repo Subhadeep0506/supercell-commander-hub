@@ -1,0 +1,501 @@
+import { useMemo, useState } from 'react';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import type { ImageSourcePropType } from 'react-native';
+import { COC_ART, bookArt, resourceArt, townHallArt } from '@/assets/art';
+import { StatIcon, STAT_ICON_FOR, type StatIconName } from '@/components/ui/StatIcon';
+import {
+  bookCategory,
+  bookLevels,
+  fieldLabel,
+  flattenBook,
+  itemArt,
+  levelSections,
+  playerLevelIndex,
+  type BookItem,
+  type BookRecord,
+} from '@/lib/clash-book';
+import { Button } from '@/components/ui/Button';
+import { Collapsible } from '@/components/ui/Collapsible';
+import { Sheet } from '@/components/ui/Sheet';
+import { Slider } from '@/components/ui/Slider';
+import { useTheme, type Theme } from '@/theme/ThemeProvider';
+
+type Field = { label: string; value: string | number; max?: number; currency?: string };
+
+/**
+ * Descriptive, level-independent attributes promoted out of "More information"
+ * into their own grid -- these are what a player actually looks up, and the
+ * reference app buried them behind a collapsed summary.
+ */
+const DETAIL_KEYS = [
+  'preferredTarget',
+  'favoriteTarget',
+  'attackType',
+  'damageType',
+  'unitType',
+  'movementSpeed',
+  'attackSpeed',
+  'range',
+  'searchRadius',
+  'housingSpace',
+  'trainingTime',
+  'size',
+  'specialAbility',
+] as const;
+
+type GridCell = {
+  label: string;
+  value: string | number;
+  icon?: StatIconName;
+  art?: ImageSourcePropType;
+};
+
+/**
+ * Artwork for a "Needs" row: the building that gates the upgrade.
+ *
+ * Town Hall is special-cased to its own per-level render where one exists
+ * (TH9-18), so "Town Hall Required 18" shows the actual TH18.
+ */
+function requirementArt(key: string, level: number): ImageSourcePropType | undefined {
+  if (/townHall/i.test(key)) return townHallArt(level) ?? bookArt('home/town-hall')?.source;
+  const map: Record<string, string> = {
+    laboratoryRequired: 'home/laboratory',
+    heroHallLevelRequired: 'home/hero-hall',
+    blacksmithLevelRequired: 'home/blacksmith',
+    builderHallRequired: 'builder/builder-hall',
+    builderHallLevelRequired: 'builder/builder-hall',
+    petHouseLevelRequired: 'home/pet-house',
+    starLabRequired: 'builder/star-laboratory',
+  };
+  const id = map[key];
+  return id ? bookArt(id)?.source : undefined;
+}
+
+/** Two-column grid for the short, level-independent rows. */
+function FieldGrid({ cells }: { cells: GridCell[] }) {
+  const theme = useTheme();
+  const s = useMemo(() => build(theme), [theme]);
+  return (
+    <View style={s.grid}>
+      {cells.map((cell, i) => (
+        <View key={i} style={s.cell}>
+          <View style={s.cellIcon}>
+            {cell.art ? (
+              <Image source={cell.art} style={s.cellArt} resizeMode="contain" />
+            ) : cell.icon ? (
+              <StatIcon name={cell.icon} size={22} />
+            ) : null}
+          </View>
+          <View style={s.cellText}>
+            <Text style={s.cellLabel} numberOfLines={2}>
+              {cell.label}
+            </Text>
+            <Text style={s.cellValue} numberOfLines={1}>
+              {typeof cell.value === 'number' ? cell.value.toLocaleString('en-US') : cell.value}
+            </Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Resolves the icon for a field row. */
+function iconFor(field: Field) {
+  // A cost row folded in from its sibling "… Resource" row.
+  if (field.currency) return resourceArt(field.currency);
+  // Resource rows name their currency in the value ("Dark Elixir").
+  if (/resource/i.test(field.label) && typeof field.value === 'string') {
+    return resourceArt(field.value);
+  }
+  // Hero equipment upgrades cost ores: upgradeShinyOre -> "Upgrade Shiny Ore".
+  const ore = /\b(shiny|glowing|starry)\s+ore\b/i.exec(field.label);
+  if (ore) return resourceArt(`${ore[1][0]!.toUpperCase()}${ore[1].slice(1).toLowerCase()} Ore`);
+  if (/time/i.test(field.label)) return COC_ART['clock'];
+  return undefined;
+}
+
+/**
+ * Folds "Build Cost Resource: Elixir" into "Build Cost: 26,000,000" so the
+ * amount carries its own currency icon instead of occupying a separate row.
+ */
+function mergeCostRows(fields: Field[]): Field[] {
+  const resources = new Map<string, string>();
+  for (const f of fields) {
+    const m = /^(.*)\sResource$/i.exec(f.label);
+    if (m && typeof f.value === 'string') resources.set(m[1]!, f.value);
+  }
+  return fields
+    .filter((f) => !/\sResource$/i.test(f.label))
+    .map((f) => {
+      const currency = resources.get(f.label);
+      return currency ? { ...f, label: `${f.label} · ${currency}`, currency } : f;
+    });
+}
+
+/** `.book-fields` -- a label/value grid with currency, time and progress. */
+function Fields({ values }: { values: Field[] }) {
+  const theme = useTheme();
+  const s = useMemo(() => build(theme), [theme]);
+  return (
+    <View style={s.fields}>
+      {values.map((field, i) => {
+        const icon = iconFor(field);
+        const showBar =
+          typeof field.value === 'number' && typeof field.max === 'number' && field.max > 0;
+        const pct = showBar
+          ? Math.max(0, Math.min(100, ((field.value as number) / field.max!) * 100))
+          : 0;
+        return (
+          <View key={i} style={s.field}>
+            <View style={s.fieldTop}>
+              <View style={s.fieldLabelRow}>
+                {icon ? <Image source={icon} style={s.fieldIcon} resizeMode="contain" /> : null}
+                <Text style={s.fieldLabel}>{field.label}</Text>
+              </View>
+              <Text style={s.fieldValue}>
+                {typeof field.value === 'number' ? field.value.toLocaleString('en-US') : field.value}
+                {showBar && field.max !== field.value ? (
+                  <Text style={s.fieldMax}> / {field.max!.toLocaleString('en-US')}</Text>
+                ) : null}
+              </Text>
+            </View>
+            {showBar ? (
+              <View style={s.bar}>
+                <View style={[s.barFill, { width: `${pct}%` }]} />
+              </View>
+            ) : null}
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+/**
+ * Ported from frontend/src/components/book-item-modal.tsx, then extended.
+ *
+ * `initialLevel` is set when the modal is opened from a player's unit tile; it
+ * selects that level and adds the "Next upgrade" section. Opened from the book
+ * itself it is undefined, and the max level is shown.
+ */
+export function BookItemModal({
+  item,
+  initialLevel,
+  open,
+  onClose,
+}: {
+  item: BookItem;
+  initialLevel?: number;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const theme = useTheme();
+  const s = useMemo(() => build(theme), [theme]);
+  const levels = bookLevels(item);
+
+  const [index, setIndex] = useState(
+    initialLevel === undefined ? Math.max(0, levels.length - 1) : playerLevelIndex(item, initialLevel),
+  );
+  const [expanded, setExpanded] = useState(false);
+
+  const row = levels[index];
+  const sections = row ? levelSections(row) : undefined;
+  const image = itemArt(item);
+  const nextRow = initialLevel !== undefined && index >= 0 ? levels[index + 1] : undefined;
+  const nextSections = nextRow ? levelSections(nextRow) : undefined;
+
+  // Each stat is paired with the same stat at the item's highest level, so a
+  // bare "Hit points 1,520" becomes "1,520 / 7,200" with a bar. Matching by
+  // label works because both rows are flattened the same way.
+  const maxByLabel = useMemo(() => {
+    const top = levels[levels.length - 1];
+    const m = new Map<string, number>();
+    if (!top) return m;
+    for (const f of levelSections(top).stats) {
+      if (typeof f.value === 'number') m.set(f.label, f.value);
+    }
+    return m;
+  }, [levels]);
+
+  // Hero equipment nests its numbers under a `stats` object, which flattens to
+  // "Stats · Ability Duration". The prefix carries no information once the row
+  // is already inside the "At level N" section.
+  const stats: Field[] = (sections?.stats ?? []).map((f) => ({
+    ...f,
+    max: maxByLabel.get(f.label),
+    label: f.label.replace(/^Stats\s·\s/, ''),
+  }));
+
+  const details: GridCell[] = useMemo(() => {
+    const picked: BookRecord = {};
+    for (const key of DETAIL_KEYS) {
+      if (item[key] !== undefined && item[key] !== null) picked[key] = item[key];
+    }
+    return Object.entries(picked).map(([k, v]) => ({
+      label: fieldLabel(k),
+      value: typeof v === 'number' ? v : String(v),
+      icon: STAT_ICON_FOR[k],
+    }));
+  }, [item]);
+
+  // Built from the raw level row rather than levelSections, because the icon
+  // depends on which building gates the upgrade -- information the humanised
+  // label has already lost.
+  const needs: GridCell[] = useMemo(() => {
+    if (!row) return [];
+    return Object.entries(row)
+      .filter(([k]) => /required|requirement/i.test(k))
+      .map(([k, v]) => ({
+        label: fieldLabel(k).replace(/\s*(Level\s*)?Required$/i, ''),
+        value: typeof v === 'number' || typeof v === 'string' ? v : String(v),
+        art: requirementArt(k, Number(v)),
+      }));
+  }, [row]);
+
+  const general = Object.fromEntries(
+    Object.entries(item).filter(
+      ([key]) =>
+        ![
+          'id',
+          'dataId',
+          'base',
+          'category',
+          'name',
+          'description',
+          'levels',
+          'sourcePath',
+          'availablePerTownHall',
+          'availablePerBuilderHall',
+          ...DETAIL_KEYS,
+        ].includes(key),
+    ),
+  );
+
+  const gameMax = levels.length ? Number(levels[levels.length - 1]!['level']) : undefined;
+  const base =
+    item.base === 'builder' ? 'Builder Base' : item.base === 'magic-items' ? 'Magic Items' : 'Home Village';
+
+  return (
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={
+        <Text style={s.title} numberOfLines={2}>
+          {item.name}
+          {row ? <Text style={s.titleLevel}> · Level {String(row['level'])}</Text> : null}
+        </Text>
+      }
+    >
+      <ScrollView contentContainerStyle={s.scroll}>
+        <View style={s.intro}>
+          <View style={s.stage}>
+            {image ? (
+              <Image
+                source={image.source}
+                accessibilityLabel={item.name}
+                resizeMode="contain"
+                style={s.stageImage}
+              />
+            ) : (
+              <Text style={s.stageFallback}>{item.name}</Text>
+            )}
+          </View>
+          <View style={s.introText}>
+            <Text style={s.meta}>
+              {bookCategory(item.category)} · {base}
+              {gameMax ? ` · Game max ${gameMax}` : ''}
+            </Text>
+            <Text style={s.description} numberOfLines={expanded ? undefined : 3}>
+              {item.description || 'No description is included in this reference.'}
+            </Text>
+            {(item.description?.length ?? 0) > 160 ? (
+              <Button variant="link" size="sm" onPress={() => setExpanded(!expanded)} sound={false}>
+                {expanded ? 'Show less' : 'Show more'}
+              </Button>
+            ) : null}
+          </View>
+        </View>
+
+        {initialLevel !== undefined ? (
+          <Text style={s.playerLevel}>Your player level: {initialLevel}</Text>
+        ) : null}
+        {!row && initialLevel !== undefined ? (
+          <Text style={s.missingLevel}>
+            Level {initialLevel} is not included in this community reference. No estimated stats are
+            shown.
+          </Text>
+        ) : null}
+
+        {row ? (
+          <View style={s.levelControl} accessibilityLabel="Item level">
+            <View style={s.levelRow}>
+              <Button
+                variant="outline"
+                size="icon"
+                accessibilityLabel="Previous level"
+                disabled={index === 0}
+                textStyle={s.stepper}
+                onPress={() => setIndex((i) => i - 1)}
+              >
+                −
+              </Button>
+              <View style={s.levelText}>
+                <Text style={s.levelHeading}>Level {String(row['level'])}</Text>
+                <Text style={s.levelCaption}>
+                  {index === levels.length - 1 ? 'Max level' : `${levels.length} levels`}
+                </Text>
+              </View>
+              <Button
+                variant="outline"
+                size="icon"
+                accessibilityLabel="Next level"
+                disabled={index === levels.length - 1}
+                textStyle={s.stepper}
+                onPress={() => setIndex((i) => i + 1)}
+              >
+                +
+              </Button>
+            </View>
+            <Slider
+              accessibilityLabel="Select item level"
+              value={index}
+              max={Math.max(0, levels.length - 1)}
+              onChange={setIndex}
+            />
+          </View>
+        ) : null}
+
+        {nextSections ? (
+          <Section title={`Next upgrade · Level ${String(nextRow?.['level'])}`}>
+            <Fields values={mergeCostRows(nextSections.costs)} />
+          </Section>
+        ) : null}
+        {stats.length > 0 ? (
+          <Section title={`At level ${String(row?.['level'])}`}>
+            <Fields values={stats} />
+          </Section>
+        ) : null}
+        {sections && sections.costs.length > 0 ? (
+          <Section title={`To reach level ${String(row?.['level'])}`}>
+            <Fields values={mergeCostRows(sections.costs)} />
+          </Section>
+        ) : null}
+        {needs.length > 0 ? (
+          <Section title="Needs">
+            <FieldGrid cells={needs} />
+          </Section>
+        ) : null}
+        {details.length > 0 ? (
+          <Section title="Details">
+            <FieldGrid cells={details} />
+          </Section>
+        ) : null}
+
+        {Object.keys(general).length > 0 ? (
+          <View style={s.section}>
+            <Collapsible summary={() => <Text style={s.sectionTitle}>More information</Text>}>
+              <Fields values={flattenBook(general)} />
+            </Collapsible>
+          </View>
+        ) : null}
+
+        <Text style={s.sourceNote}>
+          Community reference · clash-of-clans-data 0.19.1 · Clash of Clans Wiki (CC BY-SA).
+          Snapshot November 2, 2026; balance changes may differ. Artwork is official Supercell
+          fan-kit where available, otherwise from the community dataset; appearance may differ by
+          level.
+        </Text>
+      </ScrollView>
+    </Sheet>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const theme = useTheme();
+  const s = useMemo(() => build(theme), [theme]);
+  return (
+    <View style={s.section}>
+      <Text style={s.sectionTitle}>{title}</Text>
+      {children}
+    </View>
+  );
+}
+
+const build = (t: Theme) =>
+  StyleSheet.create({
+    scroll: { padding: 14 },
+    title: { color: t.bookFrameText, fontFamily: t.fonts.display, fontSize: 16 },
+    titleLevel: { color: t.cocHighlight },
+
+    intro: { gap: 16 },
+    stage: {
+      height: 155,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: t.muted,
+      borderWidth: 2,
+      borderColor: t.border,
+      borderRadius: 6,
+      padding: 10,
+      overflow: 'hidden',
+    },
+    stageImage: { width: '100%', height: '100%' },
+    stageFallback: { fontFamily: t.fonts.display, fontSize: 20, color: t.foreground },
+    introText: { flexShrink: 1, minWidth: 0 },
+    meta: { fontSize: 12, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    description: { marginTop: 10, fontSize: 12, lineHeight: 19, color: t.foreground, fontFamily: t.fonts.sans },
+
+    playerLevel: { marginTop: 16, fontSize: 12, color: t.primary, fontFamily: t.fonts.sans },
+    missingLevel: { marginTop: 16, fontSize: 13, color: t.mutedForeground, fontFamily: t.fonts.sans },
+
+    levelControl: {
+      marginTop: 18,
+      marginBottom: 4,
+      paddingVertical: 14,
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: t.border,
+    },
+    levelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+    levelText: { alignItems: 'center' },
+    levelHeading: { fontFamily: t.fonts.display, fontSize: 20, color: t.foreground },
+    levelCaption: { marginTop: 2, fontSize: 11, color: t.primary, fontFamily: t.fonts.sans },
+    stepper: { fontFamily: t.fonts.symbol, fontSize: 22, lineHeight: 24 },
+
+    section: { marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: t.border },
+    sectionTitle: { fontFamily: t.fonts.display, fontSize: 14, color: t.foreground, marginBottom: 8 },
+
+    // Two columns, so short rows stop stretching across the whole sheet.
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    cell: {
+      flexBasis: '48%',
+      flexGrow: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 9,
+      minWidth: 0,
+      backgroundColor: t.muted,
+      paddingVertical: 9,
+      paddingHorizontal: 10,
+      borderRadius: 4,
+    },
+    cellIcon: { width: 26, height: 26, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+    cellArt: { width: 26, height: 26 },
+    cellText: { flexShrink: 1, minWidth: 0 },
+    cellLabel: { fontSize: 10, lineHeight: 13, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    cellValue: { marginTop: 2, fontSize: 13, color: t.foreground, fontFamily: t.fonts.display },
+
+    fields: { gap: 6 },
+    field: { backgroundColor: t.muted, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 4 },
+    fieldTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    fieldLabelRow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 7, minWidth: 0 },
+    fieldIcon: { width: 24, height: 24, flexShrink: 0 },
+    fieldLabel: { flexShrink: 1, fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    fieldValue: { textAlign: 'right', fontSize: 12, color: t.foreground, fontFamily: t.fonts.display },
+    fieldMax: { color: t.mutedForeground, fontSize: 11 },
+    bar: { marginTop: 7, height: 4, borderRadius: 999, backgroundColor: t.border, overflow: 'hidden' },
+    barFill: { height: '100%', backgroundColor: t.primary },
+
+    sourceNote: { marginTop: 18, fontSize: 10, lineHeight: 16, color: t.mutedForeground, fontFamily: t.fonts.sans },
+  });

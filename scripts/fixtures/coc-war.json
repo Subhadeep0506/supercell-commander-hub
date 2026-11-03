@@ -1,0 +1,335 @@
+{
+  "state": "inWar",
+  "teamSize": 15,
+  "attacksPerMember": 2,
+  "clan": {
+    "tag": "#2PP",
+    "name": "bruh",
+    "clanLevel": 10,
+    "attacks": 22,
+    "stars": 38,
+    "destructionPercentage": 91.4,
+    "members": [
+      {
+        "tag": "#Y000",
+        "name": "bruh 1",
+        "mapPosition": 1,
+        "townhallLevel": 17,
+        "attacks": []
+      },
+      {
+        "tag": "#Y002",
+        "name": "bruh 2",
+        "mapPosition": 2,
+        "townhallLevel": 16,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y008",
+        "name": "bruh 3",
+        "mapPosition": 3,
+        "townhallLevel": 15,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y009",
+        "name": "bruh 4",
+        "mapPosition": 4,
+        "townhallLevel": 14,
+        "attacks": []
+      },
+      {
+        "tag": "#Y00P",
+        "name": "bruh 5",
+        "mapPosition": 5,
+        "townhallLevel": 13,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y00Y",
+        "name": "bruh 6",
+        "mapPosition": 6,
+        "townhallLevel": 17,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y00L",
+        "name": "bruh 7",
+        "mapPosition": 7,
+        "townhallLevel": 16,
+        "attacks": []
+      },
+      {
+        "tag": "#Y00Q",
+        "name": "bruh 8",
+        "mapPosition": 8,
+        "townhallLevel": 15,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y00G",
+        "name": "bruh 9",
+        "mapPosition": 9,
+        "townhallLevel": 14,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y00R",
+        "name": "bruh 10",
+        "mapPosition": 10,
+        "townhallLevel": 13,
+        "attacks": []
+      },
+      {
+        "tag": "#Y00J",
+        "name": "bruh 11",
+        "mapPosition": 11,
+        "townhallLevel": 17,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y00C",
+        "name": "bruh 12",
+        "mapPosition": 12,
+        "townhallLevel": 16,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y00U",
+        "name": "bruh 13",
+        "mapPosition": 13,
+        "townhallLevel": 15,
+        "attacks": []
+      },
+      {
+        "tag": "#Y00V",
+        "name": "bruh 14",
+        "mapPosition": 14,
+        "townhallLevel": 14,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y020",
+        "name": "bruh 15",
+        "mapPosition": 15,
+        "townhallLevel": 13,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      }
+    ]
+  },
+  "opponent": {
+    "tag": "#9YQ2",
+    "name": "Rivals",
+    "clanLevel": 10,
+    "attacks": 25,
+    "stars": 34,
+    "destructionPercentage": 87.2,
+    "members": [
+      {
+        "tag": "#Y0Q8",
+        "name": "Rivals 1",
+        "mapPosition": 1,
+        "townhallLevel": 17,
+        "attacks": []
+      },
+      {
+        "tag": "#Y0Q9",
+        "name": "Rivals 2",
+        "mapPosition": 2,
+        "townhallLevel": 16,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y0QP",
+        "name": "Rivals 3",
+        "mapPosition": 3,
+        "townhallLevel": 15,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y0QY",
+        "name": "Rivals 4",
+        "mapPosition": 4,
+        "townhallLevel": 14,
+        "attacks": []
+      },
+      {
+        "tag": "#Y0QL",
+        "name": "Rivals 5",
+        "mapPosition": 5,
+        "townhallLevel": 13,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y0QQ",
+        "name": "Rivals 6",
+        "mapPosition": 6,
+        "townhallLevel": 17,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y0QG",
+        "name": "Rivals 7",
+        "mapPosition": 7,
+        "townhallLevel": 16,
+        "attacks": []
+      },
+      {
+        "tag": "#Y0QR",
+        "name": "Rivals 8",
+        "mapPosition": 8,
+        "townhallLevel": 15,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y0QJ",
+        "name": "Rivals 9",
+        "mapPosition": 9,
+        "townhallLevel": 14,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y0QC",
+        "name": "Rivals 10",
+        "mapPosition": 10,
+        "townhallLevel": 13,
+        "attacks": []
+      },
+      {
+        "tag": "#Y0QU",
+        "name": "Rivals 11",
+        "mapPosition": 11,
+        "townhallLevel": 17,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y0QV",
+        "name": "Rivals 12",
+        "mapPosition": 12,
+        "townhallLevel": 16,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y0G0",
+        "name": "Rivals 13",
+        "mapPosition": 13,
+        "townhallLevel": 15,
+        "attacks": []
+      },
+      {
+        "tag": "#Y0G2",
+        "name": "Rivals 14",
+        "mapPosition": 14,
+        "townhallLevel": 14,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      },
+      {
+        "tag": "#Y0G8",
+        "name": "Rivals 15",
+        "mapPosition": 15,
+        "townhallLevel": 13,
+        "attacks": [
+          {
+            "stars": 3,
+            "destructionPercentage": 100
+          }
+        ]
+      }
+    ]
+  }
+}
