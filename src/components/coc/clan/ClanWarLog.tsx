@@ -7,7 +7,7 @@ import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { groupedNumber, shortDate, timeAgo } from '@/lib/clan';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
-import { Source } from '../CocBits';
+import { Art, Source } from '../CocBits';
 import { ClanBadge, EmptyState } from './ClanBits';
 import { useDetailSheet } from './DetailSheetProvider';
 
@@ -131,9 +131,11 @@ export function ClanWarLog({ clan, tag }: { clan: ApiRecord; tag: string }) {
                 onPress={() => setOpen(expanded ? undefined : i)}
               >
                 <View style={s.score}>
-                  <Text style={s.stars}>
-                    {text(us['stars'])} <Text style={s.starGlyph}>★</Text> {text(them['stars'])}
-                  </Text>
+                  <View style={s.starLine}>
+                    <Text style={s.stars}>{text(us['stars'])}</Text>
+                    <Art name="star" size={14} />
+                    <Text style={s.stars}>{text(them['stars'])}</Text>
+                  </View>
                   <Text style={s.destruction}>
                     {pct(us['destructionPercentage'])} · {pct(them['destructionPercentage'])}
                   </Text>
@@ -302,8 +304,8 @@ const build = (t: Theme) =>
     meta: { marginTop: 3, fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
     score: { alignItems: 'flex-end' },
+    starLine: { flexDirection: 'row', alignItems: 'center', gap: 5 },
     stars: { fontFamily: t.fonts.display, fontSize: 14, color: t.foreground },
-    starGlyph: { color: t.cocHighlight },
     destruction: { marginTop: 3, fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
     chevron: { width: 14, textAlign: 'center', fontSize: 13, color: t.mutedForeground },
 

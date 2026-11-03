@@ -8,7 +8,7 @@ import { Meter } from '@/components/ui/Meter';
 import { Panel } from '@/components/ui/Panel';
 import { Tabs } from '@/components/ui/Tabs';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
-import { Art, SmallStat } from './CocBits';
+import { Art, SmallStat, Stars } from './CocBits';
 import { useDetailSheet } from './clan/DetailSheetProvider';
 import { UnitGrid } from './UnitGrid';
 
@@ -86,7 +86,7 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
             value={player['trophies']}
             icon="trophy"
           />
-          <SmallStat label="War stars" value={player['warStars']} icon="war" />
+          <SmallStat label="War stars" value={player['warStars']} icon="star" />
         </View>
 
         <View style={s.compactGrid}>
@@ -185,7 +185,7 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
             <View key={i}>
               <View style={s.achievementRow}>
                 <Text style={s.achievementName}>{text(a['name'])}</Text>
-                <Text style={s.stars}>{'★'.repeat(Math.min(3, Number(a['stars']) || 0))}</Text>
+                <Stars count={a['stars']} size={12} />
               </View>
               <Meter value={Number(a['value'])} max={Number(a['target'])} />
               <Text style={s.achievementValue}>
@@ -234,5 +234,4 @@ const build = (t: Theme) =>
     achievementRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12, marginBottom: 6 },
     achievementName: { flexShrink: 1, fontSize: 12, color: t.foreground, fontFamily: t.fonts.sans },
     achievementValue: { marginTop: 4, fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
-    stars: { color: t.cocHighlight, fontSize: 12 },
   });

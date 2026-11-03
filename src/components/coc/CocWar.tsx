@@ -53,9 +53,11 @@ export function CocWar({ data }: { data: ApiRecord }) {
             </Text>
           </Pressable>
           <View style={s.score}>
-            <Text style={s.scoreText}>
-              {text(clan['stars'])} <Text style={s.starGlyph}>★</Text> {text(enemy['stars'])}
-            </Text>
+            <View style={s.starLine}>
+              <Text style={s.scoreText}>{text(clan['stars'])}</Text>
+              <Art name="star" size={18} />
+              <Text style={s.scoreText}>{text(enemy['stars'])}</Text>
+            </View>
             <Text style={s.destruction}>
               {text(clan['destructionPercentage'])}% · {text(enemy['destructionPercentage'])}%
             </Text>
@@ -135,8 +137,8 @@ const build = (t: Theme) =>
     sideArt: { alignSelf: 'center' },
     sideName: { marginTop: 8, textAlign: 'center', fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
     score: { alignItems: 'center' },
+    starLine: { flexDirection: 'row', alignItems: 'center', gap: 7 },
     scoreText: { fontFamily: t.fonts.display, fontSize: 28, color: t.foreground },
-    starGlyph: { color: t.cocHighlight },
     destruction: { marginTop: 8, fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
     attackRow: { flexDirection: 'row', gap: 12 },

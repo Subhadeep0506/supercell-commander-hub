@@ -6,10 +6,15 @@ name: Android APK
 # is developed on blocks two of the three hosts.
 
 on:
+  # Deliberately every branch rather than `[main]`. A branch filter only fires
+  # when the pushed branch matches by name, so a repository whose default
+  # branch is `master` -- or any work pushed from a side branch -- silently
+  # built nothing at all, which is exactly what happened. Releases are still
+  # published only from the default branch and tags, see the last step.
   push:
-    branches: [main]
+    branches: ['**']
+    tags: ['v*']
   pull_request:
-    branches: [main]
   workflow_dispatch:
     inputs:
       variant:
@@ -21,6 +26,12 @@ on:
 concurrency:
   group: android-${{ github.ref }}
   cancel-in-progress: true
+
+# Needed to create and update Releases. The default GITHUB_TOKEN is read-only
+# on repositories created since 2023, and `gh release create` fails with a 403
+# without this.
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -67,6 +78,15 @@ jobs:
             echo "BS_API_KEY=${BS_API_KEY}"
           } > .env
           bun run keys
+          # make-keys only warns on an empty token, so a keyless APK builds,
+          # installs, and then fails every request with nothing on screen to
+          # say why -- the missing-key readout lives on the dev probe screen
+          # only. Secrets are per repository and do not follow a repo to a new
+          # owner, so this is precisely what breaks after a move.
+          if ! grep -q 'MISSING_KEYS: string\[\] = \[\]' src/config/keys.ts; then
+            echo "::error::API key secrets are not set on this repository. Add COC_API_KEY, CR_API_KEY and BS_API_KEY under Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
 
       - name: Verify bundled artwork is present
         run: |
@@ -105,7 +125,11 @@ jobs:
         run: |
           FILE=$(find android/app/build/outputs/apk -name '*.apk' | head -1)
           test -n "$FILE" || { echo "::error::no APK produced"; exit 1; }
-          echo "path=$FILE" >> "$GITHUB_OUTPUT"
+          # Gradle names every build app-release.apk. Renaming here gives the
+          # release asset a stable, meaningful download name.
+          mkdir -p dist
+          cp "$FILE" dist/clash-board.apk
+          echo "path=dist/clash-board.apk" >> "$GITHUB_OUTPUT"
           echo "size=$(du -h "$FILE" | cut -f1)" >> "$GITHUB_OUTPUT"
           echo "Built $FILE ($(du -h "$FILE" | cut -f1))" >> "$GITHUB_STEP_SUMMARY"
 
@@ -116,3 +140,49 @@ jobs:
           path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
           retention-days: 30
+
+      # Attaching the APK to a Release gives it a permanent, public download
+      # link, rather than a run artifact that expires and needs a GitHub login
+      # to fetch. Pushing a `v*` tag cuts a real versioned release; every other
+      # build on the default branch rolls the `latest` prerelease forward.
+      #
+      # Skipped on pull requests, and on side branches, so an experiment cannot
+      # replace the APK that `latest` is pointing at.
+      - name: Publish APK to Releases
+        if: >-
+          github.event_name != 'pull_request' &&
+          (startsWith(github.ref, 'refs/tags/v') ||
+           github.ref_name == github.event.repository.default_branch)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF_NAME}"
+            TITLE="${GITHUB_REF_NAME}"
+            PRERELEASE=""
+          else
+            TAG="latest"
+            TITLE="Latest build (#${{ github.run_number }})"
+            PRERELEASE="--prerelease"
+            # A rolling tag has to be torn down first: `gh release create`
+            # refuses an existing tag, and editing in place would leave the
+            # previous APK attached beside the new one.
+            gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
+          fi
+          # Written to a file rather than passed inline: a multi-line string
+          # inside this block carries the YAML indentation with it, and the
+          # release body renders as a code block.
+          {
+            echo "Variant: ${{ inputs.variant || 'release' }} · arm64-v8a · ${{ steps.apk.outputs.size }}"
+            echo
+            echo "Built from \`${GITHUB_SHA}\` by run #${{ github.run_number }}."
+            echo
+            echo "Debug-signed for sideloading. Uninstall any previous copy first if Android refuses the update."
+          } > release-notes.md
+          gh release create "$TAG" "${{ steps.apk.outputs.path }}" \
+            --title "$TITLE" \
+            --target "$GITHUB_SHA" \
+            --notes-file release-notes.md \
+            $PRERELEASE
+          echo "Published to release **$TAG**" >> "$GITHUB_STEP_SUMMARY"

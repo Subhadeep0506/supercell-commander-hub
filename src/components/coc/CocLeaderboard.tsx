@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
-import { townHallArt } from '@/assets/art';
+import { COC_ART, NAV_ART, townHallArt } from '@/assets/art';
+import { raidMedalArt } from '@/assets/capital';
+import { playerLeagueArt } from '@/assets/leagues';
 import { gameQuery } from '@/api/queries';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import {
@@ -13,7 +15,7 @@ import {
   leagueUri,
   rankMove,
   rankScore,
-  rankSubtitle,
+  rankSubtitleParts,
   searchable,
   type Board,
   type Mode,
@@ -25,7 +27,8 @@ import { SearchField } from '@/components/ui/SearchField';
 import { Sheet } from '@/components/ui/Sheet';
 import { Tabs } from '@/components/ui/Tabs';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
-import { Art, Source } from './CocBits';
+import { Source } from './CocBits';
+import { ClanBadge } from './clan/ClanBits';
 import { useDetailSheet } from './clan/DetailSheetProvider';
 
 type Place = { id: string; name: string; countryCode?: string };
@@ -129,7 +132,7 @@ export function CocLeaderboard() {
         accessibilityLabel="Ranking type"
         value={mode}
         onChange={(id) => setMode(id as Mode)}
-        chips={MODES[board].map((m) => ({ id: m.id, label: m.label }))}
+        chips={MODES[board].map((m) => ({ id: m.id, label: m.label, icon: scoreIcon(m.id) }))}
       />
 
       <SearchField
@@ -152,17 +155,18 @@ export function CocLeaderboard() {
                 style={s.podiumPlace}
                 onPress={() => open(entry)}
               >
-                <Badge entry={entry} board={board} size={56} theme={theme} />
+                <Badge entry={entry} board={board} mode={mode} size={56} theme={theme} />
                 <View style={[s.medal, i === 1 && s.medalWinner]}>
                   <Text style={s.medalText}>{text(entry['rank'])}</Text>
                 </View>
                 <Text style={s.podiumName} numberOfLines={1}>
                   {text(entry['name'])}
                 </Text>
-                <Text style={s.podiumSub} numberOfLines={1}>
-                  {rankSubtitle(entry, board)}
-                </Text>
-                <Text style={s.podiumScore}>{rankScore(entry, board, mode)}</Text>
+                <Subtitle entry={entry} board={board} theme={theme} centred />
+                <View style={s.podiumScoreRow}>
+                  <Image source={scoreIcon(mode)} style={s.scoreIcon} resizeMode="contain" />
+                  <Text style={s.podiumScore}>{rankScore(entry, board, mode)}</Text>
+                </View>
                 <Move entry={entry} theme={theme} />
                 <View
                   style={[s.podiumBase, i === 1 ? s.podiumBaseWinner : i === 2 && s.podiumBaseThird]}
@@ -186,18 +190,14 @@ export function CocLeaderboard() {
               <Text style={s.rank}>{text(entry['rank'])}</Text>
               <Move entry={entry} theme={theme} compact />
             </View>
-            <Badge entry={entry} board={board} size={36} theme={theme} />
+            <Badge entry={entry} board={board} mode={mode} size={36} theme={theme} />
             <View style={s.rowText}>
               <Text style={s.rowName} numberOfLines={1}>
                 {text(entry['name'])}
               </Text>
-              <Text style={s.rowSub} numberOfLines={1}>
-                {board === 'clans'
-                  ? `${flagEmoji(record(entry['location'])['countryCode']) ?? ''} ${rankSubtitle(entry, board)}`.trim()
-                  : rankSubtitle(entry, board)}
-              </Text>
+              <Subtitle entry={entry} board={board} theme={theme} />
             </View>
-            <Art name="trophy" size={18} />
+            <Image source={scoreIcon(mode)} style={s.scoreIcon} resizeMode="contain" />
             <Text style={s.rowScore}>{rankScore(entry, board, mode)}</Text>
           </Pressable>
         ))}
@@ -257,28 +257,102 @@ export function CocLeaderboard() {
   );
 }
 
-/** Clan badge, player league icon, or Town Hall art -- whichever the row has. */
+/**
+ * Clan badge, player league icon, or Town Hall art -- whichever the row has.
+ *
+ * Both sources here are remote, and on a network that cannot reach Supercell's
+ * CDN RemoteImage renders nothing at all, which is what left this column blank.
+ * Every branch therefore carries a bundled fallback: the league badge for the
+ * ladder being shown, then the player's Town Hall; clans reuse ClanBadge,
+ * which already falls back to bundled art of its own.
+ */
 function Badge({
   entry,
   board,
+  mode,
   size,
   theme,
 }: {
   entry: ApiRecord;
   board: Board;
+  mode: Mode;
   size: number;
   theme: Theme;
 }) {
   const s = useMemo(() => build(theme), [theme]);
-  const uri = board === 'clans' ? badgeUri(entry, board) : (leagueUri(entry) ?? badgeUri(entry, board));
-  const hall = board === 'players' ? townHallArt(entry['townHallLevel']) : undefined;
-  if (uri) {
+
+  // No `level` -- ranking rows carry no clanLevel, unlike the clan sheet.
+  if (board === 'clans') return <ClanBadge clan={entry} size={size} />;
+
+  const hall = townHallArt(entry['townHallLevel']);
+  const fallback = playerLeagueArt(entry, mode) ?? hall;
+  const uri = leagueUri(entry) ?? badgeUri(entry, board);
+  if (uri || fallback) {
+    return <RemoteImage uri={uri} fallback={fallback} style={{ width: size, height: size }} />;
+  }
+  return <View style={[s.badgeFallback, { width: size, height: size }]} />;
+}
+
+/**
+ * The artwork beside a score, which is a different currency per ladder.
+ *
+ * Capital uses the Raid Medal, matching the medal the clan sheet already
+ * shows against `clanCapitalPoints`.
+ */
+function scoreIcon(mode: Mode) {
+  if (mode === 'builder') return NAV_ART.builder;
+  if (mode === 'capital') return raidMedalArt() ?? COC_ART['trophy'];
+  return COC_ART['trophy'];
+}
+
+/** Secondary line: clan crest and name for players, flag/place/size for clans. */
+function Subtitle({
+  entry,
+  board,
+  theme,
+  centred = false,
+}: {
+  entry: ApiRecord;
+  board: Board;
+  theme: Theme;
+  centred?: boolean;
+}) {
+  const s = useMemo(() => build(theme), [theme]);
+  const parts = rankSubtitleParts(entry, board);
+  const style = [s.rowSub, centred && s.subCentred];
+
+  if (board === 'clans') {
+    const flag = flagEmoji(parts.countryCode);
     return (
-      <RemoteImage uri={uri} fallback={hall} style={{ width: size, height: size }} />
+      <View style={[s.subRow, centred && s.subRowCentred]}>
+        {flag ? <Text style={style}>{flag}</Text> : null}
+        {parts.place ? (
+          <Text style={style} numberOfLines={1}>
+            {parts.place}
+          </Text>
+        ) : null}
+        {parts.members ? (
+          <>
+            <Image source={NAV_ART.clan} style={s.subIcon} resizeMode="contain" />
+            <Text style={style}>{parts.members}</Text>
+          </>
+        ) : null}
+      </View>
     );
   }
-  if (hall) return <Image source={hall} style={{ width: size, height: size }} resizeMode="contain" />;
-  return <View style={[s.badgeFallback, { width: size, height: size }]} />;
+
+  return (
+    <View style={[s.subRow, centred && s.subRowCentred]}>
+      <RemoteImage
+        uri={badgeUri(entry, board)}
+        fallback={NAV_ART.clan}
+        style={s.subIcon}
+      />
+      <Text style={style} numberOfLines={1}>
+        {parts.clanName}
+      </Text>
+    </View>
+  );
 }
 
 /** Up/down movement since the last ranking period, from `previousRank`. */
@@ -340,8 +414,8 @@ const build = (t: Theme) =>
     medalWinner: { backgroundColor: t.cocHighlight },
     medalText: { fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
     podiumName: { marginTop: 10, width: '100%', textAlign: 'center', fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
-    podiumSub: { marginTop: 3, width: '100%', textAlign: 'center', fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
-    podiumScore: { marginTop: 6, fontFamily: t.fonts.display, fontSize: 14, color: t.cocHighlight },
+    podiumScoreRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
+    podiumScore: { fontFamily: t.fonts.display, fontSize: 14, color: t.cocHighlight },
     podiumBase: {
       width: '100%',
       height: 27,
@@ -372,8 +446,13 @@ const build = (t: Theme) =>
     rank: { fontFamily: t.fonts.display, fontSize: 14, color: t.foreground },
     rowText: { flex: 1, minWidth: 0 },
     rowName: { fontFamily: t.fonts.display, fontSize: 13, color: t.foreground },
-    rowSub: { marginTop: 3, fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    rowSub: { flexShrink: 1, fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    subRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
+    subRowCentred: { justifyContent: 'center' },
+    subCentred: { textAlign: 'center' },
+    subIcon: { width: 12, height: 12, flexShrink: 0 },
     rowScore: { fontFamily: t.fonts.display, fontSize: 13, color: t.foreground },
+    scoreIcon: { width: 18, height: 18, flexShrink: 0 },
     badgeFallback: { backgroundColor: t.muted, borderRadius: 6 },
 
     move: { marginTop: 4, fontSize: 11, fontFamily: t.fonts.display },

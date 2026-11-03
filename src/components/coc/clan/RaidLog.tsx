@@ -6,23 +6,9 @@ import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { attacksPerCapital, compactNumber, raidLogTotals, raidOpponent } from '@/lib/clan';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
+import { Stars } from '../CocBits';
 import { ClanBadge } from './ClanBits';
 import { useDetailSheet } from './DetailSheetProvider';
-
-/** Three slots, filled to `stars`. */
-function Stars({ stars, theme }: { stars: unknown; theme: Theme }) {
-  const s = useMemo(() => build(theme), [theme]);
-  const n = Math.max(0, Math.min(3, Number(stars) || 0));
-  return (
-    <View style={s.stars}>
-      {[0, 1, 2].map((i) => (
-        <Text key={i} style={[s.star, i < n ? s.starOn : s.starOff]}>
-          ★
-        </Text>
-      ))}
-    </View>
-  );
-}
 
 /**
  * The capitals this clan raided, or that raided it.
@@ -192,7 +178,7 @@ export function RaidLog({
                             <Text style={s.districtName} numberOfLines={1}>
                               {text(district['name'])}
                             </Text>
-                            <Stars stars={district['stars']} theme={theme} />
+                            <Stars count={district['stars']} />
                           </View>
 
                           <View style={s.meter}>
@@ -223,7 +209,7 @@ export function RaidLog({
                                   <Text style={s.attackName} numberOfLines={1}>
                                     {text(attacker['name'])}
                                   </Text>
-                                  <Stars stars={attack['stars']} theme={theme} />
+                                  <Stars count={attack['stars']} />
                                   <Text style={s.attackPct}>
                                     {Math.round(Number(attack['destructionPercent']) || 0)}%
                                   </Text>
@@ -329,8 +315,4 @@ const build = (t: Theme) =>
     attackName: { flex: 1, minWidth: 0, fontSize: 12, color: t.primary, fontFamily: t.fonts.sans },
     attackPct: { width: 42, textAlign: 'right', fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
-    stars: { flexDirection: 'row', gap: 1 },
-    star: { fontSize: 13 },
-    starOn: { color: t.cocHighlight },
-    starOff: { color: t.border },
   });

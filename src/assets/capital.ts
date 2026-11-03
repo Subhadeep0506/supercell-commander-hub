@@ -1,5 +1,6 @@
 import type { ImageSourcePropType } from 'react-native';
 import { cocCapitalImages } from './registry.cocCapital';
+import { leagueSlug, slug } from './slug';
 
 /**
  * Artwork for the clan detail sheet: Clan Capital districts, capital and war
@@ -9,26 +10,6 @@ import { cocCapitalImages } from './registry.cocCapital';
  * hand-maintained key map -- every one of these slugifies cleanly onto a
  * filename, so there is nothing to keep in sync by hand.
  */
-
-/** "Trophy Pushing" -> "trophy-pushing"; "Capital Peak" -> "capital-peak". */
-function slug(name: unknown): string {
-  if (typeof name !== 'string') return '';
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
-/**
- * League names only: "Titan League I" -> "titan-i", "Legend League" -> "legend".
- *
- * Deliberately not shared with `slug`. The clan label "Clan War League" is
- * filed as `clan-war-league`, so dropping the word there would miss it.
- */
-function leagueSlug(name: unknown): string {
-  if (typeof name !== 'string') return '';
-  return slug(name.replace(/\bleagues?\b/gi, ' '));
-}
 
 /**
  * District tile artwork.

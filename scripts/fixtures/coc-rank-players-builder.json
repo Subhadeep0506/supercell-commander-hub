@@ -21,6 +21,10 @@
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Diamond League"
       }
     },
     {
@@ -40,10 +44,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Titan League I",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Ruby League II"
       }
     },
     {
@@ -63,10 +71,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Champion League II",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Emerald League III"
       }
     },
     {
@@ -86,10 +98,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Master League III",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Platinum League I"
       }
     },
     {
@@ -109,10 +125,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Crystal League I",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Titanium League II"
       }
     },
     {
@@ -132,10 +152,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Gold League II",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Steel League III"
       }
     },
     {
@@ -155,10 +179,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Silver League III",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Iron League I"
       }
     },
     {
@@ -178,10 +206,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Bronze League I",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Brass League II"
       }
     },
     {
@@ -205,6 +237,10 @@
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Copper League IV"
       }
     },
     {
@@ -224,10 +260,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Titan League I",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Stone League V"
       }
     },
     {
@@ -247,10 +287,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Champion League II",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Clay League III"
       }
     },
     {
@@ -270,10 +314,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Master League III",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Wood League V"
       }
     },
     {
@@ -293,10 +341,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Crystal League I",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Diamond League"
       }
     },
     {
@@ -316,10 +368,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Gold League II",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Ruby League II"
       }
     },
     {
@@ -339,10 +395,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Silver League III",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Emerald League III"
       }
     },
     {
@@ -362,10 +422,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Bronze League I",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Platinum League I"
       }
     },
     {
@@ -389,6 +453,10 @@
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Titanium League II"
       }
     },
     {
@@ -408,10 +476,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Titan League I",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Steel League III"
       }
     },
     {
@@ -431,10 +503,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Champion League II",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Iron League I"
       }
     },
     {
@@ -454,10 +530,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Master League III",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Brass League II"
       }
     },
     {
@@ -477,10 +557,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Crystal League I",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Copper League IV"
       }
     },
     {
@@ -500,10 +584,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Gold League II",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Stone League V"
       }
     },
     {
@@ -523,10 +611,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Silver League III",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Clay League III"
       }
     },
     {
@@ -546,10 +638,14 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
+        "name": "Bronze League I",
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Wood League V"
       }
     },
     {
@@ -573,6 +669,10 @@
         "iconUrls": {
           "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
         }
+      },
+      "builderBaseLeague": {
+        "id": 44000040,
+        "name": "Diamond League"
       }
     }
   ]

@@ -7,6 +7,7 @@ import {
   View,
   type ImageStyle,
   type StyleProp,
+  type ViewStyle,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COC_ART, superTroopArt } from '@/assets/art';
@@ -47,6 +48,36 @@ export function Art({
 }
 
 const artBase: ImageStyle = { flexShrink: 0 };
+
+/**
+ * A run of star slots, filled to `count`.
+ *
+ * Every star in the app is this one fan-kit icon. Unearned slots are the same
+ * image dimmed rather than a second asset: React Native has no grayscale
+ * filter, and opacity reads correctly against both the card and muted
+ * backgrounds this appears on.
+ */
+export function Stars({
+  count,
+  max = 3,
+  size = 13,
+}: {
+  count: unknown;
+  max?: number;
+  size?: number;
+}) {
+  const n = Math.max(0, Math.min(max, Number(count) || 0));
+  return (
+    <View style={starsRow}>
+      {Array.from({ length: max }, (_, i) => (
+        <Art key={i} name="star" size={size} style={i < n ? undefined : starOff} />
+      ))}
+    </View>
+  );
+}
+
+const starsRow: ViewStyle = { flexDirection: 'row', alignItems: 'center', gap: 1 };
+const starOff: ImageStyle = { opacity: 0.22 };
 
 function bookFallback(name: string) {
   const entry = playerBookItem(name);

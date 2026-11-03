@@ -331,7 +331,11 @@ await clickLabel('Clans');
 await settle(1500);
 const clans = await body();
 check('clans ladder loads', clans.includes('ABO_FAHAD CLAN 1'));
-check('clan rows show location and size', /United States · 50\/50/.test(clans));
+// The two now sit either side of a clan icon rather than a "·" separator.
+check(
+  'clan rows show location and size',
+  /United States/.test(clans) && /50\/50/.test(clans),
+);
 
 await clickLabel('Capital');
 await settle(1500);

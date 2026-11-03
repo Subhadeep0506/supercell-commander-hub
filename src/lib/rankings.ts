@@ -76,6 +76,34 @@ export function rankSubtitle(entry: ApiRecord, board: Board): string {
   return text(record(entry['clan'])['name'] ?? 'No clan');
 }
 
+/**
+ * The same subtitle facts, kept apart so each can carry its own icon.
+ *
+ * `rankSubtitle` stays as the joined string because `searchable` matches
+ * against it -- splitting that would quietly change what a search finds.
+ */
+export type SubtitleParts = {
+  place?: string;
+  countryCode?: string;
+  members?: string;
+  clanName?: string;
+};
+
+export function rankSubtitleParts(entry: ApiRecord, board: Board): SubtitleParts {
+  if (board === 'clans') {
+    const location = record(entry['location']);
+    const place = text(location['name'] ?? '');
+    const members = text(entry['members']);
+    return {
+      place: place === '—' ? undefined : place,
+      countryCode: typeof location['countryCode'] === 'string' ? location['countryCode'] : undefined,
+      members: members === '—' ? undefined : `${members}/50`,
+    };
+  }
+  const name = text(record(entry['clan'])['name'] ?? 'No clan');
+  return { clanName: name };
+}
+
 /** Badge artwork URL, across the shapes the ranking endpoints return. */
 export function badgeUri(entry: ApiRecord, board: Board): string | undefined {
   const urls = record(board === 'clans' ? entry['badgeUrls'] : record(entry['clan'])['badgeUrls']);

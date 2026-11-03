@@ -228,6 +228,7 @@ export function ClanOverview({
             <HGrid
               items={districts}
               tileWidth={DISTRICT_TILE}
+              fill
               accessibilityLabel="Clan Capital districts"
               keyExtractor={(d, i) => `${text(d['name'])}-${i}`}
               renderItem={(district) => {

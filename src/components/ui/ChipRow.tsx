@@ -1,9 +1,22 @@
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Button } from './Button';
 
-export type Chip = { id: string; label: string; count?: number };
+export type Chip = {
+  id: string;
+  label: string;
+  count?: number;
+  /** Optional artwork before the label. The Clash Book filter uses `count`. */
+  icon?: ImageSourcePropType;
+};
 
 /**
  * `.book-categories` -- a horizontally scrolling row of filter chips with the
@@ -43,6 +56,9 @@ export function ChipRow({
             onPress={() => onChange(chip.id)}
           >
             <View style={s.chipInner}>
+              {chip.icon ? (
+                <Image source={chip.icon} style={s.icon} resizeMode="contain" />
+              ) : null}
               <Text style={[s.label, active && s.labelActive]}>{chip.label}</Text>
               {chip.count === undefined ? null : (
                 <Text style={[s.count, active && s.labelActive]}>{chip.count}</Text>
@@ -60,6 +76,7 @@ const build = (t: Theme) =>
     scroll: { flexGrow: 0, paddingTop: 16, paddingBottom: 22 },
     row: { flexDirection: 'row', gap: 8 },
     chipInner: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    icon: { width: 16, height: 16 },
     label: { fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
     labelActive: { color: t.primaryForeground },
     count: { fontFamily: t.fonts.display, fontSize: 12, color: t.foreground, opacity: 0.65 },

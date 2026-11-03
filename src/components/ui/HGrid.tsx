@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 /**
@@ -24,6 +24,7 @@ export function HGrid<T>({
   renderItem,
   tileWidth,
   gap = 8,
+  fill = false,
   keyExtractor,
   accessibilityLabel,
 }: {
@@ -36,10 +37,22 @@ export function HGrid<T>({
    */
   tileWidth: number;
   gap?: number;
+  /**
+   * Stretch the columns to fill the width when they all fit without
+   * scrolling.
+   *
+   * Off by default, because `tileWidth` is usually a deliberate art size -- a
+   * four-tile hero row would balloon to 134px a tile. Worth turning on where
+   * the block is meant to read as a filled grid rather than a scroller, like
+   * the nine Clan Capital districts, which otherwise leave a dead strip down
+   * the right of their panel.
+   */
+  fill?: boolean;
   keyExtractor?: (item: T, index: number) => string;
   accessibilityLabel?: string;
 }) {
   const rows = items.length <= SINGLE_ROW_MAX ? 1 : MAX_ROWS;
+  const [available, setAvailable] = useState(0);
 
   const columns = useMemo(() => {
     const count = Math.ceil(items.length / rows);
@@ -50,6 +63,14 @@ export function HGrid<T>({
 
   if (!items.length) return null;
 
+  // Only widen, and only once the content is known to fit -- a grid that
+  // genuinely overflows keeps its tile size and scrolls as before.
+  const gutters = (columns.length - 1) * gap;
+  const width =
+    fill && available > 0 && columns.length * tileWidth + gutters <= available
+      ? (available - gutters) / columns.length
+      : tileWidth;
+
   return (
     <ScrollView
       horizontal
@@ -57,9 +78,10 @@ export function HGrid<T>({
       accessibilityLabel={accessibilityLabel}
       style={s.scroll}
       contentContainerStyle={[s.track, { gap }]}
+      onLayout={fill ? (e) => setAvailable(e.nativeEvent.layout.width) : undefined}
     >
       {columns.map((column, c) => (
-        <View key={c} style={[s.column, { width: tileWidth, gap }]}>
+        <View key={c} style={[s.column, { width, gap }]}>
           {column.map(({ item, index }) => (
             <View key={keyExtractor?.(item, index) ?? index}>{renderItem(item, index)}</View>
           ))}

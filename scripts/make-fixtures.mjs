@@ -464,6 +464,38 @@ const warLog = {
 
 // Rankings. `previousRank` is a real API field -- verified against
 // Supercell's live response -- so the up/down movement is genuine data.
+
+// Cycled across the rows so the ladder renders more than one badge. Every
+// trophy family appears once, which is what proves the lookup drops the
+// roman-numeral tier rather than matching only the exact name.
+const TROPHY_LEAGUES = [
+  'Legend League',
+  'Titan League I',
+  'Champion League II',
+  'Master League III',
+  'Crystal League I',
+  'Gold League II',
+  'Silver League III',
+  'Bronze League I',
+];
+
+// Builder Base art is per tier, not per family, so these are deliberately
+// spread across tiers as well as families.
+const BUILDER_LEAGUES = [
+  'Diamond League',
+  'Ruby League II',
+  'Emerald League III',
+  'Platinum League I',
+  'Titanium League II',
+  'Steel League III',
+  'Iron League I',
+  'Brass League II',
+  'Copper League IV',
+  'Stone League V',
+  'Clay League III',
+  'Wood League V',
+];
+
 const playerBoard = (mode) => ({
   items: Array.from({ length: 25 }, (_, i) => ({
     tag: fakeTag('P', i),
@@ -480,7 +512,21 @@ const playerBoard = (mode) => ({
       name: `Top Clan ${i % 7}`,
       badgeUrls: { medium: `${CDN}/badges/200/placeholder-${i}.png` },
     },
-    league: { id: 29000022, name: 'Legend League', iconUrls: { medium: `${CDN}/leagues/72/legend.png` } },
+    league: {
+      id: 29000022,
+      name: TROPHY_LEAGUES[i % TROPHY_LEAGUES.length],
+      iconUrls: { medium: `${CDN}/leagues/72/legend.png` },
+    },
+    // No iconUrls: the builder ladder genuinely has none, which is why the
+    // bundled set is the only way this badge ever renders.
+    ...(mode === 'builder'
+      ? {
+          builderBaseLeague: {
+            id: 44000040,
+            name: BUILDER_LEAGUES[i % BUILDER_LEAGUES.length],
+          },
+        }
+      : {}),
   })),
 });
 

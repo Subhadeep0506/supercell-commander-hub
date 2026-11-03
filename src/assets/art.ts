@@ -23,6 +23,7 @@ const DETAIL_ART: Record<string, ImageSourcePropType | undefined> = {
   elixir: cocDetailImages['elixir'],
   'dark-elixir': cocDetailImages['dark-elixir'],
   legend: cocDetailImages['legend'],
+  star: cocDetailImages['star'],
   'Lightning Spell': cocDetailImages['lightning-spell'],
   'Healing Spell': cocDetailImages['healing-spell'],
   'Rage Spell': cocDetailImages['rage-spell'],

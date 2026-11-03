@@ -167,6 +167,35 @@ const CAPITAL_DIRS = [
 ];
 
 /**
+ * League badges for the player and clan ladders.
+ *
+ * Three separate league systems, and the two sources split cleanly between
+ * them. clash-of-clans-data carries Builder Base and Ranked artwork already
+ * named the way the API names the league once slugified -- "Wood League V"
+ * slugifies to `wood-v`, which is the filename -- so those need no mapping.
+ *
+ * Builder Base art is per *tier* (42 badges), Ranked art is per *group* (one
+ * badge shared by Barbarian 1-3), which is how each is drawn in game.
+ *
+ * Home Village trophy leagues are the gap: the dataset has no set at all, so
+ * they come from the fan-kit drop-in below.
+ */
+const LEAGUE_DIRS = [
+  { dir: 'images/builder/leagues', prefix: 'bb-league', max: 128 },
+  { dir: 'images/ranked-battles/leagues', prefix: 'ranked-league', max: 128 },
+];
+
+/**
+ * Home Village trophy league badges, kebab-named per league *family*
+ * ("bronze.png", "legend.png") -- the fan kit has one badge per family rather
+ * than one per roman-numeral tier, so the lookup drops the tier.
+ *
+ * Optional, like the war leagues: absent files leave the ladder falling back
+ * to Town Hall art rather than failing the build.
+ */
+const TROPHY_LEAGUE_DIR = 'coc/leagues';
+
+/**
  * Artwork with no source in either the fan kit or clash-of-clans-data, to be
  * dropped in by hand. Absent files are reported but do not fail the build --
  * every call site falls back to a text chip or a plain empty state, so the app
@@ -308,7 +337,7 @@ async function convert(source, targetDir, name, max, { trim = false } = {}) {
 }
 
 /** Registry name -> [{ lookup, path }]. */
-const registries = { coc: [], cocDetail: [], cocCapital: [], book: [], bookExtra: [], arena: [], logo: [], nav: [], resource: [], super: [] };
+const registries = { coc: [], cocDetail: [], cocCapital: [], cocLeague: [], book: [], bookExtra: [], arena: [], logo: [], nav: [], resource: [], super: [] };
 
 /** Guard against two packs contributing the same key to one registry. */
 function add(registry, lookup, path) {
@@ -395,6 +424,37 @@ for (const group of CAPITAL_DIRS) {
       trim: true,
     });
     if (ok) add('cocCapital', key, `./img/coc-capital/${key}.webp`);
+  }
+}
+
+// Builder Base and Ranked league badges, straight from the dataset. Filenames
+// already match what the API name slugifies to, so the stem is the key.
+for (const group of LEAGUE_DIRS) {
+  const dir = join(COC_DATA, group.dir);
+  if (!existsSync(dir)) {
+    failures.push(`missing league art directory: ${group.dir}`);
+    continue;
+  }
+  for (const file of readdirSync(dir).filter((f) => f.endsWith('.png'))) {
+    const key = `${group.prefix}-${kebab(basename(file, '.png'))}`;
+    const ok = await convert(join(dir, file), join(IMG, 'coc-league'), key, group.max, {
+      trim: true,
+    });
+    if (ok) add('cocLeague', key, `./img/coc-league/${key}.webp`);
+  }
+}
+
+// Home Village trophy leagues. Drop-in only -- the dataset has no set.
+const trophyLeagueDir = join(PACKS, TROPHY_LEAGUE_DIR);
+if (!existsSync(trophyLeagueDir)) {
+  notes.push(`optional art not supplied: assets/packs/${TROPHY_LEAGUE_DIR}/ (trophy league badges)`);
+} else {
+  for (const file of readdirSync(trophyLeagueDir).filter((f) => /\.(png|webp|jpe?g)$/i.test(f))) {
+    const key = `league-${kebab(basename(file, extname(file)))}`;
+    const ok = await convert(join(trophyLeagueDir, file), join(IMG, 'coc-league'), key, 128, {
+      trim: true,
+    });
+    if (ok) add('cocLeague', key, `./img/coc-league/${key}.webp`);
   }
 }
 

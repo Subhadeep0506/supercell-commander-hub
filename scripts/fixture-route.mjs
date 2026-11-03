@@ -21,6 +21,15 @@ const CDN_STANDIN = resolve(here, '../src/assets/img/nav/clan.webp');
  */
 const PRIVATE_WAR_LOG = process.env.FIXTURE_WARLOG === 'private';
 
+/**
+ * Set FIXTURE_CDN=block to fail every CDN image instead of standing one in.
+ *
+ * That is what a restricted network actually does, and it is the only way to
+ * see the bundled fallbacks -- with the stand-in answering, every remote badge
+ * "succeeds" and the fallback branch never runs.
+ */
+const BLOCK_CDN = process.env.FIXTURE_CDN === 'block';
+
 /** Request path -> fixture filename. Most specific patterns first. */
 export function fixtureFor(url) {
   if (/\/currentwar/.test(url)) return 'coc-war.json';
@@ -48,6 +57,7 @@ export async function serveFixtures(page) {
     const url = req.url();
 
     if (url.includes('api-assets.clashofclans.com')) {
+      if (BLOCK_CDN) return void req.abort();
       return void req.respond({
         status: 200,
         contentType: 'image/webp',
