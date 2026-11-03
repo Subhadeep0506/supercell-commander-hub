@@ -11,7 +11,7 @@ import { SearchField } from '@/components/ui/SearchField';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Art, Source } from './CocBits';
 import { CocPlayer } from './CocPlayer';
-import { CocWar } from './CocWar';
+import { WarTabs } from './war/WarTabs';
 import { ClanCard } from './clan/ClanCard';
 import { useDetailSheet } from './clan/DetailSheetProvider';
 
@@ -182,11 +182,20 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
       ) : null}
       {matches && !matches.ok ? <Source result={matches} /> : null}
 
-      {result?.ok && !matches ? (
+      {/*
+        War is gated on having a clan tag rather than on a successful war
+        response: `currentwar` answers 403 for a private war log and
+        `notInWar` throughout a league season, and in both cases the War
+        League tab still has something to show. WarTabs owns its own errors
+        and its own Source footer for that reason.
+      */}
+      {view === 'war' ? (
+        account.target && !matches ? (
+          <WarTabs key={account.target} tag={account.target} warResult={result} />
+        ) : null
+      ) : result?.ok && !matches ? (
         view === 'player' ? (
           <CocPlayer player={record(JSON.parse(result.data))} />
-        ) : view === 'war' ? (
-          <CocWar data={record(JSON.parse(result.data))} />
         ) : (
           // The clan view resolves the saved account's clan and offers it as a
           // card; the profile itself lives in the sheet.
@@ -218,7 +227,7 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
           Unable to load this account. Check its tag and try again.
         </Text>
       ) : null}
-      {result && !matches ? <Source result={result} /> : null}
+      {result && !matches && view !== 'war' ? <Source result={result} /> : null}
     </View>
   );
 }

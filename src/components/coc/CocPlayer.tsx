@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { ART_SCALE, townHallArt } from '@/assets/art';
-import { playerBookItem } from '@/lib/clash-book';
+import { ART_SCALE, NAV_ART, townHallArt } from '@/assets/art';
+import { BOOK_ITEMS, playerBookItem } from '@/lib/clash-book';
+import { gatesFor, maxLevelAt } from '@/lib/village-plan';
+import { useHub } from '@/state/HubProvider';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { Meter } from '@/components/ui/Meter';
@@ -26,19 +28,40 @@ const GROUPS = [
 export function CocPlayer({ player }: { player: ApiRecord }) {
   const theme = useTheme();
   const { openClan } = useDetailSheet();
+  const { village: imported } = useHub();
   const s = useMemo(() => build(theme), [theme]);
   const [village, setVillage] = useState<'home' | 'builderBase'>('home');
 
   const clan = record(player['clan']);
   const hall = townHallArt(player['townHallLevel']);
 
-  const unitsFor = (group: (typeof GROUPS)[number]) =>
-    rows(player[group.key]).filter(
+  const unitsFor = (group: (typeof GROUPS)[number]) => {
+    const fromApi = rows(player[group.key]).filter(
       (u) =>
         (u['village'] ?? 'home') === village &&
         (!('category' in group) ||
           (playerBookItem(u['name'], u['village'])?.category ?? 'troop') === group.category),
     );
+    if (fromApi.length || village !== 'builderBase' || !imported) return fromApi;
+
+    // The player API returns no Builder Base troop or hero levels at all --
+    // the tab was simply empty. A village export carries them, so it stands in
+    // when one has been imported.
+    const wanted = 'category' in group ? group.category : 'hero';
+    const gates = gatesFor(imported.builder);
+    return imported.builder.owned
+      .filter((owned) => owned.category === wanted)
+      .map((owned) => {
+        const item = BOOK_ITEMS.find((i) => i.id === owned.catalogId);
+        return {
+          name: owned.name,
+          level: owned.level,
+          maxLevel: item ? maxLevelAt(item, gates) : owned.level,
+          village: 'builderBase',
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  };
 
   const achievements = rows(player['achievements']);
   const complete = achievements.filter((a) => Number(a['stars']) === 3).length;
@@ -119,7 +142,9 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
         <Text style={s.sectionTitle}>Village stats</Text>
         <View style={s.statGrid}>
           <SmallStat label="Attack wins" value={player['attackWins']} icon="Barbarian" />
-          <SmallStat label="Defense wins" value={player['defenseWins']} icon="war" />
+          {/* NAV_ART, not COC_ART["war"]: the coc/main shield is untrimmed and
+              renders at half the weight of the Clash Book art beside it. */}
+          <SmallStat label="Defense wins" value={player['defenseWins']} icon={NAV_ART.war} />
           <SmallStat label="Troops donated" value={player['donations']} icon="Clan Castle" />
           <SmallStat label="Troops received" value={player['donationsReceived']} icon="Archer" />
           <SmallStat label="Donation ratio" value={ratio} icon="Clan Castle" />

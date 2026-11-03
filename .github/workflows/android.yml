@@ -95,7 +95,11 @@ jobs:
           # the APK ships with no artwork and no fonts.
           test -f src/assets/registry.coc.ts || { echo "::error::missing image registries; run 'bun run build:assets' and commit src/assets"; exit 1; }
           test -f android/app/src/main/assets/fonts/Clash-Bold.otf || { echo "::error::missing Android fonts; run 'bun run build:assets' and commit them"; exit 1; }
-          echo "images: $(find src/assets/img -name '*.webp' | wc -l), fonts: $(ls android/app/src/main/assets/fonts | wc -l)"
+          # The village import translates Supercell's numeric data ids through
+          # this map. Without it every import resolves to nothing and the
+          # Builder Plan silently shows an empty village.
+          test -s src/data/clash-book/data-ids.json || { echo "::error::missing src/data/clash-book/data-ids.json; run 'bun run build:data-ids' and commit it"; exit 1; }
+          echo "images: $(find src/assets/img -name '*.webp' | wc -l), fonts: $(ls android/app/src/main/assets/fonts | wc -l), data ids: $(grep -c ':' src/data/clash-book/data-ids.json)"
 
       - name: Type-check and lint
         run: |

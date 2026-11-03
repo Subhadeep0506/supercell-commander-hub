@@ -30,8 +30,28 @@ const PRIVATE_WAR_LOG = process.env.FIXTURE_WARLOG === 'private';
  */
 const BLOCK_CDN = process.env.FIXTURE_CDN === 'block';
 
+/**
+ * Set FIXTURE_CWL=none to answer the league group with a 404.
+ *
+ * That is what the API returns for a clan that is not signed up, and it is the
+ * only way to reach the "Not in war league" empty state -- which must not look
+ * like a service error, because for eleven months of the year it is the normal
+ * answer.
+ */
+const NO_LEAGUE = process.env.FIXTURE_CWL === 'none';
+
+/**
+ * The 56 possible league wars live in one file keyed by war tag rather than 56
+ * files, so `/clanwarleagues/wars/{tag}` is looked up rather than mapped.
+ */
+const LEAGUE_WARS = resolve(FIXTURES, 'coc-league-wars.json');
+
 /** Request path -> fixture filename. Most specific patterns first. */
 export function fixtureFor(url) {
+  // Must precede the /currentwar rule: the league group hangs off that same
+  // path, so the looser pattern would answer it with the regular-war fixture
+  // and the league tab would render a war that is not in any league.
+  if (/\/currentwar\/leaguegroup/.test(url)) return 'coc-league-group.json';
   if (/\/currentwar/.test(url)) return 'coc-war.json';
   // Both sit under /clans/{tag}/, so they must precede the /clans/ catch-all.
   if (/\/capitalraidseasons/.test(url)) {
@@ -65,6 +85,29 @@ export async function serveFixtures(page) {
       });
     }
     if (!url.includes('/api/coc/')) return void req.continue();
+
+    if (NO_LEAGUE && /\/currentwar\/leaguegroup/.test(url)) {
+      return void req.respond({
+        status: 404,
+        contentType: 'application/json',
+        headers: { 'access-control-allow-origin': '*' },
+        body: JSON.stringify({ reason: 'notFound' }),
+      });
+    }
+
+    // One file, keyed by war tag. An unknown tag 404s exactly as the API does
+    // once a season has rolled over and its wars have aged out.
+    if (/\/clanwarleagues\/wars\//.test(url)) {
+      const tag = decodeURIComponent(url.split('/clanwarleagues/wars/')[1] ?? '');
+      const wars = existsSync(LEAGUE_WARS) ? JSON.parse(readFileSync(LEAGUE_WARS, 'utf8')) : {};
+      const found = wars[tag];
+      return void req.respond({
+        status: found ? 200 : 404,
+        contentType: 'application/json',
+        headers: { 'access-control-allow-origin': '*' },
+        body: JSON.stringify(found ?? { reason: 'notFound' }),
+      });
+    }
 
     if (PRIVATE_WAR_LOG && /\/warlog/.test(url)) {
       return void req.respond({

@@ -11,9 +11,13 @@
 // adopt it as the saved passport, because clan, war and builder all resolve
 // their account from there. When that was missing those screens sat empty
 // with nothing on screen explaining why.
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer-core';
 import { serveFixtures } from './fixture-route.mjs';
+
+const FIXTURES = resolve(dirname(fileURLToPath(import.meta.url)), 'fixtures');
 
 const CHROME = ['C:/Program Files/Google/Chrome/Application/chrome.exe'].find(existsSync);
 const browser = await puppeteer.launch({
@@ -312,8 +316,66 @@ await clickLabel('Close sheet', 1200);
 check('sheet closes back to the finder', !(await body()).includes('Clan Capital (Lv. 10)'));
 
 await go('/coc/war');
-await settle(2500);
-check('war resolves too', (await body()).includes('War roster'));
+await settle(3000);
+
+// The screen opens on whichever war is live. The fixture clan is in a league
+// season, so that is the tab that must come up -- a clan in CWL landing on an
+// empty "no active war" board is the bug this screen was rebuilt to fix.
+const season = await body();
+check('war opens on the live league season', season.includes('Round 4 of 7'));
+check('league phase is named', season.includes('Battle day'));
+check('war league badge and name resolve', season.includes('Gold League II'));
+
+// Standings are summed across the season, not read off one war.
+check('standings include the win bonus', /\b1\d\d\b/.test(season) && season.includes('Standings'));
+check('promotion and relegation lines are drawn', season.includes('Promotion') && season.includes('Relegation'));
+
+// Participating clans: average Town Hall, roster size, and the legend's caps.
+check('participating clans are listed', season.includes('Participating Clans'));
+check('clan rows carry an average Town Hall', /Avg\. TH \d+\.\d/.test(season));
+check('Town Hall legend spans the whole group', season.includes('TH18') && season.includes('TH3'));
+
+// Rounds 6 and 7 are `#0` placeholders in the fixture, as the API sends them.
+check('undrawn rounds read as upcoming', season.includes('Upcoming'));
+
+// Expanding a clan must show its roster, not just flip a chevron -- a heading
+// that renders above a dead body has passed a check here before.
+await clickLabel('Roster of THE DRAGONS', 1200);
+const roster = await body();
+check('a clan expands to its roster', roster.includes('THE DRAGONS 1') && roster.includes('THE DRAGONS 15'));
+check('roster rows carry a tag', /#[0289PYLQGRJCUV]{3,}/.test(roster));
+await clickLabel('View THE DRAGONS 1', 2500);
+check('a league roster row opens that player', (await body()).includes('Town Hall 13'));
+await clickLabel('Close sheet', 1200);
+await clickLabel('Roster of THE DRAGONS', 1000);
+
+// A round opens its matchups; a matchup opens the full board. Both are sheet
+// layers, so the screen behind them stays mounted.
+await clickLabel('Round 4', 2500);
+const round = await body();
+check('a round opens its matchups', round.includes('Round 4 · War League') && round.includes('4 wars'));
+check('matchups are oriented onto your own clan', round.includes('bruh') && round.includes('kolok kolok'));
+
+await clickLabel('bruh versus kolok kolok', 2500);
+const leagueWar = await body();
+check('a matchup opens the full war board', leagueWar.includes('bruh · War roster'));
+// attacksPerMember is 1 in a league war and 2 in a regular one; reading it off
+// the response rather than defaulting to 2 is the difference.
+check('league wars allow one attack each', /\b1\/1\b/.test(leagueWar));
+check('attacks name the position they hit', /→ #\d+/.test(leagueWar));
+check('defences are reported', leagueWar.includes('Defended ·'));
+
+await clickLabel('Back', 1500);
+check('back returns to the round, still mounted', (await body()).includes('4 wars'));
+await clickLabel('Close sheet', 1200);
+check('closing the sheet returns to the season', (await body()).includes('Round 4 of 7'));
+
+// The regular war board is still there, behind its own tab.
+await clickLabel('Current War', 1500);
+const board = await body();
+check('the current war board renders', board.includes('bruh · War roster'));
+check('the board counts down', /Ends in \d+h/.test(board));
+check('regular wars allow two attacks each', /\b0\/2\b/.test(board));
 
 // The two war rosters were dead rows; each one now opens that player.
 await clickLabel('View bruh 4', 2500);
@@ -347,6 +409,45 @@ await settle(1200);
 await clickLabel('Japan');
 await settle(1500);
 check('location picker applies', (await body()).includes('JAPAN'));
+
+// --- Builder Plan ---------------------------------------------------------
+// Driven entirely by a pasted village export -- the API returns no upgrade
+// timers, no building levels and no Builder Base troops -- so the import is
+// performed here exactly as a player would, by typing into the field.
+await go('/coc/builder');
+await settle(2000);
+check('builder asks for an import first', (await body()).includes('No village imported'));
+
+await clickLabel('Import village data now', 1200);
+check('import sheet explains where the export lives', (await body()).includes('More Settings'));
+
+const exported = readFileSync(resolve(FIXTURES, 'coc-village-export.json'), 'utf8');
+await page.evaluate((json) => {
+  const field = [...document.querySelectorAll('[aria-label]')].find(
+    (n) => n.getAttribute('aria-label') === 'Village export JSON',
+  );
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+  setter.call(field, json);
+  field.dispatchEvent(new Event('input', { bubbles: true }));
+}, exported);
+await settle(600);
+await clickLabel('Import pasted data', 2500);
+
+const plan = await body();
+check('hall level read from the export', /Town Hall 13/.test(plan));
+check('builder count read from the placed huts', /builder(s)? free|All builders busy/.test(plan));
+check(
+  'in-progress upgrades resolve to real items',
+  /Dark Barracks/.test(plan) && /Eagle Artillery/.test(plan),
+);
+check('walls counted against the hall allowance', /300\s*\n?\s*Walls left/.test(plan), '');
+check('plan projects a completion date', /Everything maxed by/.test(plan));
+check('village grid sections render', /Defenses/.test(plan) && /Traps/.test(plan));
+
+await clickLabel('Builder Base', 2000);
+const bb = await body();
+check('builder base reads the *2 arrays', /Builder Hall 8/.test(bb));
+check('rushed villages are flagged', /Rushed/.test(bb));
 
 await browser.close();
 const failed = results.filter((r) => !r).length;

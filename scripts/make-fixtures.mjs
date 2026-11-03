@@ -181,7 +181,9 @@ const clan = {
   warWinStreak: 3,
   warFrequency: 'always',
   isWarLogPublic: true,
-  warLeague: { id: 48000018, name: 'Champion League I' },
+  // Gold II rather than Champion I: Champion I promotes nobody, so the
+  // standings' promotion line would never be drawn under test.
+  warLeague: { id: 48000011, name: 'Gold League II' },
   capitalLeague: { id: 85000022, name: 'Legend League' },
   location: { name: 'India', countryCode: 'IN', isCountry: true },
   chatLanguage: { id: 75000000, name: 'English', languageCode: 'EN' },
@@ -208,29 +210,62 @@ const clan = {
 
 // `offset` keeps the two rosters' tags distinct -- without it member 3 of each
 // side would share a tag, and tapping either would open the same village.
-const warSide = (name, tag, stars, destruction, attacks, offset = 0) => ({
-  tag,
-  name,
-  clanLevel: 10,
-  attacks,
-  stars,
-  destructionPercentage: destruction,
-  members: Array.from({ length: 15 }, (_, i) => ({
-    tag: fakeTag('Y', offset + i),
-    name: `${name} ${i + 1}`,
-    mapPosition: i + 1,
-    townhallLevel: 17 - (i % 5),
-    attacks: i % 3 === 0 ? [] : [{ stars: 3, destructionPercentage: 100 }],
-  })),
-});
-
-const war = {
-  state: 'inWar',
-  teamSize: 15,
-  attacksPerMember: 2,
-  clan: warSide('bruh', '#2PP', 38, 91.4, 22),
-  opponent: warSide('Rivals', '#9YQ2', 34, 87.2, 25, 100),
+/**
+ * One side of a regular war.
+ *
+ * Attacks carry `defenderTag` and a `bestOpponentAttack` is set on most
+ * members, because the rebuilt board reads both: the first to turn an attack
+ * into "→ #7", the second for the defence line. Without them every row would
+ * render its fallback and the real layout would never be seen.
+ */
+const warSide = (name, tag, offset = 0) => {
+  // Skews the defending side so the two do not post identical totals. A war
+  // tied to the decimal reads as a generator artefact, and the war log's
+  // win/loss pill would have nothing to colour.
+  const skew = offset ? 1 : 0;
+  const members = Array.from({ length: 15 }, (_, i) => {
+    const enemyAt = (n) => fakeTag('Y', (offset === 0 ? 100 : 0) + (n % 15));
+    const used = (i + skew) % 3 === 0 ? 0 : (i + skew) % 3 === 1 ? 2 : 1;
+    return {
+      tag: fakeTag('Y', offset + i),
+      name: `${name} ${i + 1}`,
+      mapPosition: i + 1,
+      townhallLevel: 17 - (i % 5),
+      opponentAttacks: i % 4 === 0 ? 0 : 1,
+      attacks: Array.from({ length: used }, (_, a) => ({
+        attackerTag: fakeTag('Y', offset + i),
+        defenderTag: enemyAt(i + a * 4 + 3),
+        stars: a === 0 ? (skew && i % 4 === 0 ? 2 : 3) : 2,
+        destructionPercentage: a === 0 ? (skew && i % 4 === 0 ? 81 : 100) : 72 + i,
+        order: i * 2 + a + 1,
+        duration: 94 + i,
+      })),
+      ...(i % 4 === 0
+        ? {}
+        : { bestOpponentAttack: { stars: (i % 3) + 1, destructionPercentage: 60 + i * 2 } }),
+    };
+  });
+  // Totals derived from the roster rather than invented. A scoreboard that
+  // disagrees with the rows beneath it reads as an app bug during review.
+  return { tag, name, clanLevel: 10, members, ...totals(members, 15) };
 };
+
+/**
+ * A side's scoreboard, summed from its own members.
+ *
+ * Every attack in these fixtures hits a distinct defender, so summing attack
+ * stars is also the best-per-defender total the API reports. Destruction is
+ * averaged over the full roster, which is how the percentage is defined.
+ */
+function totals(members, size) {
+  const all = members.flatMap((m) => m.attacks);
+  return {
+    attacks: all.length,
+    stars: all.reduce((sum, a) => sum + a.stars, 0),
+    destructionPercentage:
+      Math.round((all.reduce((sum, a) => sum + a.destructionPercentage, 0) / size) * 10) / 10,
+  };
+}
 
 /**
  * Supercell's compact timestamp form: `20251030T070000.000Z`, which `new Date()`
@@ -238,6 +273,24 @@ const war = {
  * fixtures rather than only by live data nobody on this network can reach.
  */
 const apiTime = (date) => `${date.toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, '.000Z')}`;
+
+/** `hours` from now, as an API timestamp. Negative is in the past. */
+const hoursFromNow = (hours) => apiTime(new Date(Date.now() + hours * 3600_000));
+
+// Timestamps matter now that the board counts down: without them the clock
+// has nothing to render, and the preparation/battle-day branch is unreachable.
+const war = {
+  state: 'inWar',
+  teamSize: 15,
+  attacksPerMember: 2,
+  preparationStartTime: hoursFromNow(-43),
+  startTime: hoursFromNow(-20),
+  endTime: hoursFromNow(4),
+  clan: warSide('bruh', '#2PP'),
+  // Not "#9YQ2": 9 is outside Supercell's tag alphabet, so tapping the
+  // opponent on the new war board would 400 before leaving the app.
+  opponent: warSide('Rivals', fakeTag('V', 90), 100),
+};
 
 /** The Friday 07:00 UTC that opens the raid weekend `weeksAgo` weeks back. */
 function raidStart(weeksAgo) {
@@ -568,10 +621,152 @@ const locations = {
 };
 
 mkdirSync(OUT, { recursive: true });
+/* -------------------------------------------------------------------------- */
+/* Clan War League                                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Eight clans, seven rounds.
+ *
+ * The saved account's own clan (#2PP) is one of them, so the screen's "this is
+ * you" highlighting has something to match. Town Halls deliberately span 3 to
+ * 18: the distribution bars, the legend's end caps and the Town Hall artwork
+ * added for levels 1-8 are all unexercised by a roster of maxed accounts.
+ *
+ * Rounds 1-3 are finished, 4 is being fought and 5 is in preparation. Rounds 6
+ * and 7 are left as `#0` placeholders, which is exactly what the API sends for
+ * a round that has not been drawn -- and the only way to reach the "Upcoming"
+ * and "Not drawn yet" branches.
+ */
+const LEAGUE_CLANS = [
+  { name: 'bruh', tag: '#2PP', level: 10, topTh: 16, size: 17 },
+  { name: 'THE DRAGONS', tag: fakeTag('U', 1), level: 18, topTh: 18, size: 15 },
+  { name: 'ASTRANAGA', tag: fakeTag('U', 2), level: 26, topTh: 17, size: 20 },
+  { name: 'kolok kolok', tag: fakeTag('U', 3), level: 9, topTh: 17, size: 15 },
+  { name: 'Вендетта', tag: fakeTag('U', 4), level: 15, topTh: 16, size: 18 },
+  { name: 'الهواشم', tag: fakeTag('U', 5), level: 3, topTh: 15, size: 15 },
+  { name: 'yenilmezler', tag: fakeTag('U', 6), level: 3, topTh: 14, size: 16 },
+  // Deep enough to bottom out at TH3, so the legend's low cap and the Town
+  // Hall artwork below level 9 both get exercised.
+  { name: 'Moo Im A Cactus', tag: fakeTag('U', 7), level: 7, topTh: 12, size: 20 },
+];
+
+const LEAGUE_ROUNDS = 7;
+/** Rounds with real war tags; the rest stay as `#0`. */
+const DRAWN_ROUNDS = 5;
+const ROUND_STATES = ['warEnded', 'warEnded', 'warEnded', 'inWar', 'preparation'];
+const LIVE_ROUND = ROUND_STATES.indexOf('inWar');
+
+const leagueClanRecord = (c, index) => ({
+  tag: c.tag,
+  name: c.name,
+  clanLevel: c.level,
+  badgeUrls: {
+    small: `${CDN}/badges/70/league-${index}.png`,
+    medium: `${CDN}/badges/200/league-${index}.png`,
+    large: `${CDN}/badges/512/league-${index}.png`,
+  },
+  // The group's rosters use the clan-roster spelling of the field; the wars
+  // below use the war spelling. Both appear on this one screen, which is why
+  // `memberTh` reads either.
+  members: Array.from({ length: c.size }, (_, i) => ({
+    tag: fakeTag('2', index * 64 + i),
+    name: `${c.name} ${i + 1}`,
+    townHallLevel: Math.max(3, c.topTh - Math.floor(i / 2)),
+  })),
+});
+
+/** Circle-method round robin: eight clans, a different pairing every round. */
+function pairings(count, round) {
+  const order = [...Array(count).keys()];
+  const rotated = [order[0], ...order.slice(1).map((_, k) => order[1 + ((k + round) % (count - 1))])];
+  return Array.from({ length: count / 2 }, (_, i) => [rotated[i], rotated[count - 1 - i]]);
+}
+
+function leagueWarSide(clanIndex, round, state, enemyIndex) {
+  const c = LEAGUE_CLANS[clanIndex];
+  const size = 15;
+  const prep = state === 'preparation';
+  const fought = state === 'warEnded';
+  const members = Array.from({ length: size }, (_, i) => {
+      // One attack each: a league war is `attacksPerMember: 1`. How many get
+      // used varies with the clan, so two sides of a finished war do not post
+      // identical totals -- every result would otherwise be a tie, and the
+      // win bonus in the standings would never be awarded to anyone.
+      const used = prep
+        ? 0
+        : fought
+          ? ((i + clanIndex) % 6 === 0 ? 0 : 1)
+          : i < 5 + (clanIndex % 4)
+            ? 1
+            : 0;
+      return {
+        tag: fakeTag('2', clanIndex * 64 + i),
+        name: `${c.name} ${i + 1}`,
+        mapPosition: i + 1,
+        townhallLevel: Math.max(3, c.topTh - Math.floor(i / 2)),
+        opponentAttacks: used,
+        attacks: Array.from({ length: used }, () => ({
+          attackerTag: fakeTag('2', clanIndex * 64 + i),
+          defenderTag: fakeTag('2', enemyIndex * 64 + ((i + 2) % size)),
+          stars: (i + round + clanIndex) % 4 === 0 ? 2 : 3,
+          destructionPercentage: (i + round + clanIndex) % 4 === 0 ? 76 + i : 100,
+          order: i + 1,
+          duration: 101 + i,
+        })),
+        ...(used && i % 3 !== 0
+          ? { bestOpponentAttack: { stars: (i % 3) + 1, destructionPercentage: 58 + i * 2 } }
+          : {}),
+      };
+  });
+  return {
+    tag: c.tag,
+    name: c.name,
+    clanLevel: c.level,
+    badgeUrls: { medium: `${CDN}/badges/200/league-${clanIndex}.png` },
+    members,
+    ...totals(members, size),
+  };
+}
+
+const leagueWars = {};
+const leagueRounds = Array.from({ length: LEAGUE_ROUNDS }, (_, round) => {
+  if (round >= DRAWN_ROUNDS) return { warTags: Array(4).fill('#0') };
+  const state = ROUND_STATES[round];
+  const warTags = pairings(LEAGUE_CLANS.length, round).map(([a, b], pair) => {
+    const warTag = fakeTag('0', round * 10 + pair);
+    leagueWars[warTag] = {
+      state,
+      teamSize: 15,
+      attacksPerMember: 1,
+      // Anchored on the round being fought, so that one is genuinely mid-war
+      // rather than already past: it started 6 hours ago and ends in 18. Each
+      // neighbouring round is a day either side.
+      preparationStartTime: hoursFromNow((round - LIVE_ROUND) * 24 - 24),
+      startTime: hoursFromNow((round - LIVE_ROUND) * 24 - 6),
+      endTime: hoursFromNow((round - LIVE_ROUND) * 24 + 18),
+      warTag,
+      clan: leagueWarSide(a, round, state, b),
+      opponent: leagueWarSide(b, round, state, a),
+    };
+    return warTag;
+  });
+  return { warTags };
+});
+
+const leagueGroup = {
+  state: 'inWar',
+  season: new Date().toISOString().slice(0, 7),
+  clans: LEAGUE_CLANS.map(leagueClanRecord),
+  rounds: leagueRounds,
+};
+
 const files = {
   'coc-player.json': player,
   'coc-clan.json': clan,
   'coc-war.json': war,
+  'coc-league-group.json': leagueGroup,
+  'coc-league-wars.json': leagueWars,
   'coc-capital-raids.json': capitalRaids,
   'coc-capital-raids-2.json': capitalRaidsPage2,
   'coc-war-log.json': warLog,
@@ -590,5 +785,6 @@ console.log(
     `${heroes.length} heroes, ${troops.length} troops, ${spells.length} spells, ` +
     `${heroEquipment.length} equipment, ${members.length} clan members, ` +
     `${capitalRaids.items.length}+${capitalRaidsPage2.items.length} raid weekends, ` +
-    `${warLog.items.length} logged wars`,
+    `${warLog.items.length} logged wars, ` +
+    `${LEAGUE_CLANS.length} league clans over ${Object.keys(leagueWars).length} league wars`,
 );

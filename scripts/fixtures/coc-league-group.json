@@ -1,0 +1,840 @@
+{
+  "state": "inWar",
+  "season": "2026-11",
+  "clans": [
+    {
+      "tag": "#2PP",
+      "name": "bruh",
+      "clanLevel": 10,
+      "badgeUrls": {
+        "small": "https://api-assets.clashofclans.com/badges/70/league-0.png",
+        "medium": "https://api-assets.clashofclans.com/badges/200/league-0.png",
+        "large": "https://api-assets.clashofclans.com/badges/512/league-0.png"
+      },
+      "members": [
+        {
+          "tag": "#2000",
+          "name": "bruh 1",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#2002",
+          "name": "bruh 2",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#2008",
+          "name": "bruh 3",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#2009",
+          "name": "bruh 4",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#200P",
+          "name": "bruh 5",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#200Y",
+          "name": "bruh 6",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#200L",
+          "name": "bruh 7",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#200Q",
+          "name": "bruh 8",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#200G",
+          "name": "bruh 9",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#200R",
+          "name": "bruh 10",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#200J",
+          "name": "bruh 11",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#200C",
+          "name": "bruh 12",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#200U",
+          "name": "bruh 13",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#200V",
+          "name": "bruh 14",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#2020",
+          "name": "bruh 15",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#2022",
+          "name": "bruh 16",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#2028",
+          "name": "bruh 17",
+          "townHallLevel": 8
+        }
+      ]
+    },
+    {
+      "tag": "#U002",
+      "name": "THE DRAGONS",
+      "clanLevel": 18,
+      "badgeUrls": {
+        "small": "https://api-assets.clashofclans.com/badges/70/league-1.png",
+        "medium": "https://api-assets.clashofclans.com/badges/200/league-1.png",
+        "large": "https://api-assets.clashofclans.com/badges/512/league-1.png"
+      },
+      "members": [
+        {
+          "tag": "#20PG",
+          "name": "THE DRAGONS 1",
+          "townHallLevel": 18
+        },
+        {
+          "tag": "#20PR",
+          "name": "THE DRAGONS 2",
+          "townHallLevel": 18
+        },
+        {
+          "tag": "#20PJ",
+          "name": "THE DRAGONS 3",
+          "townHallLevel": 17
+        },
+        {
+          "tag": "#20PC",
+          "name": "THE DRAGONS 4",
+          "townHallLevel": 17
+        },
+        {
+          "tag": "#20PU",
+          "name": "THE DRAGONS 5",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#20PV",
+          "name": "THE DRAGONS 6",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#20Y0",
+          "name": "THE DRAGONS 7",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#20Y2",
+          "name": "THE DRAGONS 8",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#20Y8",
+          "name": "THE DRAGONS 9",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#20Y9",
+          "name": "THE DRAGONS 10",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#20YP",
+          "name": "THE DRAGONS 11",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#20YY",
+          "name": "THE DRAGONS 12",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#20YL",
+          "name": "THE DRAGONS 13",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#20YQ",
+          "name": "THE DRAGONS 14",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#20YG",
+          "name": "THE DRAGONS 15",
+          "townHallLevel": 11
+        }
+      ]
+    },
+    {
+      "tag": "#U008",
+      "name": "ASTRANAGA",
+      "clanLevel": 26,
+      "badgeUrls": {
+        "small": "https://api-assets.clashofclans.com/badges/70/league-2.png",
+        "medium": "https://api-assets.clashofclans.com/badges/200/league-2.png",
+        "large": "https://api-assets.clashofclans.com/badges/512/league-2.png"
+      },
+      "members": [
+        {
+          "tag": "#20R8",
+          "name": "ASTRANAGA 1",
+          "townHallLevel": 17
+        },
+        {
+          "tag": "#20R9",
+          "name": "ASTRANAGA 2",
+          "townHallLevel": 17
+        },
+        {
+          "tag": "#20RP",
+          "name": "ASTRANAGA 3",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#20RY",
+          "name": "ASTRANAGA 4",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#20RL",
+          "name": "ASTRANAGA 5",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#20RQ",
+          "name": "ASTRANAGA 6",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#20RG",
+          "name": "ASTRANAGA 7",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#20RR",
+          "name": "ASTRANAGA 8",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#20RJ",
+          "name": "ASTRANAGA 9",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#20RC",
+          "name": "ASTRANAGA 10",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#20RU",
+          "name": "ASTRANAGA 11",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#20RV",
+          "name": "ASTRANAGA 12",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#20J0",
+          "name": "ASTRANAGA 13",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#20J2",
+          "name": "ASTRANAGA 14",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#20J8",
+          "name": "ASTRANAGA 15",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#20J9",
+          "name": "ASTRANAGA 16",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#20JP",
+          "name": "ASTRANAGA 17",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#20JY",
+          "name": "ASTRANAGA 18",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#20JL",
+          "name": "ASTRANAGA 19",
+          "townHallLevel": 8
+        },
+        {
+          "tag": "#20JQ",
+          "name": "ASTRANAGA 20",
+          "townHallLevel": 8
+        }
+      ]
+    },
+    {
+      "tag": "#U009",
+      "name": "kolok kolok",
+      "clanLevel": 9,
+      "badgeUrls": {
+        "small": "https://api-assets.clashofclans.com/badges/70/league-3.png",
+        "medium": "https://api-assets.clashofclans.com/badges/200/league-3.png",
+        "large": "https://api-assets.clashofclans.com/badges/512/league-3.png"
+      },
+      "members": [
+        {
+          "tag": "#20VJ",
+          "name": "kolok kolok 1",
+          "townHallLevel": 17
+        },
+        {
+          "tag": "#20VC",
+          "name": "kolok kolok 2",
+          "townHallLevel": 17
+        },
+        {
+          "tag": "#20VU",
+          "name": "kolok kolok 3",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#20VV",
+          "name": "kolok kolok 4",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#2200",
+          "name": "kolok kolok 5",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#2202",
+          "name": "kolok kolok 6",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#2208",
+          "name": "kolok kolok 7",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#2209",
+          "name": "kolok kolok 8",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#220P",
+          "name": "kolok kolok 9",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#220Y",
+          "name": "kolok kolok 10",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#220L",
+          "name": "kolok kolok 11",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#220Q",
+          "name": "kolok kolok 12",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#220G",
+          "name": "kolok kolok 13",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#220R",
+          "name": "kolok kolok 14",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#220J",
+          "name": "kolok kolok 15",
+          "townHallLevel": 10
+        }
+      ]
+    },
+    {
+      "tag": "#U00P",
+      "name": "Вендетта",
+      "clanLevel": 15,
+      "badgeUrls": {
+        "small": "https://api-assets.clashofclans.com/badges/70/league-4.png",
+        "medium": "https://api-assets.clashofclans.com/badges/200/league-4.png",
+        "large": "https://api-assets.clashofclans.com/badges/512/league-4.png"
+      },
+      "members": [
+        {
+          "tag": "#22PP",
+          "name": "Вендетта 1",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#22PY",
+          "name": "Вендетта 2",
+          "townHallLevel": 16
+        },
+        {
+          "tag": "#22PL",
+          "name": "Вендетта 3",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#22PQ",
+          "name": "Вендетта 4",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#22PG",
+          "name": "Вендетта 5",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#22PR",
+          "name": "Вендетта 6",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#22PJ",
+          "name": "Вендетта 7",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#22PC",
+          "name": "Вендетта 8",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#22PU",
+          "name": "Вендетта 9",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#22PV",
+          "name": "Вендетта 10",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#22Y0",
+          "name": "Вендетта 11",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#22Y2",
+          "name": "Вендетта 12",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#22Y8",
+          "name": "Вендетта 13",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#22Y9",
+          "name": "Вендетта 14",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#22YP",
+          "name": "Вендетта 15",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#22YY",
+          "name": "Вендетта 16",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#22YL",
+          "name": "Вендетта 17",
+          "townHallLevel": 8
+        },
+        {
+          "tag": "#22YQ",
+          "name": "Вендетта 18",
+          "townHallLevel": 8
+        }
+      ]
+    },
+    {
+      "tag": "#U00Y",
+      "name": "الهواشم",
+      "clanLevel": 3,
+      "badgeUrls": {
+        "small": "https://api-assets.clashofclans.com/badges/70/league-5.png",
+        "medium": "https://api-assets.clashofclans.com/badges/200/league-5.png",
+        "large": "https://api-assets.clashofclans.com/badges/512/league-5.png"
+      },
+      "members": [
+        {
+          "tag": "#22GU",
+          "name": "الهواشم 1",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#22GV",
+          "name": "الهواشم 2",
+          "townHallLevel": 15
+        },
+        {
+          "tag": "#22R0",
+          "name": "الهواشم 3",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#22R2",
+          "name": "الهواشم 4",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#22R8",
+          "name": "الهواشم 5",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#22R9",
+          "name": "الهواشم 6",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#22RP",
+          "name": "الهواشم 7",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#22RY",
+          "name": "الهواشم 8",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#22RL",
+          "name": "الهواشم 9",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#22RQ",
+          "name": "الهواشم 10",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#22RG",
+          "name": "الهواشم 11",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#22RR",
+          "name": "الهواشم 12",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#22RJ",
+          "name": "الهواشم 13",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#22RC",
+          "name": "الهواشم 14",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#22RU",
+          "name": "الهواشم 15",
+          "townHallLevel": 8
+        }
+      ]
+    },
+    {
+      "tag": "#U00L",
+      "name": "yenilmezler",
+      "clanLevel": 3,
+      "badgeUrls": {
+        "small": "https://api-assets.clashofclans.com/badges/70/league-6.png",
+        "medium": "https://api-assets.clashofclans.com/badges/200/league-6.png",
+        "large": "https://api-assets.clashofclans.com/badges/512/league-6.png"
+      },
+      "members": [
+        {
+          "tag": "#22VL",
+          "name": "yenilmezler 1",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#22VQ",
+          "name": "yenilmezler 2",
+          "townHallLevel": 14
+        },
+        {
+          "tag": "#22VG",
+          "name": "yenilmezler 3",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#22VR",
+          "name": "yenilmezler 4",
+          "townHallLevel": 13
+        },
+        {
+          "tag": "#22VJ",
+          "name": "yenilmezler 5",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#22VC",
+          "name": "yenilmezler 6",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#22VU",
+          "name": "yenilmezler 7",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#22VV",
+          "name": "yenilmezler 8",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#2800",
+          "name": "yenilmezler 9",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#2802",
+          "name": "yenilmezler 10",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#2808",
+          "name": "yenilmezler 11",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#2809",
+          "name": "yenilmezler 12",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#280P",
+          "name": "yenilmezler 13",
+          "townHallLevel": 8
+        },
+        {
+          "tag": "#280Y",
+          "name": "yenilmezler 14",
+          "townHallLevel": 8
+        },
+        {
+          "tag": "#280L",
+          "name": "yenilmezler 15",
+          "townHallLevel": 7
+        },
+        {
+          "tag": "#280Q",
+          "name": "yenilmezler 16",
+          "townHallLevel": 7
+        }
+      ]
+    },
+    {
+      "tag": "#U00Q",
+      "name": "Moo Im A Cactus",
+      "clanLevel": 7,
+      "badgeUrls": {
+        "small": "https://api-assets.clashofclans.com/badges/70/league-7.png",
+        "medium": "https://api-assets.clashofclans.com/badges/200/league-7.png",
+        "large": "https://api-assets.clashofclans.com/badges/512/league-7.png"
+      },
+      "members": [
+        {
+          "tag": "#28P0",
+          "name": "Moo Im A Cactus 1",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#28P2",
+          "name": "Moo Im A Cactus 2",
+          "townHallLevel": 12
+        },
+        {
+          "tag": "#28P8",
+          "name": "Moo Im A Cactus 3",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#28P9",
+          "name": "Moo Im A Cactus 4",
+          "townHallLevel": 11
+        },
+        {
+          "tag": "#28PP",
+          "name": "Moo Im A Cactus 5",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#28PY",
+          "name": "Moo Im A Cactus 6",
+          "townHallLevel": 10
+        },
+        {
+          "tag": "#28PL",
+          "name": "Moo Im A Cactus 7",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#28PQ",
+          "name": "Moo Im A Cactus 8",
+          "townHallLevel": 9
+        },
+        {
+          "tag": "#28PG",
+          "name": "Moo Im A Cactus 9",
+          "townHallLevel": 8
+        },
+        {
+          "tag": "#28PR",
+          "name": "Moo Im A Cactus 10",
+          "townHallLevel": 8
+        },
+        {
+          "tag": "#28PJ",
+          "name": "Moo Im A Cactus 11",
+          "townHallLevel": 7
+        },
+        {
+          "tag": "#28PC",
+          "name": "Moo Im A Cactus 12",
+          "townHallLevel": 7
+        },
+        {
+          "tag": "#28PU",
+          "name": "Moo Im A Cactus 13",
+          "townHallLevel": 6
+        },
+        {
+          "tag": "#28PV",
+          "name": "Moo Im A Cactus 14",
+          "townHallLevel": 6
+        },
+        {
+          "tag": "#28Y0",
+          "name": "Moo Im A Cactus 15",
+          "townHallLevel": 5
+        },
+        {
+          "tag": "#28Y2",
+          "name": "Moo Im A Cactus 16",
+          "townHallLevel": 5
+        },
+        {
+          "tag": "#28Y8",
+          "name": "Moo Im A Cactus 17",
+          "townHallLevel": 4
+        },
+        {
+          "tag": "#28Y9",
+          "name": "Moo Im A Cactus 18",
+          "townHallLevel": 4
+        },
+        {
+          "tag": "#28YP",
+          "name": "Moo Im A Cactus 19",
+          "townHallLevel": 3
+        },
+        {
+          "tag": "#28YY",
+          "name": "Moo Im A Cactus 20",
+          "townHallLevel": 3
+        }
+      ]
+    }
+  ],
+  "rounds": [
+    {
+      "warTags": [
+        "#0000",
+        "#0002",
+        "#0008",
+        "#0009"
+      ]
+    },
+    {
+      "warTags": [
+        "#000J",
+        "#000C",
+        "#000U",
+        "#000V"
+      ]
+    },
+    {
+      "warTags": [
+        "#002L",
+        "#002Q",
+        "#002G",
+        "#002R"
+      ]
+    },
+    {
+      "warTags": [
+        "#0088",
+        "#0089",
+        "#008P",
+        "#008Y"
+      ]
+    },
+    {
+      "warTags": [
+        "#008U",
+        "#008V",
+        "#0090",
+        "#0092"
+      ]
+    },
+    {
+      "warTags": [
+        "#0",
+        "#0",
+        "#0",
+        "#0"
+      ]
+    },
+    {
+      "warTags": [
+        "#0",
+        "#0",
+        "#0",
+        "#0"
+      ]
+    }
+  ]
+}

@@ -6,6 +6,22 @@ import { Button } from './Button';
 export type SheetVariant = 'book' | 'plain';
 
 /**
+ * Share of the window a sheet may occupy.
+ *
+ * The height is **definite**, not a `maxHeight`, and that is the whole point.
+ * The body below is `flex: 1`, which means `flexBasis: 0`; Yoga treats that as
+ * a literal 0px, so against a content-sized card the body contributed nothing,
+ * the card collapsed to its header, and every sheet rendered as a title above
+ * an empty strip on Android. The web never showed it because CSS resolves
+ * `flex-basis: 0%` against an indefinite height as `auto`.
+ *
+ * 80% also keeps the card clear of the system bars. `edgeToEdgeEnabled` is on,
+ * so the window height includes them and the previous `height - 24` ran
+ * underneath -- taking the scroll out of reach on the clan sheet.
+ */
+const MAX_HEIGHT = 0.8;
+
+/**
  * Replaces the Radix dialog used by the Clash Book and unit modals
  * (`.book-overlay` + `.book-modal`), built on React Native's own Modal so the
  * project needs neither reanimated nor gesture-handler.
@@ -74,8 +90,8 @@ export function Sheet({
             s.card,
             plain ? s.cardPlain : null,
             plain
-              ? { width: Math.min(560, width - 12), height: height - 24 }
-              : { width: Math.min(760, width - 24), maxHeight: Math.min(880, height - 40) },
+              ? { width: Math.min(560, width - 12), height: Math.min(960, height * MAX_HEIGHT) }
+              : { width: Math.min(760, width - 24), height: Math.min(880, height * MAX_HEIGHT) },
           ]}
         >
           <View style={[s.header, plain && s.headerPlain]}>

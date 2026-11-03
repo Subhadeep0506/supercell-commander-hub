@@ -2,19 +2,20 @@
   "state": "inWar",
   "teamSize": 15,
   "attacksPerMember": 2,
+  "preparationStartTime": "20261101T204210.000Z",
+  "startTime": "20261102T194210.000Z",
+  "endTime": "20261103T194210.000Z",
   "clan": {
     "tag": "#2PP",
     "name": "bruh",
     "clanLevel": 10,
-    "attacks": 22,
-    "stars": 38,
-    "destructionPercentage": 91.4,
     "members": [
       {
         "tag": "#Y000",
         "name": "bruh 1",
         "mapPosition": 1,
         "townhallLevel": 17,
+        "opponentAttacks": 0,
         "attacks": []
       },
       {
@@ -22,41 +23,85 @@
         "name": "bruh 2",
         "mapPosition": 2,
         "townhallLevel": 16,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y002",
+            "defenderTag": "#Y0QL",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 3,
+            "duration": 95
+          },
+          {
+            "attackerTag": "#Y002",
+            "defenderTag": "#Y0QJ",
+            "stars": 2,
+            "destructionPercentage": 73,
+            "order": 4,
+            "duration": 95
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 2,
+          "destructionPercentage": 62
+        }
       },
       {
         "tag": "#Y008",
         "name": "bruh 3",
         "mapPosition": 3,
         "townhallLevel": 15,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y008",
+            "defenderTag": "#Y0QQ",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 5,
+            "duration": 96
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 3,
+          "destructionPercentage": 64
+        }
       },
       {
         "tag": "#Y009",
         "name": "bruh 4",
         "mapPosition": 4,
         "townhallLevel": 14,
-        "attacks": []
+        "opponentAttacks": 1,
+        "attacks": [],
+        "bestOpponentAttack": {
+          "stars": 1,
+          "destructionPercentage": 66
+        }
       },
       {
         "tag": "#Y00P",
         "name": "bruh 5",
         "mapPosition": 5,
         "townhallLevel": 13,
+        "opponentAttacks": 0,
         "attacks": [
           {
+            "attackerTag": "#Y00P",
+            "defenderTag": "#Y0QR",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 9,
+            "duration": 98
+          },
+          {
+            "attackerTag": "#Y00P",
+            "defenderTag": "#Y0QV",
+            "stars": 2,
+            "destructionPercentage": 76,
+            "order": 10,
+            "duration": 98
           }
         ]
       },
@@ -65,41 +110,77 @@
         "name": "bruh 6",
         "mapPosition": 6,
         "townhallLevel": 17,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y00Y",
+            "defenderTag": "#Y0QJ",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 11,
+            "duration": 99
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 3,
+          "destructionPercentage": 70
+        }
       },
       {
         "tag": "#Y00L",
         "name": "bruh 7",
         "mapPosition": 7,
         "townhallLevel": 16,
-        "attacks": []
+        "opponentAttacks": 1,
+        "attacks": [],
+        "bestOpponentAttack": {
+          "stars": 1,
+          "destructionPercentage": 72
+        }
       },
       {
         "tag": "#Y00Q",
         "name": "bruh 8",
         "mapPosition": 8,
         "townhallLevel": 15,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y00Q",
+            "defenderTag": "#Y0QU",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 15,
+            "duration": 101
+          },
+          {
+            "attackerTag": "#Y00Q",
+            "defenderTag": "#Y0G8",
+            "stars": 2,
+            "destructionPercentage": 79,
+            "order": 16,
+            "duration": 101
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 2,
+          "destructionPercentage": 74
+        }
       },
       {
         "tag": "#Y00G",
         "name": "bruh 9",
         "mapPosition": 9,
         "townhallLevel": 14,
+        "opponentAttacks": 0,
         "attacks": [
           {
+            "attackerTag": "#Y00G",
+            "defenderTag": "#Y0QV",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 17,
+            "duration": 102
           }
         ]
       },
@@ -108,37 +189,69 @@
         "name": "bruh 10",
         "mapPosition": 10,
         "townhallLevel": 13,
-        "attacks": []
+        "opponentAttacks": 1,
+        "attacks": [],
+        "bestOpponentAttack": {
+          "stars": 1,
+          "destructionPercentage": 78
+        }
       },
       {
         "tag": "#Y00J",
         "name": "bruh 11",
         "mapPosition": 11,
         "townhallLevel": 17,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y00J",
+            "defenderTag": "#Y0G2",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 21,
+            "duration": 104
+          },
+          {
+            "attackerTag": "#Y00J",
+            "defenderTag": "#Y0QP",
+            "stars": 2,
+            "destructionPercentage": 82,
+            "order": 22,
+            "duration": 104
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 2,
+          "destructionPercentage": 80
+        }
       },
       {
         "tag": "#Y00C",
         "name": "bruh 12",
         "mapPosition": 12,
         "townhallLevel": 16,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y00C",
+            "defenderTag": "#Y0G8",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 23,
+            "duration": 105
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 3,
+          "destructionPercentage": 82
+        }
       },
       {
         "tag": "#Y00U",
         "name": "bruh 13",
         "mapPosition": 13,
         "townhallLevel": 15,
+        "opponentAttacks": 0,
         "attacks": []
       },
       {
@@ -146,82 +259,162 @@
         "name": "bruh 14",
         "mapPosition": 14,
         "townhallLevel": 14,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y00V",
+            "defenderTag": "#Y0Q9",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 27,
+            "duration": 107
+          },
+          {
+            "attackerTag": "#Y00V",
+            "defenderTag": "#Y0QQ",
+            "stars": 2,
+            "destructionPercentage": 85,
+            "order": 28,
+            "duration": 107
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 2,
+          "destructionPercentage": 86
+        }
       },
       {
         "tag": "#Y020",
         "name": "bruh 15",
         "mapPosition": 15,
         "townhallLevel": 13,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y020",
+            "defenderTag": "#Y0QP",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 29,
+            "duration": 108
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 3,
+          "destructionPercentage": 88
+        }
       }
-    ]
+    ],
+    "attacks": 15,
+    "stars": 40,
+    "destructionPercentage": 93
   },
   "opponent": {
-    "tag": "#9YQ2",
+    "tag": "#V0LL",
     "name": "Rivals",
     "clanLevel": 10,
-    "attacks": 25,
-    "stars": 34,
-    "destructionPercentage": 87.2,
     "members": [
       {
         "tag": "#Y0Q8",
         "name": "Rivals 1",
         "mapPosition": 1,
         "townhallLevel": 17,
-        "attacks": []
+        "opponentAttacks": 0,
+        "attacks": [
+          {
+            "attackerTag": "#Y0Q8",
+            "defenderTag": "#Y009",
+            "stars": 2,
+            "destructionPercentage": 81,
+            "order": 1,
+            "duration": 94
+          },
+          {
+            "attackerTag": "#Y0Q8",
+            "defenderTag": "#Y00Q",
+            "stars": 2,
+            "destructionPercentage": 72,
+            "order": 2,
+            "duration": 94
+          }
+        ]
       },
       {
         "tag": "#Y0Q9",
         "name": "Rivals 2",
         "mapPosition": 2,
         "townhallLevel": 16,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y0Q9",
+            "defenderTag": "#Y00P",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 3,
+            "duration": 95
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 2,
+          "destructionPercentage": 62
+        }
       },
       {
         "tag": "#Y0QP",
         "name": "Rivals 3",
         "mapPosition": 3,
         "townhallLevel": 15,
-        "attacks": [
-          {
-            "stars": 3,
-            "destructionPercentage": 100
-          }
-        ]
+        "opponentAttacks": 1,
+        "attacks": [],
+        "bestOpponentAttack": {
+          "stars": 3,
+          "destructionPercentage": 64
+        }
       },
       {
         "tag": "#Y0QY",
         "name": "Rivals 4",
         "mapPosition": 4,
         "townhallLevel": 14,
-        "attacks": []
+        "opponentAttacks": 1,
+        "attacks": [
+          {
+            "attackerTag": "#Y0QY",
+            "defenderTag": "#Y00L",
+            "stars": 3,
+            "destructionPercentage": 100,
+            "order": 7,
+            "duration": 97
+          },
+          {
+            "attackerTag": "#Y0QY",
+            "defenderTag": "#Y00J",
+            "stars": 2,
+            "destructionPercentage": 75,
+            "order": 8,
+            "duration": 97
+          }
+        ],
+        "bestOpponentAttack": {
+          "stars": 1,
+          "destructionPercentage": 66
+        }
       },
       {
         "tag": "#Y0QL",
         "name": "Rivals 5",
         "mapPosition": 5,
         "townhallLevel": 13,
+        "opponentAttacks": 0,
         "attacks": [
           {
-            "stars": 3,
-            "destructionPercentage": 100
+            "attackerTag": "#Y0QL",
+            "defenderTag": "#Y00Q",
+            "stars": 2,
+            "destructionPercentage": 81,
+            "order": 9,
+            "duration": 98
           }
         ]
       },
@@ -230,106 +423,194 @@
         "name": "Rivals 6",
         "mapPosition": 6,
         "townhallLevel": 17,
-        "attacks": [
-          {
-            "stars": 3,
-            "destructionPercentage": 100
-          }
-        ]
+        "opponentAttacks": 1,
+        "attacks": [],
+        "bestOpponentAttack": {
+          "stars": 3,
+          "destructionPercentage": 70
+        }
       },
       {
         "tag": "#Y0QG",
         "name": "Rivals 7",
         "mapPosition": 7,
         "townhallLevel": 16,
-        "attacks": []
+        "opponentAttacks": 1,
+        "attacks": [
+          {
+            "attackerTag": "#Y0QG",
+            "defenderTag": "#Y00R",
+            "stars": 3,
+            "destructionPercentage": 100,
+            "order": 13,
+            "duration": 100
+          },
+          {
+            "attackerTag": "#Y0QG",
+            "defenderTag": "#Y00V",
+            "stars": 2,
+            "destructionPercentage": 78,
+            "order": 14,
+            "duration": 100
+          }
+        ],
+        "bestOpponentAttack": {
+          "stars": 1,
+          "destructionPercentage": 72
+        }
       },
       {
         "tag": "#Y0QR",
         "name": "Rivals 8",
         "mapPosition": 8,
         "townhallLevel": 15,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y0QR",
+            "defenderTag": "#Y00J",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 15,
+            "duration": 101
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 2,
+          "destructionPercentage": 74
+        }
       },
       {
         "tag": "#Y0QJ",
         "name": "Rivals 9",
         "mapPosition": 9,
         "townhallLevel": 14,
-        "attacks": [
-          {
-            "stars": 3,
-            "destructionPercentage": 100
-          }
-        ]
+        "opponentAttacks": 0,
+        "attacks": []
       },
       {
         "tag": "#Y0QC",
         "name": "Rivals 10",
         "mapPosition": 10,
         "townhallLevel": 13,
-        "attacks": []
+        "opponentAttacks": 1,
+        "attacks": [
+          {
+            "attackerTag": "#Y0QC",
+            "defenderTag": "#Y00U",
+            "stars": 3,
+            "destructionPercentage": 100,
+            "order": 19,
+            "duration": 103
+          },
+          {
+            "attackerTag": "#Y0QC",
+            "defenderTag": "#Y002",
+            "stars": 2,
+            "destructionPercentage": 81,
+            "order": 20,
+            "duration": 103
+          }
+        ],
+        "bestOpponentAttack": {
+          "stars": 1,
+          "destructionPercentage": 78
+        }
       },
       {
         "tag": "#Y0QU",
         "name": "Rivals 11",
         "mapPosition": 11,
         "townhallLevel": 17,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y0QU",
+            "defenderTag": "#Y00V",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 21,
+            "duration": 104
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 2,
+          "destructionPercentage": 80
+        }
       },
       {
         "tag": "#Y0QV",
         "name": "Rivals 12",
         "mapPosition": 12,
         "townhallLevel": 16,
-        "attacks": [
-          {
-            "stars": 3,
-            "destructionPercentage": 100
-          }
-        ]
+        "opponentAttacks": 1,
+        "attacks": [],
+        "bestOpponentAttack": {
+          "stars": 3,
+          "destructionPercentage": 82
+        }
       },
       {
         "tag": "#Y0G0",
         "name": "Rivals 13",
         "mapPosition": 13,
         "townhallLevel": 15,
-        "attacks": []
+        "opponentAttacks": 0,
+        "attacks": [
+          {
+            "attackerTag": "#Y0G0",
+            "defenderTag": "#Y000",
+            "stars": 2,
+            "destructionPercentage": 81,
+            "order": 25,
+            "duration": 106
+          },
+          {
+            "attackerTag": "#Y0G0",
+            "defenderTag": "#Y00P",
+            "stars": 2,
+            "destructionPercentage": 84,
+            "order": 26,
+            "duration": 106
+          }
+        ]
       },
       {
         "tag": "#Y0G2",
         "name": "Rivals 14",
         "mapPosition": 14,
         "townhallLevel": 14,
+        "opponentAttacks": 1,
         "attacks": [
           {
+            "attackerTag": "#Y0G2",
+            "defenderTag": "#Y002",
             "stars": 3,
-            "destructionPercentage": 100
+            "destructionPercentage": 100,
+            "order": 27,
+            "duration": 107
           }
-        ]
+        ],
+        "bestOpponentAttack": {
+          "stars": 2,
+          "destructionPercentage": 86
+        }
       },
       {
         "tag": "#Y0G8",
         "name": "Rivals 15",
         "mapPosition": 15,
         "townhallLevel": 13,
-        "attacks": [
-          {
-            "stars": 3,
-            "destructionPercentage": 100
-          }
-        ]
+        "opponentAttacks": 1,
+        "attacks": [],
+        "bestOpponentAttack": {
+          "stars": 3,
+          "destructionPercentage": 88
+        }
       }
-    ]
+    ],
+    "attacks": 15,
+    "stars": 37,
+    "destructionPercentage": 88.9
   }
 }

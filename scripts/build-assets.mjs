@@ -167,6 +167,20 @@ const CAPITAL_DIRS = [
 ];
 
 /**
+ * Town Halls 1-8, which the fan kit does not ship.
+ *
+ * `coc/main` carries only 9-18, so every roster row, ladder entry and war
+ * member below TH9 rendered as a hole. The war league screen made that
+ * unmissable -- a league group spans the whole range, and its Town Hall
+ * legend runs down to TH3. clash-of-clans-data has the full set.
+ *
+ * Emitted into the same directory and registry as the fan-kit halls, at the
+ * same size and untrimmed, so the two sets are indistinguishable in a list.
+ * 9-18 are skipped here rather than overwritten: the official art wins.
+ */
+const LOW_TOWN_HALLS = { dir: 'images/home/town-hall/normal', max: 8 };
+
+/**
  * League badges for the player and clan ladders.
  *
  * Three separate league systems, and the two sources split cleanly between
@@ -424,6 +438,25 @@ for (const group of CAPITAL_DIRS) {
       trim: true,
     });
     if (ok) add('cocCapital', key, `./img/coc-capital/${key}.webp`);
+  }
+}
+
+// Town Halls 1-8 from the dataset, joining 9-18 from the fan kit.
+{
+  const dir = join(COC_DATA, LOW_TOWN_HALLS.dir);
+  if (!existsSync(dir)) {
+    failures.push(`missing town hall art directory: ${LOW_TOWN_HALLS.dir}`);
+  } else {
+    for (let level = 1; level <= LOW_TOWN_HALLS.max; level++) {
+      const source = join(dir, `level-${level}.png`);
+      if (!existsSync(source)) {
+        failures.push(`missing town hall art: level-${level}.png`);
+        continue;
+      }
+      const key = `town-hall-${level}`;
+      const ok = await convert(source, join(IMG, 'coc'), key, 512);
+      if (ok) add('coc', key, `./img/coc/${key}.webp`);
+    }
   }
 }
 

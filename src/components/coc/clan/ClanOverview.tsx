@@ -225,35 +225,37 @@ export function ClanOverview({
           ) : null}
 
           {districts.length ? (
-            <HGrid
-              items={districts}
-              tileWidth={DISTRICT_TILE}
-              fill
-              accessibilityLabel="Clan Capital districts"
-              keyExtractor={(d, i) => `${text(d['name'])}-${i}`}
-              renderItem={(district) => {
-                const level =
-                  text(district['name']) === 'Capital Peak'
-                    ? capital['capitalHallLevel']
-                    : district['districtHallLevel'];
-                const art = districtArt(district['name'], level);
-                return (
-                  <View style={s.district}>
-                    <View style={s.districtArt}>
-                      {art ? (
-                        <Image source={art} style={s.districtImage} resizeMode="contain" />
-                      ) : null}
-                      <View style={s.districtLevel}>
-                        <Text style={s.districtLevelText}>{text(level)}</Text>
+            <View style={s.districts}>
+              <HGrid
+                items={districts}
+                tileWidth={DISTRICT_TILE}
+                fill
+                accessibilityLabel="Clan Capital districts"
+                keyExtractor={(d, i) => `${text(d['name'])}-${i}`}
+                renderItem={(district) => {
+                  const level =
+                    text(district['name']) === 'Capital Peak'
+                      ? capital['capitalHallLevel']
+                      : district['districtHallLevel'];
+                  const art = districtArt(district['name'], level);
+                  return (
+                    <View style={s.district}>
+                      <View style={s.districtArt}>
+                        {art ? (
+                          <Image source={art} style={s.districtImage} resizeMode="contain" />
+                        ) : null}
+                        <View style={s.districtLevel}>
+                          <Text style={s.districtLevelText}>{text(level)}</Text>
+                        </View>
                       </View>
+                      <Text style={s.districtName} numberOfLines={2}>
+                        {text(district['name'])}
+                      </Text>
                     </View>
-                    <Text style={s.districtName} numberOfLines={2}>
-                      {text(district['name'])}
-                    </Text>
-                  </View>
-                );
-              }}
-            />
+                  );
+                }}
+              />
+            </View>
           ) : (
             <Text style={s.noCapital}>This clan has not built its Clan Capital yet.</Text>
           )}
@@ -331,6 +333,9 @@ const build = (t: Theme) =>
     },
     actionText: { fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
 
+    // The league chip directly above carries no bottom margin, so without this
+    // the hall artwork sits flush against it.
+    districts: { marginTop: 14 },
     district: { width: '100%' },
     districtArt: {
       width: '100%',

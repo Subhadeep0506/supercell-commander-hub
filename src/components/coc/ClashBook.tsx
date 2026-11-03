@@ -6,6 +6,7 @@ import { HGrid } from '@/components/ui/HGrid';
 import { SearchField } from '@/components/ui/SearchField';
 import { Tabs } from '@/components/ui/Tabs';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
+import { useHub } from '@/state/HubProvider';
 import { BookItemModal } from './BookItemModal';
 
 /** Matches the 25% tile the wrapping grid produced at the 560px cap. */
@@ -26,6 +27,17 @@ export function ClashBook() {
   const [category, setCategory] = useState('All');
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<BookItem>();
+  const { village: imported } = useHub();
+
+  /** Your level for an item, when a village export has been imported. */
+  const ownedLevel = (catalogId: string): number | undefined => {
+    if (!imported) return undefined;
+    for (const side of [imported.home, imported.builder]) {
+      const owned = side.owned.find((o) => o.catalogId === catalogId);
+      if (owned) return owned.level;
+    }
+    return undefined;
+  };
 
   const villageItems = BOOK_ITEMS.filter((i) => i.base === village || i.base === 'magic-items');
   const categories = ['All', ...new Set(villageItems.map((i) => bookCategory(i.category)))];
@@ -121,7 +133,15 @@ export function ClashBook() {
       </Text>
 
       {selected ? (
-        <BookItemModal key={selected.id} item={selected} open onClose={() => setSelected(undefined)} />
+        <BookItemModal
+          key={selected.id}
+          item={selected}
+          // An imported village knows your level for every item, including the
+          // Builder Base ones the player API leaves out entirely.
+          initialLevel={ownedLevel(selected.id)}
+          open
+          onClose={() => setSelected(undefined)}
+        />
       ) : null}
     </View>
   );

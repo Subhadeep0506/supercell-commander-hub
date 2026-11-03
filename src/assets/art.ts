@@ -60,7 +60,22 @@ export const COC_ART: Record<string, ImageSourcePropType | undefined> = {
   ...DETAIL_ART,
 };
 
+/**
+ * Town Hall artwork by level.
+ *
+ * 9-18 come from the fan kit, 1-8 from clash-of-clans-data -- see the
+ * LOW_TOWN_HALLS block in scripts/build-assets.mjs. Before those were added
+ * every roster row, ladder entry and war member below TH9 rendered nothing.
+ */
 const HALLS: Record<number, ImageSourcePropType | undefined> = {
+  1: cocImages['town-hall-1'],
+  2: cocImages['town-hall-2'],
+  3: cocImages['town-hall-3'],
+  4: cocImages['town-hall-4'],
+  5: cocImages['town-hall-5'],
+  6: cocImages['town-hall-6'],
+  7: cocImages['town-hall-7'],
+  8: cocImages['town-hall-8'],
   9: cocImages['town-hall-9'],
   10: cocImages['town-hall-10'],
   11: cocImages['town-hall-11'],

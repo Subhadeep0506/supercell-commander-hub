@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  type ImageSourcePropType,
   type ImageStyle,
   type StyleProp,
   type ViewStyle,
@@ -84,7 +85,15 @@ function bookFallback(name: string) {
   return entry ? itemArt(entry)?.source : undefined;
 }
 
-/** `.coc-stat` -- an icon beside a value and its caption. */
+/**
+ * `.coc-stat` -- an icon beside a value and its caption.
+ *
+ * `icon` takes either a COC_ART name or a bundled source directly, matching
+ * StatCell in clan/ClanBits. The source form exists for artwork that is not
+ * reachable by name: the trimmed nav icons, whose `coc/main` equivalents carry
+ * so much transparent padding that they render at half the weight of the
+ * Clash Book art beside them.
+ */
 export function SmallStat({
   label,
   value,
@@ -92,13 +101,17 @@ export function SmallStat({
 }: {
   label: string;
   value: unknown;
-  icon?: string;
+  icon?: string | ImageSourcePropType;
 }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
   return (
     <View style={s.stat}>
-      {icon ? <Art name={icon} /> : null}
+      {typeof icon === 'string' ? (
+        <Art name={icon} />
+      ) : icon ? (
+        <Image source={icon} style={s.statSource} resizeMode="contain" />
+      ) : null}
       <View style={s.statText}>
         <Text style={s.statValue}>{text(value)}</Text>
         <Text style={s.statLabel}>{label}</Text>
@@ -214,6 +227,8 @@ export const build = (t: Theme) =>
       paddingHorizontal: 8,
       borderRadius: 6,
     },
+    // Matches the 32px box <Art> renders into, so both icon forms weigh the same.
+    statSource: { width: 32, height: 32, flexShrink: 0 },
     statText: { flexShrink: 1, minWidth: 0 },
     statValue: { fontFamily: t.fonts.display, fontSize: 16, color: t.foreground },
     statLabel: { fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },

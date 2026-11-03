@@ -76,7 +76,17 @@ check('back button returns to /coc', path() === '/coc', path());
 await page.goto(`${BASE}/coc/book`, { waitUntil: 'networkidle2' });
 await settle(2000);
 await clickLabel('View Laboratory');
-check('book sheet opens', (await body()).includes('Laboratory · Level 16'));
+const sheetBody = await body();
+check('book sheet opens', sheetBody.includes('Laboratory · Level 16'));
+// The title alone is not evidence the sheet works. Sheet's body is `flex: 1`,
+// and against a card with no definite height Yoga resolved that to zero --
+// every sheet on Android rendered as a title above an empty strip while this
+// check stayed green. Assert something only the *body* can produce.
+check(
+  'book sheet renders its body, not just the title',
+  /Game max/.test(sheetBody) && /Home Village|Builder Base/.test(sheetBody),
+  sheetBody.slice(0, 80).replace(/\n/g, ' '),
+);
 
 // Guards the react-native-web bubbling trap: Pressable is DOM-event based on
 // web, so a scrim nested as the card's parent would close on any inner tap.

@@ -11,6 +11,8 @@ import { EmptyState } from './ClanBits';
 import { ClanOverview } from './ClanOverview';
 import { ClanCapitalRaids } from './ClanCapitalRaids';
 import { ClanWarLog } from './ClanWarLog';
+import { LeagueRound } from '../war/LeagueRound';
+import { WarBoard } from '../war/WarBoard';
 import { useDetailSheet, type SheetEntry } from './DetailSheetProvider';
 
 /**
@@ -44,7 +46,18 @@ export function DetailSheet({
     >
       {stack.map((entry, i) => (
         <Layer key={`${entry.kind}-${entry.tag}-${i}`} hidden={i !== stack.length - 1}>
-          {entry.kind === 'player' ? <PlayerEntry tag={entry.tag} /> : <ClanEntry entry={entry} />}
+          {entry.kind === 'player' ? (
+            <PlayerEntry tag={entry.tag} />
+          ) : entry.kind === 'cwlRound' ? (
+            <LeagueRound tag={entry.tag} round={entry.round} />
+          ) : entry.kind === 'cwlWar' ? (
+            <LeagueWarEntry tag={entry.tag} clanTag={entry.clanTag} />
+          ) : (
+            // Everything left is addressed by clan tag. The two league kinds
+            // must be handled above: `cwlWar` carries a *war* tag, and asking
+            // the clans endpoint for one 404s.
+            <ClanEntry entry={entry} />
+          )}
         </Layer>
       ))}
     </Sheet>
@@ -81,7 +94,8 @@ function Layer({ hidden, children }: { hidden: boolean; children: React.ReactNod
 function SheetTitle({ entry }: { entry: SheetEntry }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  const resource = entry.kind === 'player' ? 'player' : 'clan';
+  const resource =
+    entry.kind === 'player' ? 'player' : entry.kind === 'cwlWar' ? 'leagueWar' : 'clan';
   // Already in the cache by the time the title renders -- the layer below
   // fetched it. No request is made here.
   const { data } = useQuery(gameQuery({ game: 'coc', resource, tag: entry.tag }));
@@ -92,11 +106,47 @@ function SheetTitle({ entry }: { entry: SheetEntry }) {
       ? `Capital raids · ${name}`
       : entry.kind === 'warLog'
         ? `War history · ${name}`
-        : name;
+        : entry.kind === 'cwlRound'
+          ? `Round ${entry.round + 1} · War League`
+          : entry.kind === 'cwlWar'
+            ? record_
+              ? `${text(record(record_['clan'])['name'])} vs ${text(record(record_['opponent'])['name'])}`
+              : 'War League battle'
+            : name;
   return (
     <Text style={s.title} numberOfLines={2}>
       {title}
     </Text>
+  );
+}
+
+/** One league war, fetched by its war tag. */
+function LeagueWarEntry({ tag, clanTag }: { tag: string; clanTag?: string }) {
+  const theme = useTheme();
+  const s = useMemo(() => build(theme), [theme]);
+  const { data: result, isFetching } = useQuery(
+    gameQuery({ game: 'coc', resource: 'leagueWar', tag }),
+  );
+  const war = parsed(result);
+
+  if (isFetching && !war) return <Text style={s.loading}>Loading the battle…</Text>;
+  if (!war) {
+    return (
+      <View style={s.fill}>
+        <EmptyState
+          title="War not found"
+          body={`Nothing came back for ${tag}. League wars drop out of the API once the season is over.`}
+        />
+        {result ? <Source result={result} /> : null}
+      </View>
+    );
+  }
+
+  return (
+    <>
+      <WarBoard war={war} clanTag={clanTag} />
+      {result ? <Source result={result} /> : null}
+    </>
   );
 }
 

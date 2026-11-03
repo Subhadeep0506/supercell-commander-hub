@@ -7,7 +7,22 @@ export type SheetEntry =
   | { kind: 'clan'; tag: string }
   | { kind: 'player'; tag: string }
   | { kind: 'capital'; tag: string }
-  | { kind: 'warLog'; tag: string };
+  | { kind: 'warLog'; tag: string }
+  /** `tag` is the clan whose league season this is; `round` is 0-based. */
+  | { kind: 'cwlRound'; tag: string; round: number }
+  /** `tag` is a *war* tag. `clanTag` orients the board, when it is known. */
+  | { kind: 'cwlWar'; tag: string; clanTag?: string };
+
+/**
+ * What makes two entries the same view.
+ *
+ * Not just kind and tag: every round of a league season is pushed with the
+ * same clan tag and the same kind, so comparing those alone would treat
+ * "Round 2" as a repeat of "Round 1" and refuse to open it.
+ */
+function entryKey(entry: SheetEntry): string {
+  return entry.kind === 'cwlRound' ? `cwlRound:${entry.tag}:${entry.round}` : `${entry.kind}:${entry.tag}`;
+}
 
 type Ctx = {
   openClan: (tag: string) => void;
@@ -43,12 +58,13 @@ export function DetailSheetProvider({ children }: { children: ReactNode }) {
     // "#" alone is what normalizeTag returns for an empty string; pushing it
     // would open a view onto a guaranteed 400.
     if (clean.length <= 1) return;
+    const next = { ...entry, tag: clean };
     setStack((current) => {
       const top = current[current.length - 1];
       // A double tap must not stack the same view twice -- the back arrow
       // would then have to be pressed twice to undo one press.
-      if (top && top.kind === entry.kind && top.tag === clean) return current;
-      return [...current, { ...entry, tag: clean }];
+      if (top && entryKey(top) === entryKey(next)) return current;
+      return [...current, next];
     });
   }, []);
 

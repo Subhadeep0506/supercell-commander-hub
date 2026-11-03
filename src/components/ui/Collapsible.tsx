@@ -13,10 +13,17 @@ export function Collapsible({
   summary,
   children,
   initiallyOpen = false,
+  accessibilityLabel,
 }: {
   summary: (open: boolean) => ReactNode;
   children: ReactNode;
   initiallyOpen?: boolean;
+  /**
+   * Names the toggle. Without one a screen reader announces the whole summary
+   * -- badge, name, counts -- as the button's label, and nothing can address
+   * the row to open it.
+   */
+  accessibilityLabel?: string;
 }) {
   const [open, setOpen] = useState(initiallyOpen);
   const theme = useTheme();
@@ -27,6 +34,7 @@ export function Collapsible({
     <View>
       <Pressable
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
         accessibilityState={{ expanded: open }}
         onPress={() => {
           click();

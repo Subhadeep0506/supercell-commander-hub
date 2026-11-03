@@ -25,6 +25,8 @@ export const gameRequestSchema = z
       'locations',
       'capitalRaids',
       'warLog',
+      'leagueGroup',
+      'leagueWar',
     ]),
     tag: z.string().optional(),
     name: z.string().optional(),
@@ -53,7 +55,16 @@ export const gameRequestSchema = z
       });
     }
     if (
-      ['player', 'clan', 'war', 'battles', 'capitalRaids', 'warLog'].includes(value.resource) &&
+      [
+        'player',
+        'clan',
+        'war',
+        'battles',
+        'capitalRaids',
+        'warLog',
+        'leagueGroup',
+        'leagueWar',
+      ].includes(value.resource) &&
       !/^#[0289PYLQGRJCUV]{3,14}$/.test(normalizeTag(value.tag ?? ''))
     ) {
       ctx.addIssue({
@@ -77,7 +88,8 @@ export const gameRequestSchema = z
       (value.resource === 'catalog' && value.game === 'coc') ||
       (value.resource === 'war' && value.game !== 'coc') ||
       (value.resource === 'battles' && value.game === 'coc') ||
-      (['capitalRaids', 'warLog'].includes(value.resource) && value.game !== 'coc')
+      (['capitalRaids', 'warLog', 'leagueGroup', 'leagueWar'].includes(value.resource) &&
+        value.game !== 'coc')
     ) {
       ctx.addIssue({ code: 'custom', message: 'This data is not available for this game.' });
     }
@@ -118,6 +130,13 @@ export function endpoint(input: GameRequest) {
       return `/v1/${input.game === 'bs' ? 'clubs' : 'clans'}/${tag}`;
     case 'war':
       return `/v1/clans/${tag}/currentwar`;
+    // Clan War League. `currentwar` answers `notInWar` for a clan that is in
+    // CWL, so the league has to be asked for separately -- the season lives on
+    // `leaguegroup`, and each of its 56 wars on its own war tag.
+    case 'leagueGroup':
+      return `/v1/clans/${tag}/currentwar/leaguegroup`;
+    case 'leagueWar':
+      return `/v1/clanwarleagues/wars/${tag}`;
     case 'capitalRaids':
       // `after` is Supercell's own opaque cursor from paging.cursors; it is
       // already base64 and must not be re-encoded.
