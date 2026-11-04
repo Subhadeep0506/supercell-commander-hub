@@ -38,7 +38,7 @@ export function CocBuilderScreen() {
   const item = selected ? BOOK_ITEMS.find((i) => i.id === selected.catalogId) : undefined;
 
   return (
-    <CocShell title="Builder">
+    <CocShell>
       <View style={s.actions}>
         <Button
           variant="outline"

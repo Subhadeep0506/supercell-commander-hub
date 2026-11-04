@@ -51,11 +51,12 @@ const force = process.argv.includes('--force');
  * `max` is the longest edge after resize. Grid tiles never render above about
  * 96 px even at 3x, so 256 is generous; full-bleed artwork (Town Halls, the
  * book item stage, logos) can reach roughly 200 px, so 512 covers it.
+ *
+ * One registry per source group, mirroring the reference app's own split
+ * between coc-art.ts and coc-detail-art.ts. Merging them would collide:
+ * trophy.png exists in both coc/main and coc/icons, and the reference relies
+ * on the detail copy winning.
  */
-// One registry per source group, mirroring the reference app's own split
-// between coc-art.ts and coc-detail-art.ts. Merging them would collide:
-// trophy.png exists in both coc/main and coc/icons, and the reference relies
-// on the detail copy winning.
 const GROUPS = [
   { from: 'coc/main', to: 'coc', max: 512, registry: 'coc' },
   // Trimmed: these are small UI icons -- elixir, gold and clock fill only 4%
@@ -71,6 +72,46 @@ const GROUPS = [
   { from: 'coc/clash-book', to: 'coc-book', max: 256, registry: 'book', trim: true },
   { from: 'cr/cards', to: 'arena', max: 256, registry: 'arena' },
   { from: 'bs/main', to: 'arena', max: 256, registry: 'arena' },
+  // Clash Royale artwork from RoyaleAPI/cr-api-assets, fetched by
+  // scripts/fetch-cr-assets.mjs. Separate registries rather than one `arena`
+  // group because the names collide across sets -- `legendary` is both an
+  // arena and a chest tier -- and because two of them are addressed by a
+  // generated id map rather than by name.
+  //
+  // Not trimmed: arena and league art is full-bleed, and cropping to the
+  // alpha box would zoom each one differently.
+  { from: 'cr/arenas', to: 'cr-arena', max: 256, registry: 'crArena' },
+  { from: 'cr/leagues', to: 'cr-league', max: 256, registry: 'crLeague' },
+  // Trimmed: these sit in rows beside each other at a fixed size, and the
+  // source padding is uneven enough that untrimmed they render at visibly
+  // different scales.
+  { from: 'cr/chests', to: 'cr-chest', max: 256, registry: 'crChest', trim: true },
+  // 128 rather than 256: badges never draw above 56px, and there are 182 of
+  // them -- the difference is roughly 2MB of APK for pixels nothing shows.
+  { from: 'cr/badges', to: 'cr-badge', max: 128, registry: 'crBadge', trim: true },
+  // Player badges from the fan kit, fetched by scripts/fetch-fankit.mjs: 1,191
+  // files, every badge family at every level. 128 for the same reason as the
+  // clan crests -- they never draw above 48px -- which puts the whole set at
+  // roughly 4MB.
+  //
+  // Not trimmed, unlike the crests. The source art is already uniformly
+  // framed (content fills ~63% of a 256px canvas across the set), so trimming
+  // would only rescale the handful of families whose art is tighter than the
+  // rest and make them render larger than their neighbours in the same list.
+  //
+  // Quality 80 rather than the default 90: at 1,191 files the difference is
+  // 3MB of APK, and these are soft gradient badges with no text or fine line
+  // work for the extra bits to protect.
+  { from: 'cr/player-badges', to: 'cr-playerbadge', max: 128, registry: 'crPlayerBadge', quality: 80 },
+  { from: 'cr/tokens', to: 'cr-token', max: 128, registry: 'crToken', trim: true },
+  // Hand-sourced icons. Trimmed because the set is mixed-origin -- menu icons
+  // sit in a 216px box, the crowns in a much tighter one -- so untrimmed they
+  // render at visibly different scales in the same metric grid.
+  { from: 'cr/icons', to: 'cr-icon', max: 128, registry: 'crIcon', trim: true },
+  // Path of Legend league badges. Distinct from `cr/leagues`, which holds the
+  // older trophy-road art from cr-api-assets: `leagueNumber` on a player
+  // refers to these.
+  { from: 'cr/pol', to: 'cr-pol', max: 192, registry: 'crPol', trim: true },
 ];
 
 /**
@@ -298,7 +339,7 @@ let bytesIn = 0;
 let bytesOut = 0;
 const failures = [];
 
-async function convert(source, targetDir, name, max, { trim = false } = {}) {
+async function convert(source, targetDir, name, max, { trim = false, quality = 90 } = {}) {
   mkdirSync(targetDir, { recursive: true });
   const target = join(targetDir, `${name}.webp`);
   bytesIn += statSync(source).size;
@@ -316,7 +357,7 @@ async function convert(source, targetDir, name, max, { trim = false } = {}) {
     if (trim) pipeline.trim({ threshold: 0 });
     await pipeline
       .resize({ width: max, height: max, fit: 'inside', withoutEnlargement: true })
-      .webp({ quality: 90, effort: 4 })
+      .webp({ quality, effort: 4 })
       .toFile(target);
     bytesOut += statSync(target).size;
     converted++;
@@ -328,7 +369,7 @@ async function convert(source, targetDir, name, max, { trim = false } = {}) {
 }
 
 /** Registry name -> [{ lookup, path }]. */
-const registries = { coc: [], cocDetail: [], cocCapital: [], cocLeague: [], book: [], bookExtra: [], arena: [], logo: [], nav: [], resource: [] };
+const registries = { coc: [], cocDetail: [], cocCapital: [], cocLeague: [], book: [], bookExtra: [], arena: [], crArena: [], crLeague: [], crChest: [], crBadge: [], crPlayerBadge: [], crToken: [], crIcon: [], crPol: [], logo: [], nav: [], resource: [] };
 
 /** Guard against two packs contributing the same key to one registry. */
 function add(registry, lookup, path) {
@@ -351,6 +392,7 @@ for (const group of GROUPS) {
     const name = basename(file, extname(file));
     const ok = await convert(join(dir, file), join(IMG, group.to), name, group.max, {
       trim: group.trim === true,
+      quality: group.quality,
     });
     // Lookup key is the bare filename. For the Clash Book the catalog id
     // "home/hero-hall" maps to the file "home_hero-hall", so callers translate

@@ -5,11 +5,12 @@ import { COC_ART, NAV_ART, UI_ART, resourceArt } from '@/assets/art';
 import { gameQuery } from '@/api/queries';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { groupedNumber, shortDate, timeAgo } from '@/lib/clan';
+import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Art, Source } from '../CocBits';
 import { ClanBadge, EmptyState } from './ClanBits';
-import { useDetailSheet } from './DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 
 const PAGE = 10;
 
@@ -49,6 +50,8 @@ export function ClanWarLog({ clan, tag }: { clan: ApiRecord; tag: string }) {
     }
   }, [result]);
 
+  const paged = usePaged(wars, wars.length);
+
   const forbidden = !isPublic || (result?.ok === false && result.status === 403);
 
   if (forbidden) {
@@ -78,7 +81,7 @@ export function ClanWarLog({ clan, tag }: { clan: ApiRecord; tag: string }) {
 
   return (
     <View style={s.stack}>
-      {wars.map((war, i) => {
+      {paged.shown.map((war, i) => {
         const us = record(war['clan']);
         const them = record(war['opponent']);
         const outcome = text(war['result']);
@@ -209,6 +212,13 @@ export function ClanWarLog({ clan, tag }: { clan: ApiRecord; tag: string }) {
         );
       })}
 
+      <LoadMore
+        remaining={paged.remaining}
+        onPress={paged.loadMore}
+        noun="wars"
+        style={s.more}
+      />
+
       {result ? <Source result={result} /> : null}
     </View>
   );
@@ -287,6 +297,7 @@ function pct(value: unknown): string {
 const build = (t: Theme) =>
   StyleSheet.create({
     stack: { gap: 10 },
+    more: { marginTop: 4, alignSelf: 'flex-start' },
     fill: { flex: 1 },
     panel: { padding: 12 },
     row: { flexDirection: 'row', alignItems: 'center', gap: 8 },

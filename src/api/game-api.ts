@@ -8,7 +8,48 @@
 // the clan detail sheet, which the SSR app has no equivalent of, so porting
 // them back would be dead code there. Everything else stays in step, and the
 // vitest suite in frontend/ still covers the shared half.
+//
+// The ten Clash Royale resources below are a second, larger divergence. The SSR
+// app only ever asked CR for `player`, `clan`, `battles`, `catalog` and a single
+// hardcoded global ladder; the RN app covers the whole live surface.
 import { z } from 'zod';
+
+/**
+ * Clash Royale resources. Rejected for `coc` and `bs`, which have no
+ * equivalent -- asking the CoC proxy for `/v1/leaderboards` 404s, and a 404 is
+ * indistinguishable from "this clan has no history" at the call site.
+ */
+const CR_ONLY = [
+  'upcomingChests',
+  'riverRace',
+  'riverRaceLog',
+  'pathOfLegend',
+  'seasons',
+  'leaderboards',
+  'leaderboardRankings',
+  'globalTournaments',
+  'tournament',
+  'tournamentSearch',
+] as const;
+
+/** Clash of Clans resources, rejected for the other two games. */
+const COC_ONLY = ['war', 'capitalRaids', 'warLog', 'leagueGroup', 'leagueWar'] as const;
+
+/** Every resource addressed by a player, clan, war or tournament tag. */
+const TAGGED = [
+  'player',
+  'clan',
+  'war',
+  'battles',
+  'capitalRaids',
+  'warLog',
+  'leagueGroup',
+  'leagueWar',
+  'upcomingChests',
+  'riverRace',
+  'riverRaceLog',
+  'tournament',
+] as const;
 
 export const gameRequestSchema = z
   .object({
@@ -27,19 +68,31 @@ export const gameRequestSchema = z
       'warLog',
       'leagueGroup',
       'leagueWar',
+      ...CR_ONLY,
     ]),
     tag: z.string().optional(),
     name: z.string().optional(),
-    /** Page size for the cursor-paged clan histories. */
+    /** Page size for the cursor-paged clan histories, and the ranking ladders. */
     limit: z.number().int().positive().max(50).optional(),
     /** `paging.cursors.after` from the previous page of the same resource. */
     after: z.string().optional(),
     /** Leaderboard only: which ladder to read. */
     board: z.enum(['players', 'clans']).optional(),
-    /** Leaderboard only. `capital` is a clan ladder and has no player form. */
-    mode: z.enum(['home', 'builder', 'capital']).optional(),
+    /**
+     * Leaderboard only. `capital` is a CoC clan ladder and has no player form;
+     * `war` is the CR clan-wars ladder and has no CoC form.
+     */
+    mode: z.enum(['home', 'builder', 'capital', 'war']).optional(),
     /** Leaderboard only: a location id from the `locations` resource, or 'global'. */
     locationId: z.union([z.string(), z.number()]).optional(),
+    /**
+     * `pathOfLegend` only: a season id from the `seasons` resource, like
+     * "2026-10". The *current* season 404s until it closes, so the picker must
+     * offer finished seasons only.
+     */
+    season: z.string().optional(),
+    /** `leaderboardRankings` only: an `id` from the `leaderboards` resource. */
+    leaderboardId: z.union([z.string(), z.number()]).optional(),
   })
   .superRefine((value, ctx) => {
     if (
@@ -55,16 +108,17 @@ export const gameRequestSchema = z
       });
     }
     if (
-      [
-        'player',
-        'clan',
-        'war',
-        'battles',
-        'capitalRaids',
-        'warLog',
-        'leagueGroup',
-        'leagueWar',
-      ].includes(value.resource) &&
+      value.resource === 'tournamentSearch' &&
+      ((value.name?.trim().length ?? 0) < 3 || (value.name?.length ?? 0) > 60)
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Enter a tournament name of 3–60 characters.',
+        path: ['name'],
+      });
+    }
+    if (
+      (TAGGED as readonly string[]).includes(value.resource) &&
       !/^#[0289PYLQGRJCUV]{3,14}$/.test(normalizeTag(value.tag ?? ''))
     ) {
       ctx.addIssue({
@@ -80,16 +134,55 @@ export const gameRequestSchema = z
         path: ['mode'],
       });
     }
+    // The trap this whole schema exists to catch. Clash Royale's player trophy
+    // ladder is gone: /v1/locations/{country}/rankings/players 404s, and the
+    // global one answers 200 with an empty `items` array. An empty list reads
+    // as "no data yet" at every call site, so without this the Players tab
+    // would render blank forever and look like our bug. Path of Legend and the
+    // /v1/leaderboards mode ladders replaced it.
+    if (value.resource === 'leaderboard' && value.game === 'cr' && value.board !== 'clans') {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          "Clash Royale has no player trophy ladder. Use the 'pathOfLegend' or 'leaderboardRankings' resource.",
+        path: ['board'],
+      });
+    }
+    if (value.resource === 'leaderboard' && value.mode === 'war' && value.game !== 'cr') {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'The clan-wars ladder is Clash Royale only.',
+        path: ['mode'],
+      });
+    }
+    // A bad or current season id 404s, which is indistinguishable from an
+    // outage at the call site.
+    if (value.resource === 'pathOfLegend' && !/^\d{4}-\d{2}$/.test(value.season ?? '')) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Choose a finished season, like 2026-10.',
+        path: ['season'],
+      });
+    }
+    if (
+      value.resource === 'leaderboardRankings' &&
+      String(value.leaderboardId ?? '').trim().length === 0
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Choose a leaderboard.',
+        path: ['leaderboardId'],
+      });
+    }
     if (value.resource === 'locations' && value.game === 'bs') {
       ctx.addIssue({ code: 'custom', message: 'This data is not available for this game.' });
     }
     if (
       (value.resource === 'events' && value.game !== 'bs') ||
       (value.resource === 'catalog' && value.game === 'coc') ||
-      (value.resource === 'war' && value.game !== 'coc') ||
       (value.resource === 'battles' && value.game === 'coc') ||
-      (['capitalRaids', 'warLog', 'leagueGroup', 'leagueWar'].includes(value.resource) &&
-        value.game !== 'coc')
+      ((COC_ONLY as readonly string[]).includes(value.resource) && value.game !== 'coc') ||
+      ((CR_ONLY as readonly string[]).includes(value.resource) && value.game !== 'cr')
     ) {
       ctx.addIssue({ code: 'custom', message: 'This data is not available for this game.' });
     }
@@ -97,6 +190,7 @@ export const gameRequestSchema = z
 
 export type GameRequest = z.infer<typeof gameRequestSchema>;
 export type Game = GameRequest['game'];
+export type Resource = GameRequest['resource'];
 export type ApiRecord = Record<string, unknown>;
 export type GameResult =
   | { ok: true; data: string; fetchedAt: string }
@@ -127,6 +221,8 @@ export function endpoint(input: GameRequest) {
     case 'player':
       return `/v1/players/${tag}`;
     case 'clan':
+      // Clash Royale also exposes /v1/clans/{tag}/members, which is byte for
+      // byte the `memberList` already inside this response. One call, not two.
       return `/v1/${input.game === 'bs' ? 'clubs' : 'clans'}/${tag}`;
     case 'war':
       return `/v1/clans/${tag}/currentwar`;
@@ -150,12 +246,58 @@ export function endpoint(input: GameRequest) {
     case 'battles':
       return `/v1/players/${tag}/battlelog`;
     case 'catalog':
+      // Clash Royale answers with `items` (123 cards) *and* `supportItems`
+      // (4 tower troops). Reading only `items` silently drops the tower troops.
       return `/v1/${input.game === 'cr' ? 'cards' : 'brawlers'}`;
     case 'events':
       return '/v1/events/rotation';
     case 'locations':
       // isCountry filtering happens client side; the API has no such filter.
       return '/v1/locations?limit=300';
+
+    // ---- Clash Royale ----------------------------------------------------
+    case 'upcomingChests':
+      // Indices are sparse, not contiguous -- a real account returns 0-8, then
+      // 14, 23, 39, 61, 276, 284, 388. The track is a gapped timeline.
+      return `/v1/players/${tag}/upcomingchests`;
+    case 'riverRace':
+      // Replaces `currentwar`, which answers 410 Gone on this API.
+      // `periodLogs` is an empty array for the whole of a training week.
+      return `/v1/clans/${tag}/currentriverrace`;
+    case 'riverRaceLog':
+      // Replaces `warlog`, which answers 404 "temporarily disabled". Same
+      // opaque-cursor paging as capitalRaids.
+      return `/v1/clans/${tag}/riverracelog?limit=${input.limit ?? 10}${
+        input.after ? `&after=${input.after}` : ''
+      }`;
+    case 'pathOfLegend':
+      // Global only. The per-country form 404s, as does the current season.
+      return `/v1/locations/global/pathoflegend/${encodeURIComponent(
+        input.season ?? '',
+      )}/rankings/players?limit=${input.limit ?? 25}`;
+    case 'seasons':
+      // 145 ids, "2016-02" through the last closed month, with duplicates --
+      // de-duplicate before building a picker.
+      return '/v1/locations/global/seasons';
+    case 'leaderboards':
+      // The 34 mode ladders: Merge Tactics, Touchdown, 2v2 League, Retro
+      // Royale and the rest. Many carry a null `name`.
+      return '/v1/leaderboards';
+    case 'leaderboardRankings':
+      // Note the singular path segment: /v1/leaderboard/{id}, not /leaderboards/.
+      // The plural 404s.
+      return `/v1/leaderboard/${encodeURIComponent(String(input.leaderboardId ?? ''))}?limit=${
+        input.limit ?? 25
+      }`;
+    case 'globalTournaments':
+      // 200 with an empty `items` whenever no global tournament is running,
+      // which is most of the time. An empty list is the normal answer here.
+      return '/v1/globaltournaments';
+    case 'tournament':
+      return `/v1/tournaments/${tag}`;
+    case 'tournamentSearch':
+      return `/v1/tournaments?name=${encodeURIComponent(input.name?.trim() ?? '')}&limit=25`;
+
     case 'leaderboard': {
       // Brawl Stars ranks by country code on a different path entirely and is
       // left on its original endpoint.
@@ -163,6 +305,13 @@ export function endpoint(input: GameRequest) {
       const location = encodeURIComponent(String(input.locationId ?? 'global'));
       const board = input.board ?? 'players';
       const mode = input.mode ?? 'home';
+      if (input.game === 'cr') {
+        // Clan ladders only -- the schema rejects `board: 'players'` above.
+        // Both of these accept a country id as well as 'global'.
+        return `/v1/locations/${location}/rankings/${
+          mode === 'war' ? 'clanwars' : 'clans'
+        }?limit=${input.limit ?? 25}`;
+      }
       const ladder =
         mode === 'capital'
           ? 'capitals'

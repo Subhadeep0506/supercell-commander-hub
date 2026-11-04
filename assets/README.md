@@ -21,6 +21,24 @@ packs are ~183 MB and must not be committed.
 Each pack stays in its own folder. Do not extract one pack on top of another —
 filenames collide between games.
 
+## Fetched rather than dropped in
+
+Two of the `packs/cr/` folders are filled by a script rather than by hand, so
+they can be rebuilt on a clean machine without re-downloading a 183 MB pack:
+
+| Script | Fills | Source |
+|---|---|---|
+| `bun run fetch:cr-assets` | `cr/arenas`, `cr/leagues`, `cr/chests`, `cr/badges`, `cr/tokens` | RoyaleAPI/cr-api-assets |
+| `bun run fetch:fankit` | `cr/player-badges` (1,191 files), plus named icons into `cr/icons`, `cr/tokens`, `cr/pol` | the fan-kit CDN |
+
+`fetch:fankit` needs the fan-kit index — `clash-royale-fankit-images.json`, a
+list of every asset's title and CDN url. It looks for it in the parent
+directory by default; point it elsewhere with `--index=<dir>`. It downloads
+from `media.ffycdn.net` rather than `fankit.supercell.com`, which is blocked
+on this network.
+
+Both scripts skip anything already on disk; pass `--force` to re-download.
+
 ## What the pipeline is matching against
 
 The port needs **597 named assets**, taken from the pointer files in

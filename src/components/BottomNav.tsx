@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NAV_ART } from '@/assets/art';
+import { CR_ICONS } from '@/assets/royale';
 import { GAME_NAV, gameFromRoute } from '@/lib/game-navigation';
 import { useHub } from '@/state/HubProvider';
 import type { RouteName } from '@/navigation/routes';
@@ -30,17 +31,45 @@ export function BottomNav() {
 
   const active = gameFromRoute(current, game);
   const items = GAME_NAV[active];
-  // Royale and Brawl keep their own `.arena-bottom` bar, which lands with
-  // their screens.
-  if (active !== 'coc') return null;
-
-  // Index-aligned with GAME_NAV.coc: War, Builder, Clan, Leaderboard.
-  const iconFor = [NAV_ART.war, NAV_ART.builder, NAV_ART.clan, NAV_ART.rankings];
+  // Brawl Stars keeps its own bar, which lands with its screens.
+  if (active === 'bs' || !items.length) return null;
 
   const go = (route: RouteName) => {
     click();
     navigate(route);
   };
+
+  if (active === 'cr') {
+    // Royale's Home is a row in the bar rather than a separate button, and
+    // there is no Clash Book shortcut beside it. Icons come from the arena
+    // set, because NAV_ART has no card icon -- index-aligned with GAME_NAV.cr.
+    // Index-aligned with GAME_NAV.cr: Home, Decks, Clan, Leaderboard.
+    const crIcons = [CR_ICONS.king, CR_ICONS.cards, CR_ICONS.clanWars, CR_ICONS.trophy];
+    return (
+      <View
+        style={[s.wrap, { paddingBottom: Math.max(12, insets.bottom) }]}
+        pointerEvents="box-none"
+      >
+        <View style={s.row}>
+          <View style={s.bar}>
+            {items.map((item, i) => (
+              <NavLink
+                key={item.route}
+                label={item.label === 'Leaderboard' ? 'Rankings' : item.label}
+                source={crIcons[i]}
+                active={current === item.route}
+                onPress={() => go(item.route)}
+                theme={theme}
+              />
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // Index-aligned with GAME_NAV.coc: War, Builder, Clan, Leaderboard.
+  const iconFor = [NAV_ART.war, NAV_ART.builder, NAV_ART.clan, NAV_ART.rankings];
 
   return (
     <View style={[s.wrap, { paddingBottom: Math.max(12, insets.bottom) }]} pointerEvents="box-none">

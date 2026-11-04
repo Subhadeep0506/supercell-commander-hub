@@ -1,0 +1,383 @@
+{
+  "items": [
+    {
+      "tag": "#L9VRJ",
+      "name": "Calalas España",
+      "rank": 1,
+      "previousRank": 1,
+      "location": {
+        "id": 57000218,
+        "name": "Spain",
+        "isCountry": true,
+        "countryCode": "ES"
+      },
+      "clanScore": 13362,
+      "members": 34,
+      "badgeId": 16000161
+    },
+    {
+      "tag": "#8UJ2UUJ8",
+      "name": "#MuUuKaNs!!",
+      "rank": 2,
+      "previousRank": 2,
+      "location": {
+        "id": 57000120,
+        "name": "Italy",
+        "isCountry": true,
+        "countryCode": "IT"
+      },
+      "clanScore": 12230,
+      "members": 50,
+      "badgeId": 16000081
+    },
+    {
+      "tag": "#9U82JJ0Y",
+      "name": "TheAddictedOnes",
+      "rank": 3,
+      "previousRank": 3,
+      "location": {
+        "id": 57000249,
+        "name": "United States",
+        "isCountry": true,
+        "countryCode": "US"
+      },
+      "clanScore": 11730,
+      "members": 49,
+      "badgeId": 16000139
+    },
+    {
+      "tag": "#9LVQLR",
+      "name": "Band of Adultes",
+      "rank": 4,
+      "previousRank": 4,
+      "location": {
+        "id": 57000087,
+        "name": "France",
+        "isCountry": true,
+        "countryCode": "FR"
+      },
+      "clanScore": 11507,
+      "members": 48,
+      "badgeId": 16000140
+    },
+    {
+      "tag": "#8CYR2V",
+      "name": "Aftermath",
+      "rank": 5,
+      "previousRank": 5,
+      "location": {
+        "id": 57000094,
+        "name": "Germany",
+        "isCountry": true,
+        "countryCode": "DE"
+      },
+      "clanScore": 10535,
+      "members": 50,
+      "badgeId": 16000168
+    },
+    {
+      "tag": "#V2GQU",
+      "name": "Clash of Clams",
+      "rank": 6,
+      "previousRank": 6,
+      "location": {
+        "id": 57000248,
+        "name": "United Kingdom",
+        "isCountry": true,
+        "countryCode": "GB"
+      },
+      "clanScore": 10289,
+      "members": 49,
+      "badgeId": 16000139
+    },
+    {
+      "tag": "#P2P2Y880",
+      "name": "! ShocK-13 !",
+      "rank": 7,
+      "previousRank": 7,
+      "location": {
+        "id": 57000006,
+        "name": "International",
+        "isCountry": false
+      },
+      "clanScore": 10225,
+      "members": 39,
+      "badgeId": 16000161
+    },
+    {
+      "tag": "#2UQ2VCCC",
+      "name": "WarxUnion 2",
+      "rank": 8,
+      "previousRank": 8,
+      "location": {
+        "id": 57000087,
+        "name": "France",
+        "isCountry": true,
+        "countryCode": "FR"
+      },
+      "clanScore": 10203,
+      "members": 48,
+      "badgeId": 16000002
+    },
+    {
+      "tag": "#Y9202P9U",
+      "name": "Galactic Kings",
+      "rank": 9,
+      "previousRank": 9,
+      "location": {
+        "id": 57000249,
+        "name": "United States",
+        "isCountry": true,
+        "countryCode": "US"
+      },
+      "clanScore": 10184,
+      "members": 42,
+      "badgeId": 16000015
+    },
+    {
+      "tag": "#PQRUQJ",
+      "name": "Vengeance",
+      "rank": 10,
+      "previousRank": 10,
+      "location": {
+        "id": 57000218,
+        "name": "Spain",
+        "isCountry": true,
+        "countryCode": "ES"
+      },
+      "clanScore": 10075,
+      "members": 49,
+      "badgeId": 16000124
+    },
+    {
+      "tag": "#8J2RQRYC",
+      "name": "***ready2die***",
+      "rank": 11,
+      "previousRank": 11,
+      "location": {
+        "id": 57000249,
+        "name": "United States",
+        "isCountry": true,
+        "countryCode": "US"
+      },
+      "clanScore": 10068,
+      "members": 50,
+      "badgeId": 16000107
+    },
+    {
+      "tag": "#LV2CLY8U",
+      "name": "MuKaNs Darkness",
+      "rank": 12,
+      "previousRank": 12,
+      "location": {
+        "id": 57000120,
+        "name": "Italy",
+        "isCountry": true,
+        "countryCode": "IT"
+      },
+      "clanScore": 9355,
+      "members": 43,
+      "badgeId": 16000032
+    },
+    {
+      "tag": "#8Y9U9U2P",
+      "name": "VeteransÉlite 2",
+      "rank": 13,
+      "previousRank": 13,
+      "location": {
+        "id": 57000120,
+        "name": "Italy",
+        "isCountry": true,
+        "countryCode": "IT"
+      },
+      "clanScore": 8939,
+      "members": 3,
+      "badgeId": 16000036
+    },
+    {
+      "tag": "#88GU8GP8",
+      "name": "Siła i honor",
+      "rank": 14,
+      "previousRank": 14,
+      "location": {
+        "id": 57000187,
+        "name": "Poland",
+        "isCountry": true,
+        "countryCode": "PL"
+      },
+      "clanScore": 8740,
+      "members": 36,
+      "badgeId": 16000067
+    },
+    {
+      "tag": "#9CVJ9CLJ",
+      "name": "Furia Royale II",
+      "rank": 15,
+      "previousRank": 15,
+      "location": {
+        "id": 57000038,
+        "name": "Brazil",
+        "isCountry": true,
+        "countryCode": "BR"
+      },
+      "clanScore": 8413,
+      "members": 27,
+      "badgeId": 16000139
+    },
+    {
+      "tag": "#VLRGPPQ",
+      "name": "Akadios II",
+      "rank": 16,
+      "previousRank": 16,
+      "location": {
+        "id": 57000218,
+        "name": "Spain",
+        "isCountry": true,
+        "countryCode": "ES"
+      },
+      "clanScore": 8406,
+      "members": 36,
+      "badgeId": 16000019
+    },
+    {
+      "tag": "#9JRVYQQC",
+      "name": "QT Elite",
+      "rank": 17,
+      "previousRank": 17,
+      "location": {
+        "id": 57000094,
+        "name": "Germany",
+        "isCountry": true,
+        "countryCode": "DE"
+      },
+      "clanScore": 8371,
+      "members": 38,
+      "badgeId": 16000114
+    },
+    {
+      "tag": "#UGU9U2U",
+      "name": "Bim bam boom !",
+      "rank": 18,
+      "previousRank": 18,
+      "location": {
+        "id": 57000087,
+        "name": "France",
+        "isCountry": true,
+        "countryCode": "FR"
+      },
+      "clanScore": 8336,
+      "members": 50,
+      "badgeId": 16000111
+    },
+    {
+      "tag": "#8CUQYQGY",
+      "name": "\"Juggernaut\"",
+      "rank": 19,
+      "previousRank": 19,
+      "location": {
+        "id": 57000193,
+        "name": "Russia",
+        "isCountry": true,
+        "countryCode": "RU"
+      },
+      "clanScore": 8085,
+      "members": 44,
+      "badgeId": 16000028
+    },
+    {
+      "tag": "#8J0PUUG9",
+      "name": "VirtualTeam",
+      "rank": 20,
+      "previousRank": 20,
+      "location": {
+        "id": 57000218,
+        "name": "Spain",
+        "isCountry": true,
+        "countryCode": "ES"
+      },
+      "clanScore": 8077,
+      "members": 34,
+      "badgeId": 16000095
+    },
+    {
+      "tag": "#2J9QGUP",
+      "name": "Red Alert",
+      "rank": 21,
+      "previousRank": 21,
+      "location": {
+        "id": 57000193,
+        "name": "Russia",
+        "isCountry": true,
+        "countryCode": "RU"
+      },
+      "clanScore": 7858,
+      "members": 34,
+      "badgeId": 16000039
+    },
+    {
+      "tag": "#P2UQP9CJ",
+      "name": "ARMATA ROZZA",
+      "rank": 22,
+      "previousRank": 22,
+      "location": {
+        "id": 57000120,
+        "name": "Italy",
+        "isCountry": true,
+        "countryCode": "IT"
+      },
+      "clanScore": 7770,
+      "members": 23,
+      "badgeId": 16000032
+    },
+    {
+      "tag": "#PPLCV9G2",
+      "name": "Elite Forcers",
+      "rank": 23,
+      "previousRank": 23,
+      "location": {
+        "id": 57000249,
+        "name": "United States",
+        "isCountry": true,
+        "countryCode": "US"
+      },
+      "clanScore": 7640,
+      "members": 5,
+      "badgeId": 16000038
+    },
+    {
+      "tag": "#9LJJJRVC",
+      "name": "Maratonci",
+      "rank": 24,
+      "previousRank": 24,
+      "location": {
+        "id": 57000066,
+        "name": "Croatia",
+        "isCountry": true,
+        "countryCode": "HR"
+      },
+      "clanScore": 7591,
+      "members": 34,
+      "badgeId": 16000167
+    },
+    {
+      "tag": "#PPLY8",
+      "name": "Aussie 30+",
+      "rank": 25,
+      "previousRank": 25,
+      "location": {
+        "id": 57000021,
+        "name": "Australia",
+        "isCountry": true,
+        "countryCode": "AU"
+      },
+      "clanScore": 7518,
+      "members": 42,
+      "badgeId": 16000053
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "after": "eyJwb3MiOjI1fQ"
+    }
+  }
+}

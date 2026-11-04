@@ -22,6 +22,7 @@ import {
 } from '@/lib/rankings';
 import { Button } from '@/components/ui/Button';
 import { ChipRow } from '@/components/ui/ChipRow';
+import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { RemoteImage } from '@/components/ui/RemoteImage';
 import { SearchField } from '@/components/ui/SearchField';
 import { Sheet } from '@/components/ui/Sheet';
@@ -29,7 +30,7 @@ import { Tabs } from '@/components/ui/Tabs';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Source } from './CocBits';
 import { ClanBadge } from './clan/ClanBits';
-import { useDetailSheet } from './clan/DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 
 type Place = { id: string; name: string; countryCode?: string };
 
@@ -71,10 +72,25 @@ export function CocLeaderboard() {
     enabled: picking,
   });
 
-  const entries = result?.ok ? rows(record(JSON.parse(result.data))['items']) : [];
-  const filtered = entries.filter((e) => searchable(e, board).includes(query.toLowerCase()));
-  const listed = filtered.filter((e) => query || Number(e['rank']) > 3);
+  const entries = useMemo(
+    () => (result?.ok ? rows(record(JSON.parse(result.data))['items']) : []),
+    [result],
+  );
+  const filtered = useMemo(
+    () => entries.filter((e) => searchable(e, board).includes(query.toLowerCase())),
+    [entries, board, query],
+  );
+  // The podium takes the top three, so they are dropped from the list below it
+  // -- unless a search is on, when there is no podium and every match belongs
+  // in the list.
+  const listed = useMemo(
+    () => filtered.filter((e) => query || Number(e['rank']) > 3),
+    [filtered, query],
+  );
   const podium = !query && entries.length >= 3 ? [entries[1], entries[0], entries[2]] : [];
+  // A global board returns 200 rows. Searching, or changing board, mode or
+  // location, collapses it back to one page.
+  const paged = usePaged(listed, `${board}:${mode}:${location.id}:${query}`);
 
   const open = (entry: ApiRecord) => {
     const tag = text(entry['tag']);
@@ -178,7 +194,7 @@ export function CocLeaderboard() {
       ) : null}
 
       <View style={s.list}>
-        {listed.map((entry, i) => (
+        {paged.shown.map((entry, i) => (
           <Pressable
             key={i}
             accessibilityRole="link"
@@ -202,6 +218,13 @@ export function CocLeaderboard() {
           </Pressable>
         ))}
       </View>
+
+      <LoadMore
+        remaining={paged.remaining}
+        onPress={paged.loadMore}
+        noun={board === 'clans' ? 'clans' : 'players'}
+        style={s.more}
+      />
 
       {result?.ok && !filtered.length ? (
         <Text style={s.empty}>
@@ -430,6 +453,7 @@ const build = (t: Theme) =>
     podiumBaseThird: { backgroundColor: t.destructive, opacity: 0.35 },
 
     list: { gap: 8 },
+    more: { marginTop: 12, alignSelf: 'flex-start' },
     row: {
       flexDirection: 'row',
       alignItems: 'center',

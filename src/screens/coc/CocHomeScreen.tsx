@@ -15,7 +15,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CocHome'>;
 export function CocHomeScreen({ route }: Props) {
   const tag = route.params?.tag ?? '';
   return (
-    <CocShell title="Home Village">
+    <CocShell>
       <CocLookup key={tag} initialTag={tag} />
     </CocShell>
   );

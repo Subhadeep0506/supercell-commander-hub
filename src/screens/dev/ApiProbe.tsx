@@ -154,7 +154,7 @@ function Outcome({
   return (
     <View>
       {children(JSON.parse(result.data))}
-      <Text style={s.source}>Official Supercell API · via RoyaleAPI · {result.fetchedAt}</Text>
+      <Text style={s.source}>Fetched {result.fetchedAt}</Text>
     </View>
   );
 }

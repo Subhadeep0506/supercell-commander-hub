@@ -16,7 +16,7 @@ const CHROME = [
 ].find(existsSync);
 if (!CHROME) throw new Error('No Chrome or Edge found at the usual Windows paths');
 
-const BASE = 'http://localhost:5173';
+const BASE = process.env.CHECK_BASE ?? 'http://localhost:5173';
 const browser = await puppeteer.launch({
   executablePath: CHROME,
   headless: true,
@@ -127,43 +127,88 @@ const capitalBody = await body();
 check('clan capital tab renders', capitalBody.includes('Super Barbarian') && capitalBody.includes('Troops'), capitalBody.slice(0, 90).replace(/\n/g, ' '));
 check('capital tab excludes magic items', !/Magic Items/.test(capitalBody));
 
-// Passport round-trip: type a tag, save, reload, confirm it persisted.
+/**
+ * Passport round-trip.
+ *
+ * Passport holds a *list* now -- a player routinely has more than one Clash
+ * account -- so this adds two, switches between them, and reloads. The old
+ * check typed a tag and read the same field back after a refresh; that cannot
+ * work any more, because the form clears on save and what persists is the row
+ * below it.
+ */
 await page.goto(`${BASE}/passport`, { waitUntil: 'networkidle2' });
 await settle(1500);
 check('/passport loads', path() === '/passport', path());
 
-const tagField = await page.evaluateHandle(() => {
-  const nodes = [...document.querySelectorAll('[aria-label]')];
-  return nodes.find((n) => n.getAttribute('aria-label') === 'Clash of Clans tag') ?? null;
-});
-const input = tagField.asElement();
-if (input) {
-  await input.click();
-  await page.keyboard.type('#2PP');
-  await settle(300);
-  await clickLabel('Save Passport').catch(async () => {
-    // The save button is a Pressable whose label comes from its text.
-    await page.evaluate(() => {
-      const el = [...document.querySelectorAll('[role="button"]')].find((n) =>
-        n.innerText?.includes('Save Passport'),
-      );
-      el?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    });
-    await settle();
-  });
-  check('passport saved', (await body()).includes('Passport saved!'));
-
-  await page.reload({ waitUntil: 'networkidle2' });
-  await settle(2000);
-  const after = await page.evaluate(() => {
-    const nodes = [...document.querySelectorAll('[aria-label]')];
-    const el = nodes.find((n) => n.getAttribute('aria-label') === 'Clash of Clans tag');
-    return el?.value ?? '';
-  });
-  check('tag survived reload', after === '#2PP', `value=${JSON.stringify(after)}`);
-} else {
-  check('passport tag field present', false);
+/** Types into the field carrying this exact label. */
+async function fill(label, value) {
+  const handle = await page.evaluateHandle(
+    (l) => [...document.querySelectorAll('[aria-label]')].find((n) => n.getAttribute('aria-label') === l) ?? null,
+    label,
+  );
+  const el = handle.asElement();
+  if (!el) throw new Error(`no field labelled "${label}"`);
+  await el.click();
+  await page.keyboard.type(value);
 }
+
+/** Presses by aria-label, falling back to the button's own text. */
+async function press(label) {
+  const ok = await page.evaluate((l) => {
+    const el = [...document.querySelectorAll('[role="button"]')].find(
+      (n) => (n.getAttribute('aria-label') ?? '') === l || (n.innerText ?? '').trim() === l,
+    );
+    el?.scrollIntoView({ block: 'center' });
+    el?.click();
+    return Boolean(el);
+  }, label);
+  await settle();
+  return ok;
+}
+
+await fill('Display name', 'Primary');
+await fill('Clash of Clans tag', '#2PP');
+await press('Save Passport');
+check('passport saved', (await body()).includes('Passport saved!'));
+check('and is listed below the form', (await body()).includes('Primary'));
+
+// A display name is required now: a list of rows called "" is unusable, and
+// the name is the only thing that distinguishes one passport from another.
+await fill('Clash of Clans tag', '#2PP');
+await press('Save Passport');
+check('a passport without a name is refused', (await body()).includes('display name'));
+
+await page.reload({ waitUntil: 'networkidle2' });
+await settle(2000);
+check('the list survives a reload', (await body()).includes('Primary'));
+check('the saved tag survives with it', (await body()).includes('#2PP'));
+
+// A second passport, which is the whole point of the list.
+await fill('Display name', 'Second');
+await fill('Clash of Clans tag', '#2PP');
+await press('Save Passport');
+const both = await body();
+check('a second passport is added, not substituted', both.includes('Primary') && both.includes('Second'));
+// Newly saved becomes active; the tick switches back.
+check('the new passport is active', /Second[\s\S]{0,40}ACTIVE/.test(both), '');
+await press('Use Primary');
+check('the tick switches the active passport', /Primary[\s\S]{0,40}ACTIVE/.test(await body()), '');
+
+// Saving over a name updates that row rather than adding a twin.
+await fill('Display name', 'Second');
+await fill('Clash of Clans tag', '#2PP');
+await press('Save Passport');
+const updated = await body();
+check('saving a name twice updates it', updated.includes('Passport updated!'));
+check('and does not leave two rows', (updated.match(/Second/g) ?? []).length === 1, '');
+
+// Delete asks first -- these tags are typed by hand.
+await press('Delete Second');
+check('delete asks for confirmation', (await body()).includes('Delete “Second”?'));
+await press('Confirm delete');
+const afterDelete = await body();
+check('delete removes the row', !afterDelete.includes('Second'));
+check('and leaves the other one alone', afterDelete.includes('Primary'));
 
 if (pageErrors.length) {
   console.log('\n--- page errors ---');

@@ -5,10 +5,11 @@ import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { MEMBER_SORTS, memberMatches, roleLabel, sortMembers, type MemberSort } from '@/lib/clan';
 import { leagueUri, rankMove } from '@/lib/rankings';
 import { ChipRow } from '@/components/ui/ChipRow';
+import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { RemoteImage } from '@/components/ui/RemoteImage';
 import { SearchField } from '@/components/ui/SearchField';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
-import { useDetailSheet } from './DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 
 /**
  * The clan roster.
@@ -29,10 +30,11 @@ export function ClanMembers({ clan }: { clan: ApiRecord }) {
   const [query, setQuery] = useState('');
 
   const members = rows(clan['memberList']);
-  const shown = useMemo(
+  const sorted = useMemo(
     () => sortMembers(members.filter((m) => memberMatches(m, query)), sort),
     [members, query, sort],
   );
+  const paged = usePaged(sorted, `${sort}:${query}`);
 
   return (
     <View>
@@ -58,7 +60,7 @@ export function ClanMembers({ clan }: { clan: ApiRecord }) {
       />
 
       <View style={s.list}>
-        {shown.map((member, i) => {
+        {paged.shown.map((member, i) => {
           const hall = townHallArt(member['townHallLevel']);
           // previousClanRank is absent for a member who has not been ranked
           // yet, which reads as "no movement" rather than a fall to zero.
@@ -119,7 +121,14 @@ export function ClanMembers({ clan }: { clan: ApiRecord }) {
         })}
       </View>
 
-      {shown.length === 0 ? <Text style={s.empty}>No members match that search.</Text> : null}
+      <LoadMore
+        remaining={paged.remaining}
+        onPress={paged.loadMore}
+        noun="members"
+        style={s.more}
+      />
+
+      {sorted.length === 0 ? <Text style={s.empty}>No members match that search.</Text> : null}
     </View>
   );
 }
@@ -131,6 +140,7 @@ const build = (t: Theme) =>
     count: { fontSize: 12, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
     list: { gap: 8 },
+    more: { marginTop: 12, alignSelf: 'flex-start' },
     row: {
       flexDirection: 'row',
       alignItems: 'center',

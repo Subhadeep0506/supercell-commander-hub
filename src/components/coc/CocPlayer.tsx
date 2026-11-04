@@ -11,7 +11,8 @@ import { Panel } from '@/components/ui/Panel';
 import { Tabs } from '@/components/ui/Tabs';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Art, SmallStat, Stars } from './CocBits';
-import { useDetailSheet } from './clan/DetailSheetProvider';
+import { CocBattles } from './CocBattles';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import { UnitGrid } from './UnitGrid';
 
 /** Army sections, in the reference's order. */
@@ -170,6 +171,12 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
           />
         </View>
       </Panel>
+
+      {/*
+        No battle log exists for Clash of Clans, so this is war attacks only.
+        CocBattles renders nothing at all for a player with no clan.
+      */}
+      <CocBattles player={player} />
 
       <Panel>
         <Text style={s.sectionTitle}>Army</Text>

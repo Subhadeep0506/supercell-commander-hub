@@ -5,11 +5,12 @@ import { parseApiTime } from '@/lib/clan';
 import { warSides } from '@/lib/cwl';
 import { clockDuration, warEvents, type AttackEvent } from '@/lib/war-detail';
 import { useCountdown } from '@/hooks/use-countdown';
+import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { formatDuration } from '@/lib/clan';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Stars } from '../CocBits';
 import { ClanBadge } from '../clan/ClanBits';
-import { useDetailSheet } from '../clan/DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import { Hall } from './WarBits';
 
 type Filter = 'all' | 'us' | 'them' | 'three';
@@ -33,9 +34,14 @@ export function WarEvents({ war, clanTag }: { war: ApiRecord; clanTag?: string }
     them: events.filter((e) => e.side === 'them').length,
     three: events.filter((e) => e.stars === 3).length,
   };
-  const shown = events.filter((e) =>
-    filter === 'all' ? true : filter === 'three' ? e.stars === 3 : e.side === filter,
+  const shown = useMemo(
+    () =>
+      events.filter((e) =>
+        filter === 'all' ? true : filter === 'three' ? e.stars === 3 : e.side === filter,
+      ),
+    [events, filter],
   );
+  const paged = usePaged(shown, filter);
 
   const chips: { id: Filter; label: string }[] = [
     { id: 'all', label: 'All' },
@@ -78,9 +84,16 @@ export function WarEvents({ war, clanTag }: { war: ApiRecord; clanTag?: string }
           </Text>
         </View>
 
-        {shown.map((event, i) => (
+        {paged.shown.map((event, i) => (
           <Row key={`${event.order}-${i}`} event={event} onOpen={openPlayer} />
         ))}
+
+        <LoadMore
+          remaining={paged.remaining}
+          onPress={paged.loadMore}
+          noun="attacks"
+          style={s.more}
+        />
 
         {shown.length === 0 ? (
           <Text style={s.empty}>
@@ -162,6 +175,9 @@ const build = (t: Theme) =>
     timeline: { paddingLeft: 22 },
     rail: { position: 'absolute', left: 6, top: 8, bottom: 8, width: 2, backgroundColor: t.border },
     node: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
+    // Indented past the rail, so the button sits in the timeline's own column
+    // rather than straddling the line the events hang off.
+    more: { marginLeft: 30, marginBottom: 12, alignSelf: 'flex-start' },
     dot: {
       position: 'absolute',
       left: -22,

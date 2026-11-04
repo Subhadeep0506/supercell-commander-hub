@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TopBar } from '@/components/TopBar';
 import { BottomNav } from '@/components/BottomNav';
-import { DetailSheetProvider } from '@/components/coc/clan/DetailSheetProvider';
+import { DetailSheetProvider } from '@/components/detail/DetailSheetProvider';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import type { RootStackParamList } from './routes';
 
@@ -14,6 +14,10 @@ import { CocClanScreen } from '@/screens/coc/CocClanScreen';
 import { CocLeaderboardScreen } from '@/screens/coc/CocLeaderboardScreen';
 import { CocBuilderScreen } from '@/screens/coc/CocBuilderScreen';
 import { CocBookScreen } from '@/screens/coc/CocBookScreen';
+import { CrHomeScreen } from '@/screens/cr/CrHomeScreen';
+import { CrDecksScreen } from '@/screens/cr/CrDecksScreen';
+import { CrClanScreen } from '@/screens/cr/CrClanScreen';
+import { CrLeaderboardScreen } from '@/screens/cr/CrLeaderboardScreen';
 import { PassportScreen } from '@/screens/PassportScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -38,7 +42,10 @@ export function RootNavigator() {
       <Stack.Screen name="CocBook" component={CocBookScreen} />
       <Stack.Screen name="Passport" component={PassportScreen} />
       <Stack.Screen name="Today" component={TodayPlaceholder} />
-      <Stack.Screen name="CrHome" component={CrPlaceholder} />
+      <Stack.Screen name="CrHome" component={CrHomeScreen} />
+      <Stack.Screen name="CrDecks" component={CrDecksScreen} />
+      <Stack.Screen name="CrClan" component={CrClanScreen} />
+      <Stack.Screen name="CrLeaderboard" component={CrLeaderboardScreen} />
       <Stack.Screen name="BsHome" component={BsPlaceholder} />
     </Stack.Navigator>
   );
@@ -76,12 +83,6 @@ const TodayPlaceholder = () => (
   <Placeholder
     title="Today"
     detail="The cross-game Today screen is built after Clash Royale and Brawl Stars, because its main panel is the Brawl Stars event rotation."
-  />
-);
-const CrPlaceholder = () => (
-  <Placeholder
-    title="Clash Royale"
-    detail="Royale screens are a later phase. The deck builder, saved decks, battle log and clan search all live here."
   />
 );
 const BsPlaceholder = () => (

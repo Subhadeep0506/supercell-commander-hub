@@ -9,7 +9,7 @@
 // Examples:
 //   node scripts/check-web.mjs /coc
 //   node scripts/check-web.mjs /coc/book --shot book --wait 4000
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer-core';
@@ -52,9 +52,6 @@ await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: scheme }
 
 // `--fixture` answers the Clash of Clans proxy from scripts/fixtures instead
 // of the network. cocproxy.royaleapi.dev is blocked here, so without this the
-// village, clan, war and leaderboard screens can never be rendered for review.
-// `--fixture` answers the Clash of Clans proxy from scripts/fixtures instead
-// of the network. cocproxy.royaleapi.dev is blocked here, so without this the
 // village, clan, war and ranking screens can never be rendered for review.
 if (argv.includes('--fixture')) await serveFixtures(page);
 
@@ -84,15 +81,31 @@ page.on('response', (r) => {
 const clicks = argv.reduce((acc, a, i) => (a === '--click' ? [...acc, argv[i + 1]] : acc), []);
 
 // `--tag #ABC` seeds the saved passport before the app boots, which is what
-// the clan and war screens resolve their account from.
+// every screen resolves its account from.
+//
+// `--game cr` puts the tag in the Royale slot *and* selects the Royale skin.
+// Both matter. Without the first, the Royale screens render their "no account
+// yet" finder whatever tag was passed. Without the second the whole settings
+// blob is rewritten with no `game`, so it falls back to Clash of Clans -- and
+// every Royale screenshot comes out in the wrong palette while looking
+// perfectly plausible, because the layout is identical either way.
 const seedTag = flag('tag', null);
+const seedGame = flag('game', 'coc');
 if (seedTag) {
-  await page.evaluateOnNewDocument((t) => {
-    localStorage.setItem(
-      'sch',
-      JSON.stringify({ passport: { name: 'Test Chief', coc: t, cr: '', bs: '' } }),
-    );
-  }, seedTag);
+  await page.evaluateOnNewDocument(
+    (t, g) => {
+      localStorage.setItem(
+        'sch',
+        JSON.stringify({
+          game: g,
+          passports: [{ id: 'seed', name: 'Test Chief', coc: '', cr: '', bs: '', [g]: t }],
+          activeId: 'seed',
+        }),
+      );
+    },
+    seedTag,
+    seedGame,
+  );
 }
 
 const url = `${base}${path}`;

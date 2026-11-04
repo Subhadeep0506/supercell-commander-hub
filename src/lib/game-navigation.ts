@@ -9,8 +9,12 @@ export type NavItem = { label: string; route: RouteName };
  * The reference stores paths; these store route names, because the navigator
  * addresses screens by name and linking.ts owns the path mapping.
  *
- * Clash Royale and Brawl Stars arrive with their own screens, so their rows
- * are empty for now and BottomNav renders nothing for them.
+ * Clash of Clans lists four rows beside a Home button that BottomNav draws
+ * itself. Clash Royale lists all four, because its Home tab is a destination
+ * in the row rather than a separate button.
+ *
+ * Brawl Stars arrives with its own screens, so its row is empty for now and
+ * BottomNav renders nothing for it.
  */
 export const GAME_NAV: Record<Game, NavItem[]> = {
   coc: [
@@ -19,7 +23,12 @@ export const GAME_NAV: Record<Game, NavItem[]> = {
     { label: 'Clan', route: 'CocClan' },
     { label: 'Leaderboard', route: 'CocLeaderboard' },
   ],
-  cr: [],
+  cr: [
+    { label: 'Home', route: 'CrHome' },
+    { label: 'Decks', route: 'CrDecks' },
+    { label: 'Clan', route: 'CrClan' },
+    { label: 'Leaderboard', route: 'CrLeaderboard' },
+  ],
   bs: [],
 };
 

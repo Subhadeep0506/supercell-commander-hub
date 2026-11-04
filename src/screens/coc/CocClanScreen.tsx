@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CocShell } from '@/components/coc/CocBits';
 import { CocLookup } from '@/components/coc/CocLookup';
-import { useDetailSheet } from '@/components/coc/clan/DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import type { RootStackParamList } from '@/navigation/routes';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CocClan'>;
@@ -31,7 +31,7 @@ export function CocClanScreen({ route }: Props) {
   }, [tag, openClan]);
 
   return (
-    <CocShell title="Clan">
+    <CocShell>
       <CocLookup key={tag} view="clan" initialTag={tag} />
     </CocShell>
   );

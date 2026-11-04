@@ -9,7 +9,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CocWar'>;
 export function CocWarScreen({ route }: Props) {
   const tag = route.params?.tag ?? '';
   return (
-    <CocShell title="War Details">
+    <CocShell>
       <CocLookup key={tag} view="war" initialTag={tag} />
     </CocShell>
   );

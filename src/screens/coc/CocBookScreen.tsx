@@ -4,7 +4,7 @@ import { ClashBook } from '@/components/coc/ClashBook';
 /** Ported from frontend/src/routes/coc_.book.tsx. */
 export function CocBookScreen() {
   return (
-    <CocShell title="Clash Book">
+    <CocShell>
       <ClashBook />
     </CocShell>
   );

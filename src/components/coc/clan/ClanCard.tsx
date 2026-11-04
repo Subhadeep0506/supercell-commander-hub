@@ -6,7 +6,7 @@ import { flagEmoji } from '@/lib/rankings';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { ClanBadge } from './ClanBits';
-import { useDetailSheet } from './DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 
 /**
  * A clan reduced to one row, opening the full profile sheet when tapped.

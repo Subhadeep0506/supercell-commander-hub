@@ -2,7 +2,7 @@
   "items": [
     {
       "result": "win",
-      "endTime": "20261101T191459.000Z",
+      "endTime": "20261102T185858.000Z",
       "teamSize": 15,
       "attacksPerMember": 2,
       "clan": {
@@ -30,7 +30,7 @@
     },
     {
       "result": "win",
-      "endTime": "20261030T191459.000Z",
+      "endTime": "20261031T185858.000Z",
       "teamSize": 20,
       "attacksPerMember": 2,
       "clan": {
@@ -58,7 +58,7 @@
     },
     {
       "result": "win",
-      "endTime": "20261028T191459.000Z",
+      "endTime": "20261029T185858.000Z",
       "teamSize": 30,
       "attacksPerMember": 2,
       "clan": {
@@ -86,7 +86,7 @@
     },
     {
       "result": "win",
-      "endTime": "20261026T191459.000Z",
+      "endTime": "20261027T185858.000Z",
       "teamSize": 15,
       "attacksPerMember": 2,
       "clan": {
@@ -114,7 +114,7 @@
     },
     {
       "result": "win",
-      "endTime": "20261024T191459.000Z",
+      "endTime": "20261025T185858.000Z",
       "teamSize": 25,
       "attacksPerMember": 2,
       "clan": {
@@ -142,7 +142,7 @@
     },
     {
       "result": "win",
-      "endTime": "20261022T191459.000Z",
+      "endTime": "20261023T185858.000Z",
       "teamSize": 15,
       "attacksPerMember": 2,
       "clan": {
@@ -170,7 +170,7 @@
     },
     {
       "result": "lose",
-      "endTime": "20261020T191459.000Z",
+      "endTime": "20261021T185858.000Z",
       "teamSize": 20,
       "attacksPerMember": 2,
       "clan": {
@@ -198,7 +198,7 @@
     },
     {
       "result": "win",
-      "endTime": "20261018T191459.000Z",
+      "endTime": "20261019T185858.000Z",
       "teamSize": 30,
       "attacksPerMember": 2,
       "clan": {
@@ -226,7 +226,7 @@
     },
     {
       "result": "win",
-      "endTime": "20261016T191459.000Z",
+      "endTime": "20261017T185858.000Z",
       "teamSize": 15,
       "attacksPerMember": 2,
       "clan": {
@@ -254,7 +254,7 @@
     },
     {
       "result": "win",
-      "endTime": "20261014T191459.000Z",
+      "endTime": "20261015T185858.000Z",
       "teamSize": 25,
       "attacksPerMember": 2,
       "clan": {

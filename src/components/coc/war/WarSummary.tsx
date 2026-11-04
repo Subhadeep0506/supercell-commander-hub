@@ -14,7 +14,7 @@ import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Stars } from '../CocBits';
 import { ClanBadge } from '../clan/ClanBits';
-import { useDetailSheet } from '../clan/DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import { Hall, Scoreboard } from './WarBits';
 
 export function WarSummary({ war, clanTag }: { war: ApiRecord; clanTag?: string }) {

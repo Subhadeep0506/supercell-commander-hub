@@ -10,12 +10,10 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { COC_ART } from '@/assets/art';
 import { itemArt, playerBookItem } from '@/lib/clash-book';
 import { text, type GameResult } from '@/api/game-api';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
-import { Button } from '@/components/ui/Button';
 
 /**
  * Art lookup used all over the CoC screens.
@@ -120,11 +118,20 @@ export function SmallStat({
   );
 }
 
-/** The "Official Supercell API" footer, or the service error that replaced it. */
+/**
+ * The service error for a failed request, and nothing at all for a good one.
+ *
+ * This used to carry an "Official Supercell API · via RoyaleAPI" provenance
+ * footer under every section. It was removed: the same line repeated five
+ * times down a screen is noise, and the app never shows data from anywhere
+ * else, so it told the reader nothing they could act on. The error branch is
+ * the part that earns its space -- without it a failed request would render as
+ * a silently empty screen.
+ */
 export function Source({ result }: { result: GameResult }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  if (result.ok) return <Text style={s.source}>Official Supercell API · via RoyaleAPI</Text>;
+  if (result.ok) return null;
   return (
     <View accessibilityRole="alert" style={s.errorBox}>
       <Text style={s.errorTitle}>Game service error · {result.status}</Text>
@@ -154,10 +161,17 @@ function describe(error: string): string {
   }
 }
 
-/** `.coc-shell` + `.coc-account` -- the per-screen header with the Accounts link. */
-export function CocShell({ title, children }: { title: string; children: ReactNode }) {
+/**
+ * `.coc-shell` -- the page scroller, and nothing else.
+ *
+ * The screen's name, the Barbarian King beside it and the Accounts pill are
+ * gone, matching the Royale shell. The TopBar already names the game and links
+ * to Passport, the BottomNav already marks the tab, and the account is
+ * whichever passport is active -- so the row was restating three things and
+ * duplicating a link.
+ */
+export function CocShell({ children }: { children: ReactNode }) {
   const theme = useTheme();
-  const navigation = useNavigation();
   const s = useMemo(() => build(theme), [theme]);
   return (
     <ScrollView
@@ -165,23 +179,6 @@ export function CocShell({ title, children }: { title: string; children: ReactNo
       contentContainerStyle={s.shell}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={s.account}>
-        <View style={s.accountLeft}>
-          <Art name="Barbarian King" size={40} />
-          <Text style={s.accountTitle} numberOfLines={1}>
-            {title}
-          </Text>
-        </View>
-        <Button
-          variant="outline"
-          size="sm"
-          style={s.accountsBtn}
-          textStyle={s.accountsText}
-          onPress={() => navigation.navigate('Passport')}
-        >
-          Accounts
-        </Button>
-      </View>
       {children}
     </ScrollView>
   );
@@ -199,18 +196,6 @@ export const build = (t: Theme) =>
       paddingTop: 16,
       paddingBottom: 120,
     },
-    account: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 10,
-      marginBottom: 18,
-    },
-    accountLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1, minWidth: 0 },
-    accountTitle: { flexShrink: 1, minWidth: 0, fontFamily: t.fonts.display, fontSize: 18, color: t.primary },
-    accountsBtn: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
-    accountsText: { fontSize: 11 },
-
     stat: {
       // Not `flex: 1`: that sets flexBasis to 0, so in a wrapping row every
       // card collapses onto one line. A percentage basis gives two per row and
@@ -233,7 +218,6 @@ export const build = (t: Theme) =>
     statValue: { fontFamily: t.fonts.display, fontSize: 16, color: t.foreground },
     statLabel: { fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
-    source: { marginTop: 20, fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
     errorBox: { marginTop: 16, borderLeftWidth: 2, borderLeftColor: t.destructive, paddingLeft: 12 },
     errorTitle: { fontFamily: t.fonts.display, fontSize: 14, color: t.destructive },
     errorBody: { marginTop: 8, fontSize: 13, lineHeight: 19, color: t.mutedForeground, fontFamily: t.fonts.sans },

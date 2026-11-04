@@ -24,7 +24,7 @@ import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Art } from '../CocBits';
 import { ClanBadge } from '../clan/ClanBits';
-import { useDetailSheet } from '../clan/DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 
 /** War state as the API spells it, as a reader would say it. */
 export const WAR_STATE_LABELS: Record<string, string> = {

@@ -2,11 +2,12 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { rows, text, type ApiRecord } from '@/api/game-api';
 import { memberIndex, memberResult, perMember } from '@/lib/war-detail';
+import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Art, Stars } from '../CocBits';
 import { ClanBadge, StatCell, StatStrip } from '../clan/ClanBits';
-import { useDetailSheet } from '../clan/DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import { Hall, pct } from './WarBits';
 
 export function WarRoster({
@@ -34,8 +35,12 @@ export function WarRoster({
       ),
     [side],
   );
-  const yetToAttack = members.filter((m) => rows(m['attacks']).length < per);
-  const shown = pending ? yetToAttack : members;
+  const yetToAttack = useMemo(
+    () => members.filter((m) => rows(m['attacks']).length < per),
+    [members, per],
+  );
+  const roster = pending ? yetToAttack : members;
+  const paged = usePaged(roster, String(pending));
 
   return (
     <View style={s.stack}>
@@ -81,7 +86,7 @@ export function WarRoster({
         </View>
       </Panel>
 
-      {shown.map((member, i) => {
+      {paged.shown.map((member, i) => {
         const { made, taken } = memberResult(member);
         return (
           <Pressable
@@ -135,7 +140,14 @@ export function WarRoster({
         );
       })}
 
-      {shown.length === 0 ? <Text style={s.empty}>Everyone has attacked.</Text> : null}
+      <LoadMore
+        remaining={paged.remaining}
+        onPress={paged.loadMore}
+        noun="members"
+        style={s.more}
+      />
+
+      {roster.length === 0 ? <Text style={s.empty}>Everyone has attacked.</Text> : null}
     </View>
   );
 }
@@ -143,6 +155,7 @@ export function WarRoster({
 const build = (t: Theme) =>
   StyleSheet.create({
     stack: { gap: 8 },
+    more: { marginTop: 4, alignSelf: 'flex-start' },
     panel: { padding: 12 },
     head: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     headText: { flex: 1, minWidth: 0 },

@@ -97,8 +97,22 @@ const check = (label, pass, detail = '') => {
 await go('/coc');
 await settle(2200);
 
-const saved0 = await page.evaluate(() => localStorage.getItem('sch'));
-check('starts with no saved tag', !saved0 || !JSON.parse(saved0).passport?.coc, String(saved0));
+/**
+ * The active passport's tag for a game, read straight out of storage.
+ *
+ * Passport holds a list now -- `{ passports: [...], activeId }` -- so a tag
+ * adopted here lands in whichever record is active rather than in a single
+ * `passport` object.
+ */
+const savedTag = (game) =>
+  page.evaluate((g) => {
+    const raw = localStorage.getItem('sch');
+    if (!raw) return null;
+    const { passports = [], activeId } = JSON.parse(raw);
+    return passports.find((p) => p.id === activeId)?.[g] ?? null;
+  }, game);
+
+check('starts with no saved tag', !(await savedTag('coc')), String(await savedTag('coc')));
 
 // Type a tag into the search box and submit.
 const input = await page.evaluateHandle(
@@ -113,9 +127,14 @@ if (!input.asElement()) {
   await settle(2500);
   check('player loaded from search', (await body()).includes('DenCT'));
 
-  const saved1 = await page.evaluate(() => localStorage.getItem('sch'));
-  const tag = saved1 ? JSON.parse(saved1).passport?.coc : null;
-  check('tag auto-saved to passport', tag === '#LJ9V8LCYQ', String(tag));
+  // Adopting into the *active* passport, not creating a second one: searching
+  // a tag on Home means "this is my account", not "here is another passport".
+  const tag = await savedTag('coc');
+  check('tag auto-saved to the active passport', tag === '#LJ9V8LCYQ', String(tag));
+  const count = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('sch') ?? '{}').passports?.length ?? 0,
+  );
+  check('and did not add a second passport', count === 1, `${count} passports`);
 }
 
 // The army grids are horizontal scrollers now, not wrapping lists, and the
@@ -144,6 +163,49 @@ check(
   Boolean(troops && troops.scrollWidth > troops.clientWidth),
   troops ? `${troops.scrollWidth} > ${troops.clientWidth}` : 'missing',
 );
+
+// The Battles section. Clash of Clans has no battle log, so this is war
+// attacks: the live war plus the league rounds, both of which the generated
+// fixtures seed the calibration account into (see `adopt` in make-fixtures).
+let home = await body();
+check('battles section renders', /Battles/.test(home) && /War attacks/i.test(home), home);
+check('counts the stars taken and conceded', /Stars taken/i.test(home) && /Stars conceded/i.test(home), home);
+check('counts the defences faced', /Defences faced/i.test(home), home);
+check('offers attack and defence filters', /\bAttacks\b/.test(home) && /\bDefences\b/.test(home), home);
+check('lists an attack', /Attacked /.test(home), home);
+check('lists a defence', /Defended against /.test(home), home);
+check('names the live war', /Current war/i.test(home), home);
+check('reaches the league rounds too', /War league · round \d/i.test(home), home);
+check('says there is no battle log', /publishes no battle log/i.test(home), home);
+// Collapsed rows carry no attack length or map position detail.
+check('keeps attack detail collapsed', !/Attack length/i.test(home), home);
+
+const openedAttack = await page.evaluate(() => {
+  const el = [...document.querySelectorAll('[role="button"]')].find((n) =>
+    /^Attacked .*show details$/i.test(n.getAttribute('aria-label') ?? ''),
+  );
+  el?.click();
+  return Boolean(el);
+});
+check('an attack row is tappable', openedAttack);
+await settle(1200);
+home = await body();
+check('expands to the attack detail', /Attack length/i.test(home), home);
+check('shows the defender’s base', /Map position \d/.test(home), home);
+check('shows the attack order', /in the war/i.test(home), home);
+check('shows the attack length as mm:ss', /\d+:\d{2}/.test(home), home);
+check('offers to open the defender', /View /.test(home), home);
+
+// Filtering to defences must leave only defences.
+await page.evaluate(() => {
+  const el = [...document.querySelectorAll('[role="button"]')].find(
+    (n) => (n.getAttribute('aria-label') ?? '') === 'Defences',
+  );
+  el?.click();
+});
+await settle(1200);
+home = await body();
+check('filters to defences only', !/Attacked /.test(home) && /Defended against /.test(home), home);
 
 // The actual symptom: clan, reached without ever opening Passport.
 await go('/coc/clan');
@@ -348,8 +410,15 @@ check('undrawn rounds read as upcoming', season.includes('Upcoming'));
 // that renders above a dead body has passed a check here before.
 await clickLabel('Roster of THE DRAGONS', 1200);
 const roster = await body();
-check('a clan expands to its roster', roster.includes('THE DRAGONS 1') && roster.includes('THE DRAGONS 15'));
+check('a clan expands to its roster', roster.includes('THE DRAGONS 1') && roster.includes('THE DRAGONS 10'));
 check('roster rows carry a tag', /#[0289PYLQGRJCUV]{3,}/.test(roster));
+
+// Rosters page ten at a time like every other long list, so the fifteenth
+// member is deliberately not in the first page -- and the button has to
+// actually produce them, which is the half of paging that can silently fail.
+check('the roster pages rather than listing every member', !roster.includes('THE DRAGONS 15'), roster.slice(0, 80));
+await clickLabel('Load more', 1000);
+check('load more reveals the rest of the roster', (await body()).includes('THE DRAGONS 15'));
 await clickLabel('View THE DRAGONS 1', 2500);
 check('a league roster row opens that player', (await body()).includes('Town Hall 13'));
 await clickLabel('Close sheet', 1200);

@@ -4,7 +4,7 @@ import { CocLeaderboard } from '@/components/coc/CocLeaderboard';
 /** Ported from frontend/src/routes/coc_.leaderboard.tsx. */
 export function CocLeaderboardScreen() {
   return (
-    <CocShell title="Leaderboard">
+    <CocShell>
       <CocLeaderboard />
     </CocShell>
   );

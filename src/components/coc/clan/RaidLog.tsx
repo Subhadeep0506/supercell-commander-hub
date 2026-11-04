@@ -4,11 +4,12 @@ import { resourceArt } from '@/assets/art';
 import { districtArt } from '@/assets/capital';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { attacksPerCapital, compactNumber, raidLogTotals, raidOpponent } from '@/lib/clan';
+import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Stars } from '../CocBits';
 import { ClanBadge } from './ClanBits';
-import { useDetailSheet } from './DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 
 /**
  * The capitals this clan raided, or that raided it.
@@ -37,6 +38,7 @@ export function RaidLog({
   const [openRaid, setOpenRaid] = useState<string>();
   const [openDistrict, setOpenDistrict] = useState<string>();
 
+  const paged = usePaged(log, side);
   const average = attacksPerCapital(log);
   const gold = resourceArt('Capital Gold');
 
@@ -55,7 +57,7 @@ export function RaidLog({
       </View>
 
       <View style={s.list}>
-        {log.map((entry, i) => {
+        {paged.shown.map((entry, i) => {
           const clan = raidOpponent(entry);
           const totals = raidLogTotals(entry);
           const key = `${side}-${i}`;
@@ -226,6 +228,13 @@ export function RaidLog({
           );
         })}
       </View>
+
+      <LoadMore
+        remaining={paged.remaining}
+        onPress={paged.loadMore}
+        noun="raids"
+        style={s.more}
+      />
     </Panel>
   );
 }
@@ -245,6 +254,7 @@ const build = (t: Theme) =>
     average: { flexShrink: 1, fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
     list: { gap: 10 },
+    more: { marginTop: 12, alignSelf: 'flex-start' },
     raid: {
       padding: 10,
       borderRadius: 8,

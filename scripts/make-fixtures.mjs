@@ -306,6 +306,40 @@ const war = {
   opponent: warSide('Rivals', fakeTag('V', 90), 100),
 };
 
+/**
+ * Puts the calibration account on a war roster, by rewriting one generated
+ * tag into `TAG` everywhere it appears.
+ *
+ * Rewriting rather than special-casing the member is the point: an attack
+ * names its defender by tag, so swapping only the roster entry would leave
+ * every `defenderTag` pointing at a member that no longer exists, and the
+ * opposing side's attacks would stop resolving. This walks the whole tree, so
+ * the roster entry, the attacks the player made and the attacks made against
+ * them all move together.
+ *
+ * Home-side member 2 is the one chosen on purpose: the generator gives it two
+ * attacks *and* two attacks against it, so the home screen's Battles section
+ * has both roles to show rather than a list of attacks and an empty defence
+ * filter.
+ */
+function adopt(node, from, to) {
+  if (Array.isArray(node)) {
+    for (const item of node) adopt(item, from, to);
+    return node;
+  }
+  if (node && typeof node === 'object') {
+    for (const [key, value] of Object.entries(node)) {
+      if (value === from) node[key] = to;
+      else adopt(value, from, to);
+    }
+  }
+  return node;
+}
+
+adopt(war, fakeTag('Y', 1), TAG);
+war.clan.members[1].name = player.name;
+war.clan.members[1].townhallLevel = TH;
+
 /** The Friday 07:00 UTC that opens the raid weekend `weeksAgo` weeks back. */
 function raidStart(weeksAgo) {
   const now = new Date();
@@ -774,6 +808,30 @@ const leagueGroup = {
   clans: LEAGUE_CLANS.map(leagueClanRecord),
   rounds: leagueRounds,
 };
+
+// The same adoption on the league side. LEAGUE_CLANS[0] is 'bruh', the
+// calibration account's own clan, and member 2 of it attacks in every drawn
+// round -- so the home screen's Battles section shows the live war above a
+// run of league rounds rather than the current war alone.
+adopt(leagueGroup, fakeTag('2', 1), TAG);
+adopt(leagueWars, fakeTag('2', 1), TAG);
+for (const war of Object.values(leagueWars)) {
+  for (const side of [war.clan, war.opponent]) {
+    for (const member of side.members) {
+      if (member.tag !== TAG) continue;
+      member.name = player.name;
+      member.townhallLevel = TH;
+    }
+  }
+}
+for (const group of leagueGroup.clans) {
+  for (const member of group.members) {
+    if (member.tag === TAG) {
+      member.name = player.name;
+      member.townHallLevel = TH;
+    }
+  }
+}
 
 const files = {
   'coc-player.json': player,

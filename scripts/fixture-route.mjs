@@ -70,13 +70,106 @@ export function fixtureFor(url) {
   return null;
 }
 
+/**
+ * Request path -> fixture filename, Clash Royale.
+ *
+ * Unlike the Clash of Clans set these are **real captures** (see
+ * scripts/make-cr-fixtures.mjs), because the Royale proxy is reachable here.
+ *
+ * Most specific first, same as above: `/players/{tag}/battlelog` and
+ * `/upcomingchests` both sit under `/players/`, and `/clans/{tag}/...` under
+ * `/clans/`.
+ */
+export function crFixtureFor(url) {
+  if (/\/players\/[^/]+\/battlelog/.test(url)) return 'cr-battlelog.json';
+  if (/\/players\/[^/]+\/upcomingchests/.test(url)) return 'cr-chests.json';
+  if (/\/players\//.test(url)) return 'cr-player.json';
+  if (/\/currentriverrace/.test(url)) return 'cr-river-race.json';
+  if (/\/riverracelog/.test(url)) return 'cr-river-race-log.json';
+  if (/\/clans\?name=/.test(url)) return 'cr-clan-search.json';
+  if (/\/clans\//.test(url)) return 'cr-clan.json';
+  if (/\/cards/.test(url)) return 'cr-cards.json';
+  // Path of Legend must precede the bare rankings rule -- it lives under
+  // /locations/global/pathoflegend/{season}/rankings/players.
+  if (/\/pathoflegend\//.test(url)) return 'cr-path-of-legend.json';
+  if (/rankings\/clanwars/.test(url)) return 'cr-rank-clanwars.json';
+  if (/rankings\/clans/.test(url)) return 'cr-rank-clans.json';
+  if (/\/locations\/global\/seasons/.test(url)) return 'cr-seasons.json';
+  // Singular `/leaderboard/{id}` is the rankings call; plural is the registry.
+  if (/\/leaderboards/.test(url)) return 'cr-leaderboards.json';
+  if (/\/leaderboard\//.test(url)) return 'cr-leaderboard-rankings.json';
+  if (/\/globaltournaments/.test(url)) return 'cr-global-tournaments.json';
+  if (/\/locations\?/.test(url)) return 'cr-locations.json';
+  return null;
+}
+
+/**
+ * Set FIXTURE_CR_RACE=warday to answer the current river race with a
+ * hand-authored war day.
+ *
+ * The calibration clan has only ever been seen in `training`, where
+ * `periodLogs` is an empty array, so the war-day branch is otherwise
+ * unreachable from here. The shape is from the documented schema, not a
+ * capture -- which is exactly why the UI reads every field defensively.
+ */
+const WAR_DAY = process.env.FIXTURE_CR_RACE === 'warday';
+
+/**
+ * Set FIXTURE_CR_POL=present to give the player a Path of Legend history and
+ * league statistics.
+ *
+ * Both are absent on the calibration account -- `leagueStatistics` is
+ * undefined and all three season results are null below Legend arena, which
+ * is the common case. The app renders those sections conditionally, so the
+ * *present* branch is the one that is otherwise never exercised here.
+ */
+const WITH_POL = process.env.FIXTURE_CR_POL === 'present';
+
+function playerWithPathOfLegend() {
+  const player = JSON.parse(readFileSync(resolve(FIXTURES, 'cr-player.json'), 'utf8'));
+  return {
+    ...player,
+    leagueStatistics: {
+      currentSeason: { trophies: 8120, bestTrophies: 8300 },
+      previousSeason: { id: '2026-10', trophies: 7905, bestTrophies: 8010 },
+      bestSeason: { id: '2026-07', rank: 4120, trophies: 8402 },
+    },
+    currentPathOfLegendSeasonResult: { leagueNumber: 9, trophies: 1840, rank: null },
+    lastPathOfLegendSeasonResult: { leagueNumber: 9, trophies: 1655, rank: 20314 },
+    bestPathOfLegendSeasonResult: { leagueNumber: 10, trophies: 2290, rank: 8801 },
+  };
+}
+
+function warDayRace() {
+  const race = JSON.parse(readFileSync(resolve(FIXTURES, 'cr-river-race.json'), 'utf8'));
+  return {
+    ...race,
+    periodType: 'warDay',
+    periodIndex: 4,
+    periodLogs: [
+      {
+        periodIndex: 3,
+        items: (race.clans ?? []).map((clan, i) => ({
+          clanTag: clan.tag,
+          pointsEarned: 1200 - i * 150,
+          progressStartOfDay: i * 100,
+          progressEndOfDay: i * 100 + 1200 - i * 150,
+          endOfDayRank: i + 1,
+          progressEarned: 1200 - i * 150,
+          numOfDefensesRemaining: 3 - i,
+        })),
+      },
+    ],
+  };
+}
+
 /** Attaches interception to a Puppeteer page. */
 export async function serveFixtures(page) {
   await page.setRequestInterception(true);
   page.on('request', (req) => {
     const url = req.url();
 
-    if (url.includes('api-assets.clashofclans.com')) {
+    if (url.includes('api-assets.clashofclans.com') || url.includes('api-assets.clashroyale.com')) {
       if (BLOCK_CDN) return void req.abort();
       return void req.respond({
         status: 200,
@@ -84,6 +177,39 @@ export async function serveFixtures(page) {
         body: readFileSync(CDN_STANDIN),
       });
     }
+
+    if (url.includes('/api/cr/')) {
+      // Must precede the generic /players/ rule below, and must not catch
+      // /battlelog or /upcomingchests, which hang off the same path.
+      if (WITH_POL && /\/players\/[^/]+(\?|$)/.test(url)) {
+        return void req.respond({
+          status: 200,
+          contentType: 'application/json',
+          headers: { 'access-control-allow-origin': '*' },
+          body: JSON.stringify(playerWithPathOfLegend()),
+        });
+      }
+      if (WAR_DAY && /\/currentriverrace/.test(url)) {
+        return void req.respond({
+          status: 200,
+          contentType: 'application/json',
+          headers: { 'access-control-allow-origin': '*' },
+          body: JSON.stringify(warDayRace()),
+        });
+      }
+      const crName = crFixtureFor(url);
+      const crFile = crName ? resolve(FIXTURES, crName) : null;
+      if (!crFile || !existsSync(crFile)) {
+        return void req.respond({ status: 404, contentType: 'application/json', body: '{}' });
+      }
+      return void req.respond({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'access-control-allow-origin': '*' },
+        body: readFileSync(crFile, 'utf8'),
+      });
+    }
+
     if (!url.includes('/api/coc/')) return void req.continue();
 
     if (NO_LEAGUE && /\/currentwar\/leaguegroup/.test(url)) {

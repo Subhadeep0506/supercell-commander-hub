@@ -13,7 +13,7 @@ import { Art, Source } from './CocBits';
 import { CocPlayer } from './CocPlayer';
 import { WarTabs } from './war/WarTabs';
 import { ClanCard } from './clan/ClanCard';
-import { useDetailSheet } from './clan/DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 
 type LookupView = 'player' | 'war' | 'clan';
 
@@ -33,7 +33,6 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
   const { openClan } = useDetailSheet();
   const account = useLiveAccount('coc', view, initialTag);
   const [tag, setTag] = useState('');
-  const [editing, setEditing] = useState(false);
   const [matches, setMatches] = useState<GameResult>();
   const [finding, setFinding] = useState(false);
 
@@ -63,7 +62,6 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
       // Only a tag the user typed here is worth adopting as their account.
       searched.current = true;
       account.load(tag);
-      setEditing(false);
       setMatches(undefined);
     }
   }
@@ -92,11 +90,18 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
     if (found !== passport.coc) setPassport({ ...passport, coc: found });
   }, [view, result, passport, setPassport]);
 
-  const showForm = view === 'clan' || editing || (!account.target && !account.busy);
+  const showForm = view === 'clan' || (!account.target && !account.busy);
   const matchRows = matches?.ok ? rows(record(JSON.parse(matches.data))['items']) : [];
 
   return (
     <View style={s.stack}>
+      {/*
+        The search box is the empty state only. The row that used to sit here
+        when an account *was* resolved -- "Saved account · #TAG" with Change
+        and Refresh -- is gone: switching account is the Passport screen's job
+        now that it holds several, and an inline field could only overwrite
+        one of them.
+      */}
       {showForm ? (
         <View style={s.form}>
           <SearchField
@@ -116,28 +121,7 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
             Search
           </Button>
         </View>
-      ) : (
-        <View style={s.selected}>
-          <Text style={s.selectedText} numberOfLines={1}>
-            {account.saved ? 'Saved account' : 'Selected account'} · {account.target}
-          </Text>
-          <View style={s.selectedActions}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onPress={() => {
-                setTag(account.target);
-                setEditing(true);
-              }}
-            >
-              Change
-            </Button>
-            <Button variant="ghost" size="sm" disabled={account.busy} onPress={() => void account.refresh()}>
-              Refresh
-            </Button>
-          </View>
-        </View>
-      )}
+      ) : null}
 
       {account.busy || finding ? (
         <Text accessibilityRole="alert" style={s.loading}>
@@ -237,9 +221,6 @@ const build = (t: Theme) =>
     stack: { gap: 16 },
     form: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
     formField: { flex: 1, minWidth: 0 },
-    selected: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-    selectedText: { flexShrink: 1, fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
-    selectedActions: { flexDirection: 'row', gap: 8 },
 
     loading: { paddingVertical: 24, textAlign: 'center', fontSize: 13, color: t.primary, fontFamily: t.fonts.sans },
     error: { fontSize: 13, color: t.destructive, fontFamily: t.fonts.sans },

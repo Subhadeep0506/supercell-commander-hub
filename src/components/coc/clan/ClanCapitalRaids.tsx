@@ -18,11 +18,12 @@ import {
 } from '@/lib/clan';
 import { useCountdown } from '@/hooks/use-countdown';
 import { Meter } from '@/components/ui/Meter';
+import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Source } from '../CocBits';
 import { EmptyState, StatCell, StatStrip } from './ClanBits';
-import { useDetailSheet } from './DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import { RaidLog } from './RaidLog';
 
 /** One page of raid weekends. Ten is roughly a season's worth. */
@@ -90,6 +91,21 @@ export function ClanCapitalRaids({ tag }: { tag: string }) {
   const loading = pages.some((p) => p.isFetching);
   const failed = pages.find((p) => p.data && !p.data.result.ok)?.data?.result;
 
+  // Above the empty-state return below, because a hook cannot sit after one.
+  // Keyed on the selected weekend so stepping to an older one starts at the top
+  // of its roster rather than four pages into the previous one's.
+  const members = useMemo(() => {
+    const week = seasons[Math.min(selected, Math.max(0, seasons.length - 1))];
+    return week
+      ? [...rows(week['members'])].sort(
+          (a, b) =>
+            (Number(b['capitalResourcesLooted']) || 0) -
+            (Number(a['capitalResourcesLooted']) || 0),
+        )
+      : [];
+  }, [seasons, selected]);
+  const pagedMembers = usePaged(members, selected);
+
   if (!loading && !seasons.length) {
     return failed ? (
       <View>
@@ -114,13 +130,6 @@ export function ClanCapitalRaids({ tag }: { tag: string }) {
     totals && previous
       ? (totals.loot - raidTotals(previous).loot) / Math.max(1, raidTotals(previous).loot)
       : undefined;
-
-  const members = season
-    ? [...rows(season['members'])].sort(
-        (a, b) =>
-          (Number(b['capitalResourcesLooted']) || 0) - (Number(a['capitalResourcesLooted']) || 0),
-      )
-    : [];
 
   const gold = resourceArt('Capital Gold');
   const medal = raidMedalArt();
@@ -280,7 +289,7 @@ export function ClanCapitalRaids({ tag }: { tag: string }) {
             <Text style={s.count}>{members.length}</Text>
           </View>
 
-          {members.map((member, i) => {
+          {pagedMembers.shown.map((member, i) => {
             const key = text(member['tag']) + i;
             const limit =
               (Number(member['attackLimit']) || 0) + (Number(member['bonusAttackLimit']) || 0);
@@ -349,6 +358,13 @@ export function ClanCapitalRaids({ tag }: { tag: string }) {
               </View>
             );
           })}
+
+          <LoadMore
+            remaining={pagedMembers.remaining}
+            onPress={pagedMembers.loadMore}
+            noun="raiders"
+            style={s.moreMembers}
+          />
         </Panel>
       ) : null}
 
@@ -380,6 +396,7 @@ function DetailRow({ label, value, theme }: { label: string; value: string; them
 const build = (t: Theme) =>
   StyleSheet.create({
     stack: { gap: 14 },
+    moreMembers: { marginTop: 12, alignSelf: 'flex-start' },
 
     head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     headIcon: { width: 44, height: 44 },

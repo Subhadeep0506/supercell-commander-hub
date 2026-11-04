@@ -16,7 +16,10 @@ export type RootStackParamList = {
   CocLeaderboard: undefined;
   CocBuilder: undefined;
   CocBook: undefined;
-  CrHome: undefined;
+  CrHome: { tag?: string } | undefined;
+  CrDecks: { tag?: string } | undefined;
+  CrClan: { tag?: string } | undefined;
+  CrLeaderboard: undefined;
   BsHome: undefined;
 };
 
@@ -36,6 +39,9 @@ export const ROUTE_PATHS: Record<RouteName, string> = {
   CocWar: 'coc/war',
   CocClan: 'coc/clan',
   CocHome: 'coc',
+  CrDecks: 'cr/decks',
+  CrClan: 'cr/clan',
+  CrLeaderboard: 'cr/leaderboard',
   CrHome: 'cr',
   BsHome: 'bs',
   Passport: 'passport',

@@ -13,10 +13,11 @@ import {
 } from '@/lib/cwl';
 import { useLeagueWars } from '@/hooks/use-league-wars';
 import { Collapsible } from '@/components/ui/Collapsible';
+import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { ClanBadge } from '../clan/ClanBits';
-import { useDetailSheet } from '../clan/DetailSheetProvider';
+import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import { navigate } from '@/navigation/navigationRef';
 import { LeagueStandings } from './LeagueStandings';
 import { Hall, Scoreboard, ThBar, ThLegend } from './WarBits';
@@ -219,6 +220,7 @@ function ClanRow({ clan, own }: { clan: ApiRecord; own: boolean }) {
   const { openPlayer, openClan } = useDetailSheet();
   const members = rows(clan['members']);
   const avg = averageTh(members);
+  const paged = usePaged(members, text(clan['tag']));
 
   return (
     <View style={[s.clanCard, own && s.clanCardOwn]}>
@@ -245,7 +247,7 @@ function ClanRow({ clan, own }: { clan: ApiRecord; own: boolean }) {
         )}
       >
         <View style={s.members}>
-          {members.map((member, i) => (
+          {paged.shown.map((member, i) => (
             <Pressable
               key={text(member['tag']) + i}
               accessibilityRole="link"
@@ -260,6 +262,12 @@ function ClanRow({ clan, own }: { clan: ApiRecord; own: boolean }) {
               <Text style={s.memberTag}>{text(member['tag'])}</Text>
             </Pressable>
           ))}
+          <LoadMore
+            remaining={paged.remaining}
+            onPress={paged.loadMore}
+            noun="members"
+            style={s.more}
+          />
           <Pressable
             accessibilityRole="link"
             accessibilityLabel={`View ${text(clan['name'])}`}
@@ -276,6 +284,7 @@ function ClanRow({ clan, own }: { clan: ApiRecord; own: boolean }) {
 const build = (t: Theme) =>
   StyleSheet.create({
     stack: { gap: 16 },
+    more: { marginVertical: 8, alignSelf: 'flex-start' },
     panel: { padding: 12 },
     title: { fontFamily: t.fonts.display, fontSize: 16, color: t.foreground },
 

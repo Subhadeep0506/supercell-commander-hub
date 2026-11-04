@@ -1,0 +1,384 @@
+{
+  "items": [
+    {
+      "tag": "#LLJULY0P",
+      "name": "Anarchy #1",
+      "rank": 1,
+      "previousRank": 1,
+      "location": {
+        "id": 57000249,
+        "name": "United States",
+        "isCountry": true,
+        "countryCode": "US"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000097
+    },
+    {
+      "tag": "#Q9LQY998",
+      "name": "Asedio MIstico",
+      "rank": 2,
+      "previousRank": 2,
+      "location": {
+        "id": 57000055,
+        "name": "Chile",
+        "isCountry": true,
+        "countryCode": "CL"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000038
+    },
+    {
+      "tag": "#PPQVPYLR",
+      "name": "Mega TajikistaN",
+      "rank": 3,
+      "previousRank": 3,
+      "location": {
+        "id": 57000229,
+        "name": "Tajikistan",
+        "isCountry": true,
+        "countryCode": "TJ"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000128
+    },
+    {
+      "tag": "#90RJPCUU",
+      "name": "WHAM! eSports",
+      "rank": 4,
+      "previousRank": 4,
+      "location": {
+        "id": 57000209,
+        "name": "Singapore",
+        "isCountry": true,
+        "countryCode": "SG"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000156
+    },
+    {
+      "tag": "#GPJPLPVG",
+      "name": "ＧＯＤＳ ＯＦ ＯＬＹＭＰＵＳ",
+      "rank": 5,
+      "previousRank": 5,
+      "location": {
+        "id": 57000102,
+        "name": "Guatemala",
+        "isCountry": true,
+        "countryCode": "GT"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000003
+    },
+    {
+      "tag": "#8000YPRR",
+      "name": "Banditos™",
+      "rank": 6,
+      "previousRank": 6,
+      "location": {
+        "id": 57000094,
+        "name": "Germany",
+        "isCountry": true,
+        "countryCode": "DE"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000012
+    },
+    {
+      "tag": "#P0JVLLV0",
+      "name": "RED MACHINE",
+      "rank": 7,
+      "previousRank": 7,
+      "location": {
+        "id": 57000193,
+        "name": "Russia",
+        "isCountry": true,
+        "countryCode": "RU"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000072
+    },
+    {
+      "tag": "#L0PCGJQV",
+      "name": "!Polska!",
+      "rank": 8,
+      "previousRank": 8,
+      "location": {
+        "id": 57000187,
+        "name": "Poland",
+        "isCountry": true,
+        "countryCode": "PL"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000067
+    },
+    {
+      "tag": "#QR889RG0",
+      "name": "ChillNation™",
+      "rank": 9,
+      "previousRank": 9,
+      "location": {
+        "id": 57000094,
+        "name": "Germany",
+        "isCountry": true,
+        "countryCode": "DE"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000168
+    },
+    {
+      "tag": "#2CCC0L00",
+      "name": "RoWarlords",
+      "rank": 10,
+      "previousRank": 10,
+      "location": {
+        "id": 57000192,
+        "name": "Romania",
+        "isCountry": true,
+        "countryCode": "RO"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000020
+    },
+    {
+      "tag": "#QCUVJPYP",
+      "name": "69 savage",
+      "rank": 11,
+      "previousRank": 12,
+      "location": {
+        "id": 57000165,
+        "name": "Nepal",
+        "isCountry": true,
+        "countryCode": "NP"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000159
+    },
+    {
+      "tag": "#RLQ9U8UJ",
+      "name": "CABALLEROS RALS",
+      "rank": 12,
+      "previousRank": 13,
+      "location": {
+        "id": 57000059,
+        "name": "Colombia",
+        "isCountry": true,
+        "countryCode": "CO"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000177
+    },
+    {
+      "tag": "#L0GP9GJL",
+      "name": "Die Dunkelheit",
+      "rank": 13,
+      "previousRank": 14,
+      "location": {
+        "id": 57000094,
+        "name": "Germany",
+        "isCountry": true,
+        "countryCode": "DE"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000024
+    },
+    {
+      "tag": "#QVL22VLU",
+      "name": "49+1",
+      "rank": 14,
+      "previousRank": 15,
+      "location": {
+        "id": 57000239,
+        "name": "Turkey",
+        "isCountry": true,
+        "countryCode": "TR"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000030
+    },
+    {
+      "tag": "#98GUVJYR",
+      "name": "Pak l Shaheen",
+      "rank": 15,
+      "previousRank": 17,
+      "location": {
+        "id": 57000178,
+        "name": "Pakistan",
+        "isCountry": true,
+        "countryCode": "PK"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000145
+    },
+    {
+      "tag": "#GVY92VU8",
+      "name": "Dark Elixir",
+      "rank": 16,
+      "previousRank": 18,
+      "location": {
+        "id": 57000249,
+        "name": "United States",
+        "isCountry": true,
+        "countryCode": "US"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000107
+    },
+    {
+      "tag": "#GJLJ9RUY",
+      "name": "Medin Brlog",
+      "rank": 17,
+      "previousRank": 19,
+      "location": {
+        "id": 57000066,
+        "name": "Croatia",
+        "isCountry": true,
+        "countryCode": "HR"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000035
+    },
+    {
+      "tag": "#8CUJCPLP",
+      "name": "# KRALLAR #",
+      "rank": 18,
+      "previousRank": 20,
+      "location": {
+        "id": 57000239,
+        "name": "Turkey",
+        "isCountry": true,
+        "countryCode": "TR"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000030
+    },
+    {
+      "tag": "#QY0QQUCL",
+      "name": "1DE",
+      "rank": 19,
+      "previousRank": 21,
+      "location": {
+        "id": 57000120,
+        "name": "Italy",
+        "isCountry": true,
+        "countryCode": "IT"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000015
+    },
+    {
+      "tag": "#JQQCQG",
+      "name": "Csillámfaszláma",
+      "rank": 20,
+      "previousRank": 22,
+      "location": {
+        "id": 57000111,
+        "name": "Hungary",
+        "isCountry": true,
+        "countryCode": "HU"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000088
+    },
+    {
+      "tag": "#PRLU9J8G",
+      "name": "50인용 전자오락실",
+      "rank": 21,
+      "previousRank": 24,
+      "location": {
+        "id": 57000216,
+        "name": "South Korea",
+        "isCountry": true,
+        "countryCode": "KR"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000104
+    },
+    {
+      "tag": "#8GPR92P0",
+      "name": "#Russian Team™",
+      "rank": 22,
+      "previousRank": 25,
+      "location": {
+        "id": 57000193,
+        "name": "Russia",
+        "isCountry": true,
+        "countryCode": "RU"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000096
+    },
+    {
+      "tag": "#GVPQRRJL",
+      "name": "BANCOLOMBIA",
+      "rank": 23,
+      "previousRank": 26,
+      "location": {
+        "id": 57000059,
+        "name": "Colombia",
+        "isCountry": true,
+        "countryCode": "CO"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000147
+    },
+    {
+      "tag": "#8UGLRQJ",
+      "name": "ROMANIA",
+      "rank": 24,
+      "previousRank": 27,
+      "location": {
+        "id": 57000192,
+        "name": "Romania",
+        "isCountry": true,
+        "countryCode": "RO"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000044
+    },
+    {
+      "tag": "#2RGLQ",
+      "name": "FURIA MEXICANA",
+      "rank": 25,
+      "previousRank": 28,
+      "location": {
+        "id": 57000153,
+        "name": "Mexico",
+        "isCountry": true,
+        "countryCode": "MX"
+      },
+      "clanScore": 140000,
+      "members": 50,
+      "badgeId": 16000163
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "after": "eyJwb3MiOjI1fQ"
+    }
+  }
+}

@@ -16,4 +16,12 @@ module.exports = {
     'react/no-unstable-nested-components': ['warn', { allowAsProps: true }],
   },
   ignorePatterns: ['src/assets/registry.*.ts', 'src/config/keys.ts', 'dist-web/', '.shots/'],
+  overrides: [
+    {
+      // `jest` is a global in setup files and specs, but the base config only
+      // declares it for files Jest's own environment covers.
+      files: ['jest.setup.js', '__tests__/**/*'],
+      env: { jest: true },
+    },
+  ],
 };

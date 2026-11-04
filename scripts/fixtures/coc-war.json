@@ -2,9 +2,9 @@
   "state": "inWar",
   "teamSize": 15,
   "attacksPerMember": 2,
-  "preparationStartTime": "20261102T001459.000Z",
-  "startTime": "20261102T231459.000Z",
-  "endTime": "20261103T231459.000Z",
+  "preparationStartTime": "20261102T235858.000Z",
+  "startTime": "20261103T225858.000Z",
+  "endTime": "20261104T225858.000Z",
   "clan": {
     "tag": "#2PP",
     "name": "bruh",
@@ -19,14 +19,14 @@
         "attacks": []
       },
       {
-        "tag": "#Y002",
-        "name": "bruh 2",
+        "tag": "#LJ9V8LCYQ",
+        "name": "DenCT",
         "mapPosition": 2,
-        "townhallLevel": 16,
+        "townhallLevel": 13,
         "opponentAttacks": 1,
         "attacks": [
           {
-            "attackerTag": "#Y002",
+            "attackerTag": "#LJ9V8LCYQ",
             "defenderTag": "#Y0QL",
             "stars": 3,
             "destructionPercentage": 100,
@@ -34,7 +34,7 @@
             "duration": 95
           },
           {
-            "attackerTag": "#Y002",
+            "attackerTag": "#LJ9V8LCYQ",
             "defenderTag": "#Y0QJ",
             "stars": 2,
             "destructionPercentage": 73,
@@ -505,7 +505,7 @@
           },
           {
             "attackerTag": "#Y0QC",
-            "defenderTag": "#Y002",
+            "defenderTag": "#LJ9V8LCYQ",
             "stars": 2,
             "destructionPercentage": 81,
             "order": 20,
@@ -584,7 +584,7 @@
         "attacks": [
           {
             "attackerTag": "#Y0G2",
-            "defenderTag": "#Y002",
+            "defenderTag": "#LJ9V8LCYQ",
             "stars": 3,
             "destructionPercentage": 100,
             "order": 27,

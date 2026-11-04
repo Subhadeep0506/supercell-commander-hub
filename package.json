@@ -11,6 +11,9 @@
     "build:assets": "node scripts/build-assets.mjs",
     "build:data-ids": "node scripts/build-data-ids.mjs",
     "build:fixtures": "node scripts/make-fixtures.mjs",
+    "build:cr-fixtures": "node --use-system-ca --no-warnings scripts/make-cr-fixtures.mjs",
+    "fetch:cr-assets": "node --use-system-ca --no-warnings scripts/fetch-cr-assets.mjs",
+    "fetch:fankit": "node --use-system-ca --no-warnings scripts/fetch-fankit.mjs",
     "build:theme": "node scripts/oklch-to-hex.mjs",
     "android": "bun run keys && react-native run-android",
     "ios": "bun run keys && react-native run-ios",
@@ -19,7 +22,9 @@
     "start": "bun run keys && react-native start",
     "test": "jest",
     "check:nav": "node scripts/check-nav.mjs",
-    "check:screens": "node scripts/check-screens.mjs"
+    "check:screens": "node scripts/check-screens.mjs",
+    "check:cr-screens": "node scripts/check-cr-screens.mjs",
+    "check:cr-api": "node --use-system-ca --no-warnings scripts/check-cr-api.mjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^3.1.1",
