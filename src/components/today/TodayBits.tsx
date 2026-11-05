@@ -3,7 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GAME_LOGOS, townHallArt } from '@/assets/art';
 import { record, text, type ApiRecord, type Game } from '@/api/game-api';
 import { groupedNumber, formatDuration } from '@/lib/clan';
-import type { TodayEvent, TodayNote } from '@/lib/today';
+import type { LiveEvent, TodayEvent, TodayNote } from '@/lib/today';
 import { useCountdown } from '@/hooks/use-countdown';
 import { Panel } from '@/components/ui/Panel';
 import { PlayerPortrait } from '@/components/cr/CrBits';
@@ -128,6 +128,37 @@ export function NoteCard({ note }: { note: TodayNote }) {
 }
 
 /**
+ * An event that is running now with no published end time.
+ *
+ * No clock and no empty space where one would go: the absence is explained
+ * once in the section's caption rather than implied by a dash on every row.
+ */
+export function LiveEventCard({ event }: { event: LiveEvent }) {
+  const theme = useTheme();
+  const s = useMemo(() => build(theme), [theme]);
+  return (
+    <Panel style={s.card}>
+      <GameBadge game={event.game} />
+      <View style={s.body}>
+        <Text style={s.title} numberOfLines={2}>
+          {event.title}
+        </Text>
+        {/*
+          Guarded on a non-empty string: `description` is null for several of
+          these, and `{event.body && …}` would put a bare '' into this View --
+          a browser warning, an Android crash.
+        */}
+        {event.body ? (
+          <Text style={s.meta} numberOfLines={3}>
+            {event.body}
+          </Text>
+        ) : null}
+      </View>
+    </Panel>
+  );
+}
+
+/**
  * One saved account, with the single figure that game leads on.
  *
  * `›` rather than a `Chevron`: this opens another screen, and the chevron is
@@ -201,13 +232,22 @@ function TownHall({ level }: { level: unknown }) {
   );
 }
 
-/** A titled run of cards. */
-export function TodaySection({ title, children }: { title: string; children: ReactNode }) {
+/** A titled run of cards, optionally with a line explaining the section. */
+export function TodaySection({
+  title,
+  caption,
+  children,
+}: {
+  title: string;
+  caption?: string;
+  children: ReactNode;
+}) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
   return (
     <View style={s.section}>
       <Text style={s.sectionTitle}>{title}</Text>
+      {caption ? <Text style={s.sectionCaption}>{caption}</Text> : null}
       <View style={s.sectionBody}>{children}</View>
     </View>
   );
@@ -238,5 +278,12 @@ const build = (t: Theme) =>
 
     section: { gap: 10 },
     sectionTitle: { fontFamily: t.fonts.display, fontSize: 13, color: t.mutedForeground },
+    sectionCaption: {
+      marginTop: -4,
+      fontFamily: t.fonts.sans,
+      fontSize: 11,
+      lineHeight: 17,
+      color: t.mutedForeground,
+    },
     sectionBody: { gap: 10 },
   });

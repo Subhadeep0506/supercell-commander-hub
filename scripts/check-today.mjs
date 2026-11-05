@@ -138,6 +138,17 @@ if (live) {
 
 check('shows the raid weekend', /Raid Weekend/i.test(t), t);
 
+// --- untimed events -------------------------------------------------------
+// `/v1/events` carries no timestamp of any kind, so these are listed without
+// a clock rather than dropped for lacking one.
+console.log('\nRunning now');
+check('lists the events that are live in game', /Running now/i.test(t), t);
+check('names a real event', /Classic Challenge/i.test(t), t);
+check('carries an event description', /increase your final prize/i.test(t), t);
+// `description` is null for several of them; those must still render.
+check('keeps an event whose description is null', /Merge Tactics/i.test(t), t);
+check('explains why they have no countdown', /no end time for them/i.test(t), t);
+
 // --- Clash Royale ---------------------------------------------------------
 // The two branches are mutually exclusive, so each only asserts under the flag
 // state that produces it. Running the quiet assertions with a tournament live

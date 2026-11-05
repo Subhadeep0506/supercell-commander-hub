@@ -239,7 +239,10 @@ export const gameRequestSchema = z
       ctx.addIssue({ code: 'custom', message: 'This data is not available for this game.' });
     }
     if (
-      (value.resource === 'events' && value.game !== 'bs') ||
+      // Clash of Clans has no events endpoint of any kind. Clash Royale and
+      // Brawl Stars each have one, but they are different endpoints returning
+      // different shapes -- see the `events` case in `endpoint()`.
+      (value.resource === 'events' && value.game === 'coc') ||
       (value.resource === 'catalog' && value.game === 'coc') ||
       (value.resource === 'battles' && value.game === 'coc') ||
       ((COC_ONLY as readonly string[]).includes(value.resource) && value.game !== 'coc') ||
@@ -345,7 +348,19 @@ export function endpoint(input: GameRequest) {
       // (4 tower troops). Reading only `items` silently drops the tower troops.
       return `/v1/${input.game === 'cr' ? 'cards' : 'brawlers'}`;
     case 'events':
-      return '/v1/events/rotation';
+      /*
+       * Two different endpoints behind one resource name.
+       *
+       * Brawl Stars' `/v1/events/rotation` is a *schedule*: every slot carries
+       * a real `startTime` and `endTime`. Clash Royale's `/v1/events` is a
+       * plain list of what is running -- `{eventTag, title, description}` and
+       * **no timestamps at all** (probed live 2026-11-06: six events, bare
+       * array, `description` sometimes null).
+       *
+       * So the Royale half can be listed but never counted down, which is why
+       * Today renders it as its own section rather than in the timeline.
+       */
+      return input.game === 'cr' ? '/v1/events' : '/v1/events/rotation';
     case 'locations':
       // isCountry filtering happens client side; the API has no such filter.
       return '/v1/locations?limit=300';

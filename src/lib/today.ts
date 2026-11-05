@@ -55,6 +55,21 @@ export type TodayNote = {
   route?: RouteName;
 };
 
+/**
+ * An event that is running now but publishes no end time.
+ *
+ * Clash Royale's `/v1/events` is exactly this: `{eventTag, title,
+ * description}` and nothing else. The events are real and worth listing --
+ * they are what is actually playable right now -- but they can never join the
+ * timeline, because there is no moment to count to.
+ */
+export type LiveEvent = {
+  id: string;
+  game: Game;
+  title: string;
+  body?: string;
+};
+
 export type TodayInput = {
   /** `clans/{tag}/currentwar`. */
   war?: ApiRecord;
@@ -71,6 +86,8 @@ export type TodayInput = {
   tournaments?: ApiRecord[];
   /** `clans/{tag}/currentriverrace`. */
   riverRace?: ApiRecord;
+  /** `/v1/events` — Clash Royale's untimed list of what is running. */
+  crEvents?: ApiRecord[];
   /** Whether a Clash of Clans account is saved and resolved. */
   hasCoc?: boolean;
   /** Whether a Clash Royale account is saved and resolved. */
@@ -113,7 +130,7 @@ function usable(target: Date | undefined, now: Date): target is Date {
 export function buildToday(
   input: TodayInput,
   now: Date = new Date(),
-): { events: TodayEvent[]; notes: TodayNote[] } {
+): { events: TodayEvent[]; notes: TodayNote[]; live: LiveEvent[] } {
   const events: TodayEvent[] = [];
   const notes: TodayNote[] = [];
 
@@ -123,7 +140,49 @@ export function buildToday(
   royale(input, now, events, notes);
 
   events.sort((a, b) => a.target.getTime() - b.target.getTime());
-  return { events, notes };
+  return { events, notes, live: liveEvents(input) };
+}
+
+/**
+ * What is playable right now, from Clash Royale's untimed event list.
+ *
+ * Kept out of the timeline deliberately: these have no end time, so putting
+ * them among the countdowns would need a fake target or a blank clock, and
+ * both would misrepresent what the service actually said.
+ */
+function liveEvents(input: TodayInput): LiveEvent[] {
+  const out: LiveEvent[] = [];
+  const seen = new Set<string>();
+
+  for (const [i, event] of (input.crEvents ?? []).entries()) {
+    const title = localized(event['title']);
+    if (!title) continue;
+    // `eventTag` is the stable id, but fall back to the index rather than
+    // dropping a row that happens to arrive without one.
+    const tag = text(event['eventTag']);
+    const id = `cr-event-${tag === '—' ? i : tag}`;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    out.push({ id, game: 'cr', title, body: localized(event['description']) });
+  }
+  return out;
+}
+
+/**
+ * `title` and `description` are `JsonLocalizedName`: documented as string,
+ * object *or* null, and observed live as a plain string with `description`
+ * sometimes null. Both forms are handled rather than assuming the one seen.
+ */
+function localized(value: unknown): string | undefined {
+  if (typeof value === 'string') return value.trim() || undefined;
+  if (value && typeof value === 'object') {
+    const named = value as Record<string, unknown>;
+    for (const key of ['en', 'EN', 'name', 'value']) {
+      const found = named[key];
+      if (typeof found === 'string' && found.trim()) return found.trim();
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -264,7 +323,7 @@ function royale(
     id: 'cr-quiet',
     game: 'cr',
     title: 'Clash Royale',
-    body: riverRaceSentence(input.riverRace),
+    body: riverRaceSentence(input.riverRace, (input.crEvents ?? []).length > 0),
     route: 'CrClan',
   });
 }
@@ -299,10 +358,14 @@ function cleanTitle(value: unknown): string {
  * `periodIndex` -- but the service publishes no timestamp to anchor it, and a
  * clock that is quietly wrong is worse than a sentence that is right.
  */
-function riverRaceSentence(race: ApiRecord | undefined): string {
-  const base = 'No global tournament is running right now.';
+function riverRaceSentence(race: ApiRecord | undefined, hasEvents: boolean): string {
+  // With events listed above, "no global tournament" alone would read as
+  // "nothing is happening", which is the opposite of what the screen shows.
+  const base = hasEvents
+    ? 'The events above run without a published end time, so none of them can be counted down. No global tournament is running either.'
+    : 'No global tournament is running right now.';
   if (!race || text(race['state']) === '—') return base;
-  return `${base} Your clan's river race is on ${periodLabel(race)}, which the game service publishes without an end time.`;
+  return `${base} Your clan's river race is on ${periodLabel(race)}, which the game service also publishes without an end time.`;
 }
 
 /** `items` wrapper or a bare array -- this endpoint is documented as both. */

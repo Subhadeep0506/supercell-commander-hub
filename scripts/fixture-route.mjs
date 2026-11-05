@@ -99,6 +99,8 @@ export function crFixtureFor(url) {
   if (/\/leaderboards/.test(url)) return 'cr-leaderboards.json';
   if (/\/leaderboard\//.test(url)) return 'cr-leaderboard-rankings.json';
   if (/\/globaltournaments/.test(url)) return 'cr-global-tournaments.json';
+  // A bare array of what is playable now, with no timestamps on it at all.
+  if (/\/v1\/events(\?|$)/.test(url)) return 'cr-events.json';
   if (/\/locations\?/.test(url)) return 'cr-locations.json';
   return null;
 }

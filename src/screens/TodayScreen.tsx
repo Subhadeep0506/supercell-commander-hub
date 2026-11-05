@@ -1,7 +1,13 @@
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import { useToday } from '@/hooks/use-today';
-import { AccountRow, EventCard, NoteCard, TodaySection } from '@/components/today/TodayBits';
+import {
+  AccountRow,
+  EventCard,
+  LiveEventCard,
+  NoteCard,
+  TodaySection,
+} from '@/components/today/TodayBits';
 import { Panel } from '@/components/ui/Panel';
 import { SkeletonRows } from '@/components/ui/Shimmer';
 import { navigate } from '@/navigation/navigationRef';
@@ -24,7 +30,7 @@ import { useTheme, type Theme } from '@/theme/ThemeProvider';
 export function TodayScreen() {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  const { events, notes, accounts, loading, empty } = useToday();
+  const { events, notes, live, accounts, loading, empty } = useToday();
 
   return (
     <ScrollView style={s.scroll} contentContainerStyle={s.shell}>
@@ -43,11 +49,12 @@ export function TodayScreen() {
       ) : null}
 
       {/*
-        Only shown once something has resolved: during the first load an
-        "all quiet" message would be a lie that corrects itself a second
-        later.
+        Only shown once something has resolved -- during the first load an
+        "all quiet" message would be a lie that corrects itself a second later
+        -- and only when there is genuinely nothing else, so it never sits
+        above a list of events that are plainly running.
       */}
-      {!empty && !loading && events.length === 0 ? (
+      {!empty && !loading && events.length === 0 && live.length === 0 ? (
         <TodaySection title="Next up">
           <Panel>
             <Text style={s.quietTitle}>Nothing is running</Text>
@@ -59,8 +66,24 @@ export function TodayScreen() {
         </TodaySection>
       ) : null}
 
+      {/*
+        Running now, but untimed. Kept out of "Next up" because the service
+        gives them no end time, and a card in a timeline with a blank clock
+        would claim one exists.
+      */}
+      {live.length > 0 ? (
+        <TodaySection
+          title="Running now"
+          caption="These are live in game. The service publishes no end time for them, so they have no countdown."
+        >
+          {live.map((event) => (
+            <LiveEventCard key={event.id} event={event} />
+          ))}
+        </TodaySection>
+      ) : null}
+
       {notes.length > 0 ? (
-        <TodaySection title="Nothing scheduled">
+        <TodaySection title={live.length > 0 ? 'No countdown available' : 'Nothing scheduled'}>
           {notes.map((note) => (
             <NoteCard key={note.id} note={note} />
           ))}

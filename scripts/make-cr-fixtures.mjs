@@ -122,6 +122,9 @@ await capture('cr-rank-clanwars.json', {
   limit: 25,
 });
 await capture('cr-global-tournaments.json', { game: 'cr', resource: 'globalTournaments' });
+// `/v1/events` -- a bare array of what is playable now. No timestamps at all,
+// so Today lists these without a countdown. `description` is null for several.
+await capture('cr-events.json', { game: 'cr', resource: 'events' });
 
 console.log(
   failures ? `\n${failures} capture(s) failed\n` : `\nCaptured into scripts/fixtures.\n`,

@@ -3,7 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { gameQuery } from '@/api/queries';
 import { record, rows, text, type ApiRecord, type GameResult } from '@/api/game-api';
 import { sampleWarTags } from '@/lib/cwl';
-import { buildToday, tournamentItems, type TodayEvent, type TodayNote } from '@/lib/today';
+import {
+  buildToday,
+  tournamentItems,
+  type LiveEvent,
+  type TodayEvent,
+  type TodayNote,
+} from '@/lib/today';
 import { useHub } from '@/state/HubProvider';
 import { useLeagueWars } from './use-league-wars';
 
@@ -26,6 +32,8 @@ import { useLeagueWars } from './use-league-wars';
 export function useToday(): {
   events: TodayEvent[];
   notes: TodayNote[];
+  /** Running now, but with no end time to count to. */
+  live: LiveEvent[];
   accounts: { coc?: ApiRecord; cr?: ApiRecord };
   /** True only while nothing has arrived yet -- a refetch must not blank the screen. */
   loading: boolean;
@@ -79,8 +87,19 @@ export function useToday(): {
     ...gameQuery({ game: 'cr', resource: 'riverRace', tag: crClan }),
     enabled: ready && Boolean(crClan),
   });
+  /*
+   * What is playable right now. Needs no tag and no account -- these are
+   * global, so they render even for a visitor who has saved nothing.
+   *
+   * Returns a bare array rather than an `items` wrapper, which is why this
+   * goes through `parsedAny` and `rows` instead of `parsed`.
+   */
+  const crEvents = useQuery({
+    ...gameQuery({ game: 'cr', resource: 'events' }),
+    enabled: ready,
+  });
 
-  const { events, notes } = useMemo(
+  const { events, notes, live } = useMemo(
     () =>
       buildToday({
         war: parsed(war.data),
@@ -89,13 +108,24 @@ export function useToday(): {
         raidSeasons: rows(parsed(raids.data)?.['items']),
         tournaments: tournamentItems(parsedAny(tournaments.data)),
         riverRace: parsed(riverRace.data),
+        crEvents: rows(parsedAny(crEvents.data)),
         hasCoc: Boolean(cocTag),
         hasCr: Boolean(crTag),
       }),
     // `warsByTag` is rebuilt every render by design (see useLeagueWars), so
     // it is keyed on its size instead -- the map only grows as wars arrive.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [war.data, group, warsByTag.size, raids.data, tournaments.data, riverRace.data, cocTag, crTag],
+    [
+      war.data,
+      group,
+      warsByTag.size,
+      raids.data,
+      tournaments.data,
+      riverRace.data,
+      crEvents.data,
+      cocTag,
+      crTag,
+    ],
   );
 
   // A refetch over cached data must not blank the board, so this is "nothing
@@ -108,6 +138,7 @@ export function useToday(): {
   return {
     events,
     notes,
+    live,
     accounts: { coc: cocRecord, cr: crRecord },
     loading,
     empty: ready && !cocTag && !crTag,

@@ -206,6 +206,65 @@ describe('clash royale', () => {
   });
 });
 
+/**
+ * `/v1/events` is the one source with no timestamp of any kind -- probed live
+ * 2026-11-06: a bare array of `{eventTag, title, description}`, six entries,
+ * `description` null on several. They are real and worth listing, so they get
+ * their own channel rather than being dropped for having no clock.
+ */
+describe('untimed Clash Royale events', () => {
+  const sample = [
+    { eventTag: '#A', title: 'Classic Challenge', description: 'Win 12, lose 3.' },
+    { eventTag: '#B', title: 'Merge Tactics', description: null },
+  ] as ApiRecord[];
+
+  it('lists events that carry no time at all', () => {
+    const { live } = build({ crEvents: sample });
+    expect(live).toHaveLength(2);
+    expect(live[0]).toMatchObject({ game: 'cr', title: 'Classic Challenge' });
+  });
+
+  it('keeps an event whose description is null', () => {
+    const { live } = build({ crEvents: sample });
+    expect(live[1]).toMatchObject({ title: 'Merge Tactics' });
+    expect(live[1]!.body).toBeUndefined();
+  });
+
+  it('never puts an untimed event in the countdown list', () => {
+    const { events, live } = build({ crEvents: sample });
+    expect(live).toHaveLength(2);
+    expect(events).toHaveLength(0);
+  });
+
+  it('drops an event with no usable title rather than rendering a blank card', () => {
+    const { live } = build({ crEvents: [{ eventTag: '#C', description: 'x' }] as ApiRecord[] });
+    expect(live).toHaveLength(0);
+  });
+
+  it('reads a localized title object as well as a plain string', () => {
+    const { live } = build({
+      crEvents: [{ eventTag: '#D', title: { en: 'Draft Day' } }] as ApiRecord[],
+    });
+    expect(live[0]!.title).toBe('Draft Day');
+  });
+
+  it('gives every event a distinct id, even without an eventTag', () => {
+    const { live } = build({
+      crEvents: [{ title: 'One' }, { title: 'Two' }] as ApiRecord[],
+    });
+    expect(new Set(live.map((e) => e.id)).size).toBe(2);
+  });
+
+  it('reframes the quiet note so it does not contradict the list', () => {
+    const quiet = build({ crEvents: [], tournaments: [] }).notes[0]!.body;
+    const withEvents = build({ crEvents: sample, tournaments: [] }).notes[0]!.body;
+    expect(quiet).toMatch(/No global tournament is running right now/i);
+    // With events listed, the note explains the *missing countdown* instead of
+    // claiming nothing is happening.
+    expect(withEvents).toMatch(/without a published end time/i);
+  });
+});
+
 describe('ordering', () => {
   it('lists events soonest first, whichever game they came from', () => {
     const { events } = build({

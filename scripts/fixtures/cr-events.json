@@ -1,0 +1,32 @@
+[
+  {
+    "eventTag": "#2PRCR998",
+    "title": "Classic Challenge",
+    "description": "Each win in a Challenge will increase your final prize. The Challenge is over at 12 wins, or 3 losses!"
+  },
+  {
+    "eventTag": "#2PRCRPQL",
+    "title": "Grand Challenge",
+    "description": "Each win in a Challenge will increase your final prize. The Challenge is over at 12 wins, or 3 losses!"
+  },
+  {
+    "eventTag": "#2C9JGL8U",
+    "title": "Merge Tactics",
+    "description": null
+  },
+  {
+    "eventTag": "#2UQC8U28",
+    "title": "Seasonal Trophy Road",
+    "description": null
+  },
+  {
+    "eventTag": "#2UQC9800",
+    "title": "Classic 1v1",
+    "description": "Play a good old-fashioned Battle with a deck of your choice."
+  },
+  {
+    "eventTag": "#2UQC99PP",
+    "title": "Classic 2v2",
+    "description": "Play a classic game of 2v2! Bring a friend, Clanmate, or find a teammate to battle against another duo!"
+  }
+]

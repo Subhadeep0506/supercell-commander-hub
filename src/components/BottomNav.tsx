@@ -10,11 +10,17 @@ import { navigate, useCurrentRouteName } from '@/navigation/navigationRef';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 
 /**
- * `.coc-nav-wrap` / `.coc-bottom` -- the floating pill bar with a separate
- * circular Clash Book shortcut beside it.
+ * `.coc-nav-wrap` / `.coc-bottom` -- the floating bar, with a separate Clash
+ * Book shortcut beside it on the Clash of Clans side.
  *
- * The selected item expands (`flex: 2.6`) and is the only one showing its
- * label; the rest are icon-only.
+ * **Every tab shows its icon above its label, and all labels are always
+ * visible.** The selected one is marked by a filled rounded panel rather than
+ * by being the only one with words under it: the old bar expanded the active
+ * item to `flex: 2.6` and hid every other label, which left four unexplained
+ * pictures and made the bar reflow on each tap.
+ *
+ * Both games share this layout and differ only in palette, because the fill
+ * is `theme.primary` -- gold under Royale, teal under Clash of Clans.
  *
  * Icons come from NAV_ART -- one consistent Clash Book render style, trimmed
  * to their content by the asset pipeline. The reference instead mixed
@@ -140,7 +146,14 @@ function NavLink({
           <Image source={source as never} style={s.icon} resizeMode="contain" />
         ) : null}
       </View>
-      {active ? <Text style={s.itemLabel}>{label}</Text> : null}
+      {/*
+        `adjustsFontSizeToFit` is iOS-only, so the label is sized to fit the
+        narrowest case instead: five tabs beside the Book shortcut on a 430pt
+        screen leaves roughly 60pt each, and "Rankings" is the longest word.
+      */}
+      <Text style={[s.itemLabel, active && s.itemLabelOn]} numberOfLines={1}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -148,51 +161,60 @@ function NavLink({
 const build = (t: Theme) =>
   StyleSheet.create({
     wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 12 },
+    // `stretch`, so the Book shortcut takes the bar's height instead of
+    // sizing to its own icon. The bar has no fixed height any more -- it is
+    // sized by the tallest tab, which is icon + gap + label + padding.
     row: {
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'stretch',
       gap: 8,
       width: '100%',
       maxWidth: 560,
       alignSelf: 'center',
     },
+    // A rounded rectangle, not a pill: the tabs inside are now rounded panels
+    // of their own, and a pill's end caps crowded the first and last of them.
     bar: {
       flex: 1,
       minWidth: 0,
       flexDirection: 'row',
       alignItems: 'center',
-      height: 64,
-      padding: 7,
+      padding: 6,
+      gap: 2,
       borderWidth: 1,
       borderColor: t.primary,
       backgroundColor: t.card,
-      borderRadius: 999,
+      borderRadius: 18,
       ...t.shadow.panel,
     },
+    // Equal width, every one of them: the active tab is marked by its fill,
+    // not by taking more room than its neighbours.
     item: {
       flex: 1,
       minWidth: 0,
-      height: 48,
-      flexDirection: 'row',
+      paddingVertical: 7,
+      paddingHorizontal: 2,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 5,
-      borderRadius: 999,
+      gap: 4,
+      borderRadius: 12,
     },
-    // The selected pill grows and is the only one with a visible label.
-    itemOn: { flex: 2.6, paddingHorizontal: 9, backgroundColor: t.primary },
+    itemOn: { backgroundColor: t.primary },
     iconBox: { width: 26, height: 26, alignItems: 'center', justifyContent: 'center' },
     icon: { width: 26, height: 26 },
-    itemLabel: { fontFamily: t.fonts.display, fontSize: 11, color: t.primaryForeground },
+    itemLabel: { fontFamily: t.fonts.display, fontSize: 10, color: t.foreground },
+    itemLabelOn: { color: t.primaryForeground },
+    // Matches the bar's corner radius and height so the two read as one
+    // control split in a gap, rather than a bar beside a circle.
     shortcut: {
-      width: 64,
-      height: 64,
+      width: 66,
+      alignSelf: 'stretch',
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: t.card,
       borderWidth: 1,
       borderColor: t.primary,
-      borderRadius: 999,
+      borderRadius: 18,
       ...t.shadow.panel,
     },
     shortcutOn: { backgroundColor: t.primary },
