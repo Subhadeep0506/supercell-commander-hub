@@ -253,7 +253,7 @@ function ClanRow({ clan, own }: { clan: ApiRecord; own: boolean }) {
               accessibilityRole="link"
               accessibilityLabel={`View ${text(member['name'])}`}
               style={s.member}
-              onPress={() => openPlayer(text(member['tag']))}
+              onPress={() => openPlayer(text(member['tag']), 'coc')}
             >
               <Hall member={member} size={34} />
               <Text style={s.memberName} numberOfLines={1}>
@@ -271,7 +271,7 @@ function ClanRow({ clan, own }: { clan: ApiRecord; own: boolean }) {
           <Pressable
             accessibilityRole="link"
             accessibilityLabel={`View ${text(clan['name'])}`}
-            onPress={() => openClan(text(clan['tag']))}
+            onPress={() => openClan(text(clan['tag']), 'coc')}
           >
             <Text style={s.clanLink}>Clan profile ›</Text>
           </Pressable>

@@ -1,7 +1,7 @@
 import type { ImageSourcePropType } from 'react-native';
 import { cocLeagueImages } from './registry.cocLeague';
 import { leagueFamily, leagueSlug } from './slug';
-import { record, type ApiRecord } from '@/api/game-api';
+import type { LeagueTierInfo } from '@/lib/league-tier';
 
 /**
  * League badges for the player ladders.
@@ -14,8 +14,12 @@ import { record, type ApiRecord } from '@/api/game-api';
  * Three systems, keyed by what the API calls them:
  *
  *   league-*         Home Village trophy leagues, per family (fan kit)
- *   ranked-league-*  Ranked leagues, per family (clash-of-clans-data)
+ *   ranked-league-*  League Tiers, per family (clash-of-clans-data)
  *   bb-league-*      Builder Base leagues, per tier (clash-of-clans-data)
+ *
+ * Only the ranked set needs a tier drawn onto it: the other two already ship
+ * one badge per tier, or are drawn per family in game too. `LeagueTierBadge`
+ * is what adds the I/II/III.
  */
 
 /** Home Village trophy league: "Crystal League II" -> `league-crystal`. */
@@ -24,7 +28,7 @@ export function trophyLeagueArt(name: unknown): ImageSourcePropType | undefined 
   return key ? cocLeagueImages[`league-${key}`] : undefined;
 }
 
-/** Ranked league: "Skeleton 2" -> `ranked-league-skeleton`. */
+/** League Tier: "Wizard League 11" -> `ranked-league-wizard`. */
 export function rankedLeagueArt(name: unknown): ImageSourcePropType | undefined {
   const key = leagueFamily(name);
   return key ? cocLeagueImages[`ranked-league-${key}`] : undefined;
@@ -45,30 +49,22 @@ export function builderLeagueArt(name: unknown): ImageSourcePropType | undefined
 }
 
 /**
- * The badge for a player row on whichever ladder is showing.
+ * The badge for a league already parsed by `leagueTierInfo`.
  *
- * Home mode has to serve two league systems. The October 2025 update replaced
- * trophy leagues with named ones (Barbarian ... Legend), and both shapes are
- * still in circulation, so rather than commit to one this keys both off the
- * same `league.name`.
+ * The parse decides which set to draw from, because "Unranked" is a valid
+ * name in all three and each files it under a different key.
  *
- * `legend` and `titan` name a family in *both* sets, so order is not enough to
- * separate them -- picking ranked first renders the Ranked Legend badge for a
- * plain trophy "Legend League". The word "League" is what tells them apart:
- * trophy names carry it ("Legend League", "Titan League I"), ranked names do
- * not ("Legend", "Titan 2").
+ * The trophy branch still has to guess, because that set and the ranked one
+ * share two family names: `legend` and `titan` exist in both, so order alone
+ * would render the ranked Legend badge for a plain trophy "Legend League".
+ * The word "League" is the tell -- trophy names carry it, a bare ranked
+ * family name does not.
  */
-export function playerLeagueArt(
-  entry: ApiRecord,
-  mode: 'home' | 'builder' | 'capital',
-): ImageSourcePropType | undefined {
-  if (mode === 'builder') {
-    const builder = record(entry['builderBaseLeague'])['name'];
-    return builderLeagueArt(builder);
-  }
-  const name = record(entry['league'])['name'];
-  const trophyNamed = typeof name === 'string' && /\bleagues?\b/i.test(name);
+export function leagueArt(info: LeagueTierInfo): ImageSourcePropType | undefined {
+  if (info.system === 'ranked') return cocLeagueImages[`ranked-league-${info.family}`];
+  if (info.system === 'builder') return builderLeagueArt(info.name);
+  const trophyNamed = /\bleagues?\b/i.test(info.name);
   return trophyNamed
-    ? (trophyLeagueArt(name) ?? rankedLeagueArt(name))
-    : (rankedLeagueArt(name) ?? trophyLeagueArt(name));
+    ? (trophyLeagueArt(info.name) ?? rankedLeagueArt(info.name))
+    : (rankedLeagueArt(info.name) ?? trophyLeagueArt(info.name));
 }

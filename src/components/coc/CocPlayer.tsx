@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { ART_SCALE, NAV_ART, townHallArt } from '@/assets/art';
 import { BOOK_ITEMS, playerBookItem } from '@/lib/clash-book';
 import { gatesFor, maxLevelAt } from '@/lib/village-plan';
+import { playerLeague } from '@/lib/league-tier';
 import { useHub } from '@/state/HubProvider';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { Collapsible } from '@/components/ui/Collapsible';
@@ -10,7 +11,7 @@ import { Meter } from '@/components/ui/Meter';
 import { Panel } from '@/components/ui/Panel';
 import { Tabs } from '@/components/ui/Tabs';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
-import { Art, SmallStat, Stars } from './CocBits';
+import { Art, LeagueStat, SmallStat, Stars } from './CocBits';
 import { CocBattles } from './CocBattles';
 import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import { UnitGrid } from './UnitGrid';
@@ -108,12 +109,28 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
           </View>
         </View>
 
+        {/*
+          Two leagues, two scores. `trophies` is the League Tier score now --
+          it resets each season and runs to a few hundred, not the five-figure
+          ladder it used to be -- so it is labelled as such, and the old
+          all-time `bestTrophies` is marked legacy rather than quietly sitting
+          beside it as though the two were the same currency.
+        */}
         <View style={s.statRow}>
-          <SmallStat
-            label={`Best ${text(player['bestTrophies'])} · ${text(record(player['league'])['name'] ?? 'Unranked')}`}
+          <LeagueStat
+            league={playerLeague(player, 'home')}
+            label="League trophies"
             value={player['trophies']}
-            icon="trophy"
           />
+          <LeagueStat
+            league={playerLeague(player, 'builder')}
+            label="Builder Base"
+            value={player['builderBaseTrophies']}
+          />
+        </View>
+
+        <View style={s.statRow}>
+          <SmallStat label="Best (legacy)" value={player['bestTrophies']} icon="trophy" />
           <SmallStat label="War stars" value={player['warStars']} icon="star" />
         </View>
 
@@ -127,7 +144,7 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
       </Panel>
 
       {typeof clan['tag'] === 'string' ? (
-        <Pressable accessibilityRole="button" onPress={() => openClan(text(clan['tag']))}>
+        <Pressable accessibilityRole="button" onPress={() => openClan(text(clan['tag']), 'coc')}>
           <Panel style={s.clanRow}>
             <Art name="war" size={32} scale={ART_SCALE.panelWar} />
             <View style={s.clanText}>
@@ -173,8 +190,10 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
       </Panel>
 
       {/*
-        No battle log exists for Clash of Clans, so this is war attacks only.
-        CocBattles renders nothing at all for a player with no clan.
+        War attacks only. There *is* a Clash of Clans battle log now --
+        /v1/players/{tag}/battlelog returns real solo attacks with opponent,
+        stars, destruction and loot -- but nothing here reads it yet, so a
+        player with no clan still gets an empty section.
       */}
       <CocBattles player={player} />
 

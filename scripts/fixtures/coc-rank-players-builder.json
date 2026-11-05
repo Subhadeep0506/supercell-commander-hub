@@ -15,11 +15,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-0.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000036,
+        "name": "Legend League 36",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-36.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-36.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -42,11 +50,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-1.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Titan League I",
+      "leagueTier": {
+        "id": 105000035,
+        "name": "Legend League 35",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-35.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-35.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -69,11 +85,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-2.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Champion League II",
+      "leagueTier": {
+        "id": 105000034,
+        "name": "Legend League 34",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-34.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-34.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -96,11 +120,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-3.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Master League III",
+      "leagueTier": {
+        "id": 105000033,
+        "name": "Electro League 33",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-33.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-33.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -123,11 +155,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-4.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Crystal League I",
+      "leagueTier": {
+        "id": 105000032,
+        "name": "Electro League 32",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-32.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-32.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -150,11 +190,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-5.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Gold League II",
+      "leagueTier": {
+        "id": 105000031,
+        "name": "Electro League 31",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-31.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-31.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -177,11 +225,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-6.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Silver League III",
+      "leagueTier": {
+        "id": 105000030,
+        "name": "Dragon League 30",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-30.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-30.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -204,11 +260,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-7.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Bronze League I",
+      "leagueTier": {
+        "id": 105000029,
+        "name": "Dragon League 29",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-29.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-29.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -231,11 +295,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-8.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000028,
+        "name": "Dragon League 28",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-28.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-28.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -258,11 +330,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-9.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Titan League I",
+      "leagueTier": {
+        "id": 105000027,
+        "name": "Titan League 27",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-27.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-27.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -285,11 +365,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-10.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Champion League II",
+      "leagueTier": {
+        "id": 105000026,
+        "name": "Titan League 26",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-26.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-26.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -312,11 +400,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-11.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Master League III",
+      "leagueTier": {
+        "id": 105000025,
+        "name": "Titan League 25",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-25.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-25.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -339,11 +435,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-12.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Crystal League I",
+      "leagueTier": {
+        "id": 105000024,
+        "name": "P.E.K.K.A League 24",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-24.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-24.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -366,11 +470,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-13.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Gold League II",
+      "leagueTier": {
+        "id": 105000023,
+        "name": "P.E.K.K.A League 23",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-23.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-23.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -393,11 +505,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-14.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Silver League III",
+      "leagueTier": {
+        "id": 105000022,
+        "name": "P.E.K.K.A League 22",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-22.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-22.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -420,11 +540,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-15.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Bronze League I",
+      "leagueTier": {
+        "id": 105000021,
+        "name": "Golem League 21",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-21.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-21.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -447,11 +575,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-16.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000020,
+        "name": "Golem League 20",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-20.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-20.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -474,11 +610,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-17.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Titan League I",
+      "leagueTier": {
+        "id": 105000019,
+        "name": "Golem League 19",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-19.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-19.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -501,11 +645,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-18.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Champion League II",
+      "leagueTier": {
+        "id": 105000018,
+        "name": "Witch League 18",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-18.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-18.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -528,11 +680,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-19.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Master League III",
+      "leagueTier": {
+        "id": 105000017,
+        "name": "Witch League 17",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-17.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-17.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -555,11 +715,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-20.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Crystal League I",
+      "leagueTier": {
+        "id": 105000016,
+        "name": "Witch League 16",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-16.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-16.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -582,11 +750,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-21.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Gold League II",
+      "leagueTier": {
+        "id": 105000015,
+        "name": "Valkyrie League 15",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-15.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-15.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -609,11 +785,19 @@
           "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-22.png"
         }
       },
-      "league": {
-        "id": 29000022,
-        "name": "Silver League III",
+      "leagueTier": {
+        "id": 105000014,
+        "name": "Valkyrie League 14",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-14.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-14.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
         }
       },
       "builderBaseLeague": {
@@ -638,10 +822,7 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Bronze League I",
-        "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
-        }
+        "name": "Bronze League I"
       },
       "builderBaseLeague": {
         "id": 44000040,
@@ -665,10 +846,7 @@
       },
       "league": {
         "id": 29000022,
-        "name": "Legend League",
-        "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
-        }
+        "name": "Legend League"
       },
       "builderBaseLeague": {
         "id": 44000040,

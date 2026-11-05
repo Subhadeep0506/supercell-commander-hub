@@ -1,16 +1,25 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import { normalizeTag, type Game } from '@/api/game-api';
-import { useHub } from '@/state/HubProvider';
 import { DetailSheet } from './DetailSheet';
 
 /**
  * One screen in the sheet's back-stack.
  *
- * `game` decides which renderer the layer gets. It is filled in from the hub's
- * current game when a caller does not say, which is almost always what is
- * wanted -- tapping a clan on a Clash of Clans screen opens a Clash of Clans
- * clan -- and means the fourteen existing call sites did not have to change
- * when Clash Royale arrived.
+ * `game` decides which renderer the layer gets, and therefore which API the
+ * tag is looked up against. **It is required**, and deliberately so.
+ *
+ * It used to default to the hub's current game when a caller did not say,
+ * which let the fourteen Clash of Clans call sites stay untouched when Clash
+ * Royale arrived. That default shipped a bug: the hub's game is set by exactly
+ * one thing, the three-logo picker in `TopBar`, and nothing about navigating
+ * to a screen or opening a sheet updates it. Whenever it pointed at `cr`,
+ * every Clash of Clans clan was looked up on `proxy.royaleapi.dev` instead of
+ * `cocproxy`, where that tag does not exist -- so *every* clan answered 404
+ * while the player screens, which never go through this sheet, stayed fine.
+ *
+ * A tag is meaningless without the game it belongs to. Making the caller say
+ * so is what stops the next call site reintroducing this silently; the type
+ * error is the whole point of the field being required.
  *
  * `capital`, `warLog` and `cwlWar` are Clash of Clans only. Clash Royale's
  * equivalents are tabs inside its clan layer rather than layers of their own,
@@ -24,18 +33,16 @@ export type SheetEntry =
   /** `tag` is a *war* tag. `clanTag` orients the board, when it is known. */
   | { game: Game; kind: 'cwlWar'; tag: string; clanTag?: string };
 
-/** What a caller passes: everything but the game, which defaults to the hub's. */
-export type SheetRequest = DistributiveOmit<SheetEntry, 'game'> & { game?: Game };
-
-type DistributiveOmit<T, K extends keyof never> = T extends unknown ? Omit<T, K> : never;
+/** What a caller passes. Identical to the entry: there is nothing to infer. */
+export type SheetRequest = SheetEntry;
 
 function entryKey(entry: SheetEntry): string {
   return `${entry.game}:${entry.kind}:${entry.tag}`;
 }
 
 type Ctx = {
-  openClan: (tag: string, game?: Game) => void;
-  openPlayer: (tag: string, game?: Game) => void;
+  openClan: (tag: string, game: Game) => void;
+  openPlayer: (tag: string, game: Game) => void;
   /** Pushes a sub-view of the clan already on screen. */
   pushView: (entry: SheetRequest) => void;
   back: () => void;
@@ -62,7 +69,6 @@ const DetailSheetCtx = createContext<Ctx | null>(null);
  */
 export function DetailSheetProvider({ children }: { children: ReactNode }) {
   const [stack, setStack] = useState<SheetEntry[]>([]);
-  const { game: currentGame } = useHub();
 
   const pushView = useCallback(
     (entry: SheetRequest) => {
@@ -70,7 +76,7 @@ export function DetailSheetProvider({ children }: { children: ReactNode }) {
       // "#" alone is what normalizeTag returns for an empty string; pushing it
       // would open a view onto a guaranteed 400.
       if (clean.length <= 1) return;
-      const next = { ...entry, game: entry.game ?? currentGame, tag: clean } as SheetEntry;
+      const next = { ...entry, tag: clean } as SheetEntry;
       setStack((current) => {
         const top = current[current.length - 1];
         // A double tap must not stack the same view twice -- the back arrow
@@ -79,15 +85,15 @@ export function DetailSheetProvider({ children }: { children: ReactNode }) {
         return [...current, next];
       });
     },
-    [currentGame],
+    [],
   );
 
   const openClan = useCallback(
-    (tag: string, game?: Game) => pushView({ kind: 'clan', tag, game }),
+    (tag: string, game: Game) => pushView({ kind: 'clan', tag, game }),
     [pushView],
   );
   const openPlayer = useCallback(
-    (tag: string, game?: Game) => pushView({ kind: 'player', tag, game }),
+    (tag: string, game: Game) => pushView({ kind: 'player', tag, game }),
     [pushView],
   );
   const back = useCallback(() => setStack((c) => c.slice(0, -1)), []);

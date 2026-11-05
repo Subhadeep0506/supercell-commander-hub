@@ -121,14 +121,26 @@
       "expLevel": 240,
       "clanRank": 1,
       "previousClanRank": 2,
-      "trophies": 5200,
+      "trophies": 420,
       "builderBaseTrophies": 4100,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000000,
+        "name": "Diamond League"
       },
       "donations": 1200,
       "donationsReceived": 900
@@ -141,14 +153,26 @@
       "expLevel": 237,
       "clanRank": 2,
       "previousClanRank": 3,
-      "trophies": 5140,
+      "trophies": 401,
       "builderBaseTrophies": 4056,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000005,
+        "name": "Barbarian League 5",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-5.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-5.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000001,
+        "name": "Ruby League II"
       },
       "donations": 1163,
       "donationsReceived": 879
@@ -161,14 +185,26 @@
       "expLevel": 234,
       "clanRank": 3,
       "previousClanRank": 1,
-      "trophies": 5080,
+      "trophies": 382,
       "builderBaseTrophies": 4012,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000009,
+        "name": "Archer League 9",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-9.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-9.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000002,
+        "name": "Emerald League III"
       },
       "donations": 1126,
       "donationsReceived": 858
@@ -181,14 +217,26 @@
       "expLevel": 231,
       "clanRank": 4,
       "previousClanRank": 7,
-      "trophies": 5020,
+      "trophies": 363,
       "builderBaseTrophies": 3968,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000010,
+        "name": "Wizard League 10",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-10.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-10.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000003,
+        "name": "Platinum League I"
       },
       "donations": 1089,
       "donationsReceived": 837
@@ -200,14 +248,26 @@
       "townHallLevel": 13,
       "expLevel": 228,
       "clanRank": 5,
-      "trophies": 4960,
+      "trophies": 344,
       "builderBaseTrophies": 3924,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000014,
+        "name": "Valkyrie League 14",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-14.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-14.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000004,
+        "name": "Titanium League II"
       },
       "donations": 1052,
       "donationsReceived": 816
@@ -220,14 +280,26 @@
       "expLevel": 225,
       "clanRank": 6,
       "previousClanRank": 4,
-      "trophies": 4900,
+      "trophies": 325,
       "builderBaseTrophies": 3880,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000018,
+        "name": "Witch League 18",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-18.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-18.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000005,
+        "name": "Steel League III"
       },
       "donations": 1015,
       "donationsReceived": 795
@@ -240,14 +312,26 @@
       "expLevel": 222,
       "clanRank": 7,
       "previousClanRank": 8,
-      "trophies": 4840,
+      "trophies": 306,
       "builderBaseTrophies": 3836,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000019,
+        "name": "Golem League 19",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-19.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-19.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000006,
+        "name": "Iron League I"
       },
       "donations": 978,
       "donationsReceived": 774
@@ -260,14 +344,26 @@
       "expLevel": 219,
       "clanRank": 8,
       "previousClanRank": 11,
-      "trophies": 4780,
+      "trophies": 287,
       "builderBaseTrophies": 3792,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000023,
+        "name": "P.E.K.K.A League 23",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-23.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-23.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000007,
+        "name": "Brass League II"
       },
       "donations": 941,
       "donationsReceived": 753
@@ -280,14 +376,26 @@
       "expLevel": 216,
       "clanRank": 9,
       "previousClanRank": 7,
-      "trophies": 4720,
+      "trophies": 268,
       "builderBaseTrophies": 3748,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000027,
+        "name": "Titan League 27",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-27.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-27.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000008,
+        "name": "Copper League IV"
       },
       "donations": 904,
       "donationsReceived": 732
@@ -299,14 +407,26 @@
       "townHallLevel": 14,
       "expLevel": 213,
       "clanRank": 10,
-      "trophies": 4660,
+      "trophies": 249,
       "builderBaseTrophies": 3704,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000028,
+        "name": "Dragon League 28",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-28.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-28.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000009,
+        "name": "Stone League V"
       },
       "donations": 867,
       "donationsReceived": 711
@@ -319,14 +439,26 @@
       "expLevel": 210,
       "clanRank": 11,
       "previousClanRank": 12,
-      "trophies": 4600,
+      "trophies": 230,
       "builderBaseTrophies": 3660,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000032,
+        "name": "Electro League 32",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-32.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-32.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000010,
+        "name": "Clay League III"
       },
       "donations": 830,
       "donationsReceived": 690
@@ -339,14 +471,26 @@
       "expLevel": 207,
       "clanRank": 12,
       "previousClanRank": 15,
-      "trophies": 4540,
+      "trophies": 211,
       "builderBaseTrophies": 3616,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000036,
+        "name": "Legend League 36",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-36.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-36.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000011,
+        "name": "Wood League V"
       },
       "donations": 793,
       "donationsReceived": 669
@@ -359,14 +503,26 @@
       "expLevel": 204,
       "clanRank": 13,
       "previousClanRank": 14,
-      "trophies": 4480,
+      "trophies": 192,
       "builderBaseTrophies": 3572,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000002,
+        "name": "Skeleton League 2",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-2.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-2.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000012,
+        "name": "Diamond League"
       },
       "donations": 756,
       "donationsReceived": 648
@@ -379,14 +535,26 @@
       "expLevel": 201,
       "clanRank": 14,
       "previousClanRank": 15,
-      "trophies": 4420,
+      "trophies": 173,
       "builderBaseTrophies": 3528,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000006,
+        "name": "Barbarian League 6",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-6.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-6.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000013,
+        "name": "Ruby League II"
       },
       "donations": 719,
       "donationsReceived": 627
@@ -398,14 +566,26 @@
       "townHallLevel": 15,
       "expLevel": 198,
       "clanRank": 15,
-      "trophies": 4360,
+      "trophies": 154,
       "builderBaseTrophies": 3484,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000007,
+        "name": "Archer League 7",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-7.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-7.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000014,
+        "name": "Emerald League III"
       },
       "donations": 682,
       "donationsReceived": 606
@@ -418,14 +598,26 @@
       "expLevel": 195,
       "clanRank": 16,
       "previousClanRank": 19,
-      "trophies": 4300,
+      "trophies": 135,
       "builderBaseTrophies": 3440,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000011,
+        "name": "Wizard League 11",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-11.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-11.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000015,
+        "name": "Platinum League I"
       },
       "donations": 645,
       "donationsReceived": 585
@@ -438,14 +630,26 @@
       "expLevel": 192,
       "clanRank": 17,
       "previousClanRank": 18,
-      "trophies": 4240,
+      "trophies": 116,
       "builderBaseTrophies": 3396,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000015,
+        "name": "Valkyrie League 15",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-15.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-15.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000016,
+        "name": "Titanium League II"
       },
       "donations": 608,
       "donationsReceived": 564
@@ -458,14 +662,26 @@
       "expLevel": 189,
       "clanRank": 18,
       "previousClanRank": 16,
-      "trophies": 4180,
+      "trophies": 97,
       "builderBaseTrophies": 3352,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000016,
+        "name": "Witch League 16",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-16.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-16.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000017,
+        "name": "Steel League III"
       },
       "donations": 571,
       "donationsReceived": 543
@@ -478,14 +694,26 @@
       "expLevel": 186,
       "clanRank": 19,
       "previousClanRank": 20,
-      "trophies": 4120,
+      "trophies": 78,
       "builderBaseTrophies": 3308,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000020,
+        "name": "Golem League 20",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-20.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-20.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000018,
+        "name": "Iron League I"
       },
       "donations": 534,
       "donationsReceived": 522
@@ -497,14 +725,26 @@
       "townHallLevel": 16,
       "expLevel": 183,
       "clanRank": 20,
-      "trophies": 4060,
+      "trophies": 59,
       "builderBaseTrophies": 3264,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000024,
+        "name": "P.E.K.K.A League 24",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-24.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-24.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000019,
+        "name": "Brass League II"
       },
       "donations": 497,
       "donationsReceived": 501
@@ -517,14 +757,26 @@
       "expLevel": 180,
       "clanRank": 21,
       "previousClanRank": 19,
-      "trophies": 4000,
+      "trophies": 40,
       "builderBaseTrophies": 3220,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000025,
+        "name": "Titan League 25",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-25.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-25.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000020,
+        "name": "Copper League IV"
       },
       "donations": 460,
       "donationsReceived": 480
@@ -537,14 +789,25 @@
       "expLevel": 177,
       "clanRank": 22,
       "previousClanRank": 23,
-      "trophies": 3940,
+      "trophies": 21,
       "builderBaseTrophies": 3176,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000000,
+        "name": "Unranked",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/unranked.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000021,
+        "name": "Stone League V"
       },
       "donations": 423,
       "donationsReceived": 459
@@ -557,14 +820,25 @@
       "expLevel": 174,
       "clanRank": 23,
       "previousClanRank": 24,
-      "trophies": 3880,
+      "trophies": 2,
       "builderBaseTrophies": 3132,
-      "league": {
-        "id": 29000022,
-        "name": "Legend League",
+      "leagueTier": {
+        "id": 105000000,
+        "name": "Unranked",
         "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/unranked.png"
         }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      },
+      "builderBaseLeague": {
+        "id": 44000022,
+        "name": "Clay League III"
       },
       "donations": 386,
       "donationsReceived": 438
@@ -577,14 +851,15 @@
       "expLevel": 171,
       "clanRank": 24,
       "previousClanRank": 27,
-      "trophies": 3820,
+      "trophies": 0,
       "builderBaseTrophies": 3088,
       "league": {
-        "id": 29000022,
-        "name": "Legend League",
-        "iconUrls": {
-          "medium": "https://api-assets.clashofclans.com/leagues/72/legend.png"
-        }
+        "id": 29000011,
+        "name": "Crystal League II"
+      },
+      "builderBaseLeague": {
+        "id": 44000023,
+        "name": "Wood League V"
       },
       "donations": 349,
       "donationsReceived": 417

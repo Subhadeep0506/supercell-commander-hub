@@ -85,7 +85,9 @@ export function WarEvents({ war, clanTag }: { war: ApiRecord; clanTag?: string }
         </View>
 
         {paged.shown.map((event, i) => (
-          <Row key={`${event.order}-${i}`} event={event} onOpen={openPlayer} />
+          // `Row` is presentational and has no business knowing the game, so
+          // the game is bound here rather than widening its prop.
+          <Row key={`${event.order}-${i}`} event={event} onOpen={(tag) => openPlayer(tag, 'coc')} />
         ))}
 
         <LoadMore

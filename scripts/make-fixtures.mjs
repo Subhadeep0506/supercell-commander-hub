@@ -108,23 +108,95 @@ const ACHIEVEMENTS = [
   ['War Hero', 2, 91, 1000],
 ];
 
+/**
+ * League Tiers, the system that replaced Home Village trophy leagues.
+ *
+ * Shaped to match a live capture exactly: the id is 105000000 plus a number
+ * that counts across the *whole* ladder 1-36 rather than within the family,
+ * and the name repeats that same number. "Wizard League 11" is the second of
+ * the three Wizard tiers, which the game calls Wizard League II.
+ *
+ * Twelve families, three tiers each, lowest first.
+ */
+const LEAGUE_FAMILIES = [
+  'Skeleton', 'Barbarian', 'Archer', 'Wizard', 'Valkyrie', 'Witch',
+  'Golem', 'P.E.K.K.A', 'Titan', 'Dragon', 'Electro', 'Legend',
+];
+const LEAGUE_TIER_BASE = 105000000;
+
+/** 11 -> `{ id: 105000011, name: 'Wizard League 11' }`. 0 is Unranked. */
+const leagueTier = (n) =>
+  n < 1
+    ? { id: LEAGUE_TIER_BASE, name: 'Unranked', iconUrls: { small: `${CDN}/leaguetiers/125/unranked.png` } }
+    : {
+        id: LEAGUE_TIER_BASE + n,
+        name: `${LEAGUE_FAMILIES[Math.ceil(n / 3) - 1]} League ${n}`,
+        // Real CDN, and deliberately unreachable here. Nothing reads these
+        // for a league any more -- the badge is bundled -- but leaving them
+        // out would make the fixture a shape the API never actually sends.
+        iconUrls: {
+          small: `${CDN}/leaguetiers/125/tier-${n}.png`,
+          large: `${CDN}/leaguetiers/326/tier-${n}.png`,
+        },
+      };
+
+/**
+ * The retired `league` field, which still arrives beside `leagueTier`.
+ *
+ * It reads Unranked for every player alive now. Kept on every row because
+ * that is what the live response does, and because it is the thing that will
+ * silently take over again if anything stops preferring `leagueTier`.
+ */
+const DEAD_LEAGUE = {
+  id: 29000000,
+  name: 'Unranked',
+  iconUrls: { small: `${CDN}/leagues/72/unranked.png` },
+};
+
+/**
+ * Builder Base, which the League Tier change did not touch.
+ *
+ * Still roman numerals, still one badge per tier rather than per family, so
+ * these are spread across tiers as well as families to prove the per-tier
+ * lookup still resolves.
+ */
+const BUILDER_LEAGUES = [
+  'Diamond League',
+  'Ruby League II',
+  'Emerald League III',
+  'Platinum League I',
+  'Titanium League II',
+  'Steel League III',
+  'Iron League I',
+  'Brass League II',
+  'Copper League IV',
+  'Stone League V',
+  'Clay League III',
+  'Wood League V',
+];
+
 const player = {
   tag: TAG,
   name: 'DenCT',
   townHallLevel: TH,
   expLevel: 131,
-  trophies: 2645,
+  // League trophies: a season score in the hundreds, not the old five-figure
+  // ladder. `bestTrophies` is the legacy all-time figure and keeps its scale.
+  trophies: 359,
   bestTrophies: 2911,
   warStars: 91,
   attackWins: 0,
   defenseWins: 0,
   builderHallLevel: 9,
+  builderBaseTrophies: 2645,
+  bestBuilderBaseTrophies: 2911,
   donations: 0,
   donationsReceived: 0,
   clanCapitalContributions: 545913,
   warPreference: 'in',
   role: 'member',
-  league: { id: 29000011, name: 'Crystal League II' },
+  leagueTier: leagueTier(11),
+  builderBaseLeague: { id: 44000023, name: 'Iron League III' },
   clan: { tag: '#2PP', name: 'bruh', clanLevel: 10 },
   heroes,
   troops,
@@ -139,6 +211,21 @@ const player = {
   })),
 };
 
+/**
+ * Which of the 36 tiers member `i` sits in.
+ *
+ * 24 rows cannot show all 36, so this spends them on coverage instead of
+ * realism: every one of the twelve families appears, and the tier rotates
+ * I/II/III across them, which is what proves both the family lookup and the
+ * numeral. The second pass over the families shifts the tier by one so the
+ * same badge is never drawn twice.
+ */
+const memberTier = (i) => {
+  const family = (i % 12) + 1;
+  const tier = ((i + Math.floor(i / 12)) % 3) + 1;
+  return (family - 1) * 3 + tier;
+};
+
 const members = Array.from({ length: 24 }, (_, i) => ({
   tag: fakeTag('L', i),
   name: ['Chief', 'Raider', 'Smasher', 'Wizard', 'Archer', 'Barb'][i % 6] + ` ${i + 1}`,
@@ -149,13 +236,21 @@ const members = Array.from({ length: 24 }, (_, i) => ({
   // Drives the green/red rank movement chevron. Left absent on a few rows so
   // the "no movement yet" branch is exercised too.
   ...(i % 5 === 4 ? {} : { previousClanRank: drift(i + 1) }),
-  trophies: 5200 - i * 60,
+  // League trophies, which reset each season -- so a real roster has a long
+  // tail of zeroes, not a smooth slope.
+  trophies: Math.max(0, 420 - i * 19),
   builderBaseTrophies: 4100 - i * 44,
-  league: {
-    id: 29000022,
-    name: 'Legend League',
-    iconUrls: { medium: `${CDN}/leagues/72/legend.png` },
-  },
+  // The last row is deliberately left on the pre-update shape: no
+  // `leagueTier` at all, only a named trophy league. It is the only thing
+  // keeping the fallback for an old cached payload honest.
+  ...(i === 23
+    ? { league: { id: 29000011, name: 'Crystal League II' } }
+    : {
+        // Two unranked rows, because a clan always has a few.
+        leagueTier: leagueTier(i === 21 || i === 22 ? 0 : memberTier(i)),
+        league: DEAD_LEAGUE,
+      }),
+  builderBaseLeague: { id: 44000000 + i, name: BUILDER_LEAGUES[i % BUILDER_LEAGUES.length] },
   donations: 1200 - i * 37,
   donationsReceived: 900 - i * 21,
 }));
@@ -566,9 +661,9 @@ const warLog = {
 // Rankings. `previousRank` is a real API field -- verified against
 // Supercell's live response -- so the up/down movement is genuine data.
 
-// Cycled across the rows so the ladder renders more than one badge. Every
-// trophy family appears once, which is what proves the lookup drops the
-// roman-numeral tier rather than matching only the exact name.
+// The retired Home Village leagues. No live response names one of these any
+// more -- they are here only for the handful of rows kept on the pre-update
+// shape, which is what keeps the fallback path from rotting unnoticed.
 const TROPHY_LEAGUES = [
   'Legend League',
   'Titan League I',
@@ -578,23 +673,6 @@ const TROPHY_LEAGUES = [
   'Gold League II',
   'Silver League III',
   'Bronze League I',
-];
-
-// Builder Base art is per tier, not per family, so these are deliberately
-// spread across tiers as well as families.
-const BUILDER_LEAGUES = [
-  'Diamond League',
-  'Ruby League II',
-  'Emerald League III',
-  'Platinum League I',
-  'Titanium League II',
-  'Steel League III',
-  'Iron League I',
-  'Brass League II',
-  'Copper League IV',
-  'Stone League V',
-  'Clay League III',
-  'Wood League V',
 ];
 
 const playerBoard = (mode) => ({
@@ -607,17 +685,19 @@ const playerBoard = (mode) => ({
     townHallLevel: 17 - (i % 3),
     ...(mode === 'builder'
       ? { builderBaseTrophies: 5200 - i * 31 }
-      : { trophies: 6200 - i * 23 }),
+      : { trophies: 540 - i * 17 }),
     clan: {
       tag: fakeTag('G', i),
       name: `Top Clan ${i % 7}`,
       badgeUrls: { medium: `${CDN}/badges/200/placeholder-${i}.png` },
     },
-    league: {
-      id: 29000022,
-      name: TROPHY_LEAGUES[i % TROPHY_LEAGUES.length],
-      iconUrls: { medium: `${CDN}/leagues/72/legend.png` },
-    },
+    // The top of the ladder is the top of the ladder: these walk down from
+    // Legend III rather than cycling, which is what the real board does.
+    // The last two rows keep the pre-update shape so the fallback for an old
+    // cached payload stays exercised here too.
+    ...(i >= 23
+      ? { league: { id: 29000022, name: TROPHY_LEAGUES[i % TROPHY_LEAGUES.length] } }
+      : { leagueTier: leagueTier(36 - i), league: DEAD_LEAGUE }),
     // No iconUrls: the builder ladder genuinely has none, which is why the
     // bundled set is the only way this badge ever renders.
     ...(mode === 'builder'

@@ -71,7 +71,7 @@ export function LeagueStandings({
               accessibilityRole="button"
               accessibilityLabel={`View ${text(row.clan['name'])}`}
               style={[s.row, own && s.rowOwn]}
-              onPress={() => openClan(row.tag)}
+              onPress={() => openClan(row.tag, 'coc')}
             >
               <Text style={[s.rank, promoted && s.rankUp, relegated && s.rankDown]}>{i + 1}</Text>
               <ClanBadge clan={row.clan} size={30} />

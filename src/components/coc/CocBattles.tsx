@@ -25,15 +25,20 @@ import { Art, SmallStat, Stars } from './CocBits';
 /**
  * The Battles section on the Clash of Clans home screen.
  *
- * Clash of Clans publishes no battle log. The Royale equivalent of this screen
- * reads `/players/{tag}/battlelog`; there is no such endpoint here, and the
- * clan war log carries clan totals with no `members` array, so finished wars
- * cannot be attributed to a player at all.
+ * War attacks only, and deliberately so for now.
  *
- * What is attributable is the clan's **current war** and, during a league
- * week, each **Clan War League war** -- both list every member's attacks by
- * defender tag. This section is built from those and nothing else, and says
- * as much rather than implying the list is a complete history.
+ * This was written when Clash of Clans had no battle log. **It has one since**
+ * -- `/v1/players/{tag}/battlelog` returns real solo attacks *and* defences,
+ * with opponent, stars, destruction, loot and an `armyShareCode`. Nothing here
+ * reads it yet; wiring it is a job of its own, not a side effect of a change
+ * to this file. Until then the copy below must keep describing what is
+ * actually on screen.
+ *
+ * What this section is built from: the clan's **current war** and, during a
+ * league week, each **Clan War League war** -- both list every member's
+ * attacks by defender tag. The clan war log is still no help, because it
+ * carries clan totals with no `members` array, so *finished* wars cannot be
+ * attributed to a player from it.
  *
  * The league half is up to 28 extra requests (`useLeagueWars`), so it is only
  * asked for once the group says the clan is in a league, and the whole section
@@ -161,9 +166,9 @@ export function CocBattles({ player }: { player: ApiRecord }) {
       />
 
       <Text style={s.derived}>
-        Clash of Clans publishes no battle log. These are war attacks only — the current war plus
-        any Clan War League wars this season — because the clan war log carries clan totals with
-        no per-member attacks, and multiplayer raids are not exposed at all.
+        War attacks only — the current war plus any Clan War League wars this season. Finished
+        wars are not included, because the clan war log carries clan totals with no per-member
+        attacks.
       </Text>
     </Panel>
   );

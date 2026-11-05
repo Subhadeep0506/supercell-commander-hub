@@ -40,7 +40,7 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
     // A typed clan tag goes straight to the profile sheet -- that is the clan
     // view now, so there is nothing to resolve into the page behind it.
     if (view === 'clan' && tag.trim().startsWith('#')) {
-      openClan(tag.trim());
+      openClan(tag.trim(), 'coc');
       setMatches(undefined);
       return;
     }
@@ -146,7 +146,7 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
                 key={i}
                 accessibilityRole="button"
                 style={s.matchRow}
-                onPress={() => openClan(text(clan['tag']))}
+                onPress={() => openClan(text(clan['tag']), 'coc')}
               >
                 <Art name="war" size={32} />
                 <View style={s.matchText}>

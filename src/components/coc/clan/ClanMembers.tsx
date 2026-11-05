@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { townHallArt } from '@/assets/art';
-import { record, rows, text, type ApiRecord } from '@/api/game-api';
+import { rows, text, type ApiRecord } from '@/api/game-api';
 import { MEMBER_SORTS, memberMatches, roleLabel, sortMembers, type MemberSort } from '@/lib/clan';
-import { leagueUri, rankMove } from '@/lib/rankings';
+import { playerLeague } from '@/lib/league-tier';
+import { rankMove } from '@/lib/rankings';
 import { ChipRow } from '@/components/ui/ChipRow';
+import { LeagueTierBadge } from '@/components/ui/LeagueTierBadge';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
-import { RemoteImage } from '@/components/ui/RemoteImage';
 import { SearchField } from '@/components/ui/SearchField';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
@@ -22,6 +23,15 @@ import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
  * between them costs nothing. `builderBaseTrophies` is absent on older
  * responses, which sorts those members to the bottom rather than erroring.
  */
+/**
+ * 24 rather than the 20 this badge used to be.
+ *
+ * League Tiers carry a I/II/III in the corner, and LeagueTierBadge drops that
+ * numeral below 20px rather than render a smudge. 20 sat exactly on that
+ * line; 24 keeps the tier readable without crowding the Town Hall behind it.
+ */
+const LEAGUE_BADGE = 24;
+
 export function ClanMembers({ clan }: { clan: ApiRecord }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
@@ -62,6 +72,10 @@ export function ClanMembers({ clan }: { clan: ApiRecord }) {
       <View style={s.list}>
         {paged.shown.map((member, i) => {
           const hall = townHallArt(member['townHallLevel']);
+          // Follows the sort, as the trophy column already does. Showing the
+          // Home Village tier beside a Builder Base score made the two halves
+          // of the row disagree about which village was being ranked.
+          const league = playerLeague(member, sort === 'builder' ? 'builder' : 'home');
           // previousClanRank is absent for a member who has not been ranked
           // yet, which reads as "no movement" rather than a fall to zero.
           const move = rankMove({
@@ -78,7 +92,7 @@ export function ClanMembers({ clan }: { clan: ApiRecord }) {
               style={s.row}
               // Pushes onto the sheet's stack rather than closing it, so the
               // clan you came from is one back press away.
-              onPress={() => openPlayer(text(member['tag']))}
+              onPress={() => openPlayer(text(member['tag']), 'coc')}
             >
               <View style={s.rankCell}>
                 <Text style={s.rank}>{text(member['clanRank'] ?? i + 1)}</Text>
@@ -91,11 +105,7 @@ export function ClanMembers({ clan }: { clan: ApiRecord }) {
 
               <View style={s.artCell}>
                 {hall ? <Image source={hall} style={s.hall} resizeMode="contain" /> : null}
-                <RemoteImage
-                  uri={leagueUri(member)}
-                  style={s.league}
-                  accessibilityLabel={text(record(member['league'])['name'])}
-                />
+                <LeagueTierBadge league={league} size={LEAGUE_BADGE} style={s.league} />
               </View>
 
               <View style={s.textCell}>
@@ -160,7 +170,7 @@ const build = (t: Theme) =>
     artCell: { width: 42, height: 42 },
     hall: { width: 42, height: 42 },
     // The league badge sits in the corner of the Town Hall art, as in game.
-    league: { position: 'absolute', bottom: -2, left: -4, width: 20, height: 20 },
+    league: { position: 'absolute', bottom: -2, left: -6 },
 
     textCell: { flex: 1, minWidth: 0 },
     name: { fontFamily: t.fonts.display, fontSize: 13, color: t.foreground },

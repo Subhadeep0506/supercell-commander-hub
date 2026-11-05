@@ -49,7 +49,7 @@ export function WarRoster({
           accessibilityRole="button"
           accessibilityLabel={`View ${text(side['name'])}`}
           style={s.head}
-          onPress={() => openClan(text(side['tag']))}
+          onPress={() => openClan(text(side['tag']), 'coc')}
         >
           <ClanBadge clan={side} size={46} level />
           <View style={s.headText}>
@@ -94,7 +94,7 @@ export function WarRoster({
             accessibilityRole="button"
             accessibilityLabel={`View ${text(member['name'])}`}
             style={s.row}
-            onPress={() => openPlayer(text(member['tag']))}
+            onPress={() => openPlayer(text(member['tag']), 'coc')}
           >
             <Text style={s.position}>{text(member['mapPosition'])}</Text>
             <Hall member={member} size={40} />

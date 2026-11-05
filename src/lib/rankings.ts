@@ -111,12 +111,15 @@ export function badgeUri(entry: ApiRecord, board: Board): string | undefined {
   return typeof candidate === 'string' ? candidate : undefined;
 }
 
-/** League icon for a player row, when the ladder supplies one. */
-export function leagueUri(entry: ApiRecord): string | undefined {
-  const urls = record(record(entry['league'])['iconUrls']);
-  const candidate = urls['medium'] ?? urls['small'] ?? urls['tiny'];
-  return typeof candidate === 'string' ? candidate : undefined;
-}
+/*
+ * There was a `leagueUri` here, reading `league.iconUrls` for a player row.
+ *
+ * It is gone with the League Tier change, for two reasons. The field it read
+ * is now `{ id: 29000000, name: "Unranked" }` for every player alive, so it
+ * returned the same grey badge for the whole ladder; and its replacement,
+ * `leagueTier.iconUrls`, is deliberately not used -- see the note on `Badge`
+ * in CocLeaderboard for why one bundled source beats a better picture here.
+ */
 
 export function searchable(entry: ApiRecord, board: Board): string {
   return `${text(entry['name'])} ${text(entry['tag'])} ${rankSubtitle(entry, board)}`.toLowerCase();

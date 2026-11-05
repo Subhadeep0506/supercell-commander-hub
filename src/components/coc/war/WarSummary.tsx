@@ -78,7 +78,7 @@ function Pending({ side, per, own }: { side: ApiRecord; per: number; own: boolea
           accessibilityRole="button"
           accessibilityLabel={`View ${text(side['name'])}`}
           style={s.pendingClan}
-          onPress={() => openClan(text(side['tag']))}
+          onPress={() => openClan(text(side['tag']), 'coc')}
         >
           <ClanBadge clan={side} size={22} />
           <Text style={s.pendingName} numberOfLines={1}>
@@ -98,7 +98,7 @@ function Pending({ side, per, own }: { side: ApiRecord; per: number; own: boolea
               accessibilityRole="button"
               accessibilityLabel={`View ${text(m['name'])}`}
               style={s.chip}
-              onPress={() => openPlayer(text(m['tag']))}
+              onPress={() => openPlayer(text(m['tag']), 'coc')}
             >
               <Hall member={m} size={20} />
               <Text style={s.chipText} numberOfLines={1}>

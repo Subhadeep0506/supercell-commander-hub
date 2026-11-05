@@ -101,7 +101,7 @@ export function ClanWarLog({ clan, tag }: { clan: ApiRecord; tag: string }) {
                 accessibilityRole="button"
                 accessibilityLabel={`View ${text(them['name'])}`}
                 style={s.rowClan}
-                onPress={() => openClan(text(them['tag']))}
+                onPress={() => openClan(text(them['tag']), 'coc')}
               >
                 <View
                   style={[

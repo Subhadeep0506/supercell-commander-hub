@@ -12,7 +12,9 @@ import {
 } from 'react-native';
 import { COC_ART } from '@/assets/art';
 import { itemArt, playerBookItem } from '@/lib/clash-book';
+import type { LeagueTierInfo } from '@/lib/league-tier';
 import { text, type GameResult } from '@/api/game-api';
+import { LeagueTierBadge } from '@/components/ui/LeagueTierBadge';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 
 /**
@@ -119,6 +121,44 @@ export function SmallStat({
 }
 
 /**
+ * A stat cell whose icon is a league badge rather than a piece of named art.
+ *
+ * Kept beside `SmallStat` and sharing its styles so the two sit in one row
+ * without drifting apart. It cannot reuse `SmallStat` directly: the tier
+ * numeral is drawn by a component, and `icon` only accepts an art name or an
+ * image source.
+ *
+ * The league name takes the label line, so the caller's `label` is the
+ * smaller note above it -- "League trophies", "Builder Base".
+ */
+export function LeagueStat({
+  league,
+  label,
+  value,
+}: {
+  league?: LeagueTierInfo;
+  label: string;
+  value: unknown;
+}) {
+  const theme = useTheme();
+  const s = useMemo(() => build(theme), [theme]);
+  return (
+    <View style={s.stat}>
+      <LeagueTierBadge league={league} size={32} style={s.statSource} />
+      <View style={s.statText}>
+        <Text style={s.statValue}>{text(value)}</Text>
+        <Text style={s.statLabel} numberOfLines={1}>
+          {label}
+        </Text>
+        <Text style={s.statLeague} numberOfLines={1}>
+          {league ? league.label : 'Unranked'}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+/**
  * The service error for a failed request, and nothing at all for a good one.
  *
  * This used to carry an "Official Supercell API · via RoyaleAPI" provenance
@@ -217,6 +257,9 @@ export const build = (t: Theme) =>
     statText: { flexShrink: 1, minWidth: 0 },
     statValue: { fontFamily: t.fonts.display, fontSize: 16, color: t.foreground },
     statLabel: { fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    // The league name, which is the fact the cell is really carrying -- so it
+    // takes the foreground colour the muted label line does not.
+    statLeague: { marginTop: 1, fontSize: 11, color: t.foreground, fontFamily: t.fonts.display },
 
     errorBox: { marginTop: 16, borderLeftWidth: 2, borderLeftColor: t.destructive, paddingLeft: 12 },
     errorTitle: { fontFamily: t.fonts.display, fontSize: 14, color: t.destructive },

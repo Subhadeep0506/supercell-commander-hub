@@ -25,7 +25,7 @@ export function ClanCard({ clan }: { clan: ApiRecord }) {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`View ${text(clan['name'])}`}
-      onPress={() => openClan(text(clan['tag']))}
+      onPress={() => openClan(text(clan['tag']), 'coc')}
     >
       <Panel style={s.card}>
         <ClanBadge clan={clan} size={56} level />

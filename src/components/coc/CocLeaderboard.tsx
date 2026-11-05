@@ -4,15 +4,14 @@ import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import { COC_ART, NAV_ART, townHallArt } from '@/assets/art';
 import { raidMedalArt } from '@/assets/capital';
-import { playerLeagueArt } from '@/assets/leagues';
 import { gameQuery } from '@/api/queries';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
+import { playerLeague } from '@/lib/league-tier';
 import {
   MODES,
   badgeUri,
   countryLocations,
   flagEmoji,
-  leagueUri,
   rankMove,
   rankScore,
   rankSubtitleParts,
@@ -22,6 +21,7 @@ import {
 } from '@/lib/rankings';
 import { Button } from '@/components/ui/Button';
 import { ChipRow } from '@/components/ui/ChipRow';
+import { LeagueTierBadge } from '@/components/ui/LeagueTierBadge';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { RemoteImage } from '@/components/ui/RemoteImage';
 import { SearchField } from '@/components/ui/SearchField';
@@ -97,7 +97,7 @@ export function CocLeaderboard() {
     if (tag === '—') return;
     // A clan opens its profile sheet over the ladder; a player still navigates,
     // because the village profile is a screen of its own.
-    if (board === 'clans') openClan(tag);
+    if (board === 'clans') openClan(tag, 'coc');
     else navigation.navigate('CocHome', { tag });
   };
 
@@ -281,13 +281,16 @@ export function CocLeaderboard() {
 }
 
 /**
- * Clan badge, player league icon, or Town Hall art -- whichever the row has.
+ * Clan badge, player league badge, or Town Hall art -- whichever the row has.
  *
- * Both sources here are remote, and on a network that cannot reach Supercell's
- * CDN RemoteImage renders nothing at all, which is what left this column blank.
- * Every branch therefore carries a bundled fallback: the league badge for the
- * ladder being shown, then the player's Town Hall; clans reuse ClanBadge,
- * which already falls back to bundled art of its own.
+ * Players draw the bundled league badge and nothing else. The ladder does
+ * carry `leagueTier.iconUrls`, but mixing Supercell's own tier art into a
+ * list where every other row falls back to a bundled badge gives one column
+ * two visual languages -- and the tier numeral would be drawn twice on the
+ * rows that did load. One source is worth more here than the better picture.
+ *
+ * Clans still go remote first: a clan crest is player-assembled, so there is
+ * no fixed set to bundle. ClanBadge carries its own fallback.
  */
 function Badge({
   entry,
@@ -307,11 +310,15 @@ function Badge({
   // No `level` -- ranking rows carry no clanLevel, unlike the clan sheet.
   if (board === 'clans') return <ClanBadge clan={entry} size={size} />;
 
+  const league = playerLeague(entry, mode);
+  if (league) return <LeagueTierBadge league={league} size={size} />;
+
+  // Nothing named a league: fall back to the player's Town Hall, then to the
+  // clan crest the row carries, then to an empty slot that holds the column.
   const hall = townHallArt(entry['townHallLevel']);
-  const fallback = playerLeagueArt(entry, mode) ?? hall;
-  const uri = leagueUri(entry) ?? badgeUri(entry, board);
-  if (uri || fallback) {
-    return <RemoteImage uri={uri} fallback={fallback} style={{ width: size, height: size }} />;
+  const uri = badgeUri(entry, board);
+  if (uri || hall) {
+    return <RemoteImage uri={uri} fallback={hall} style={{ width: size, height: size }} />;
   }
   return <View style={[s.badgeFallback, { width: size, height: size }]} />;
 }

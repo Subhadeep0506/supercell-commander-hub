@@ -78,7 +78,7 @@ export function RaidLog({
                   accessibilityRole="button"
                   accessibilityLabel={`View ${text(clan['name'])}`}
                   style={s.raidClan}
-                  onPress={() => openClan(text(clan['tag']))}
+                  onPress={() => openClan(text(clan['tag']), 'coc')}
                 >
                   <ClanBadge clan={clan} size={44} level />
                   <Text style={s.raidName} numberOfLines={1}>
@@ -206,7 +206,7 @@ export function RaidLog({
                                   accessibilityRole="button"
                                   accessibilityLabel={`View ${text(attacker['name'])}`}
                                   style={s.attack}
-                                  onPress={() => openPlayer(text(attacker['tag']))}
+                                  onPress={() => openPlayer(text(attacker['tag']), 'coc')}
                                 >
                                   <Text style={s.attackName} numberOfLines={1}>
                                     {text(attacker['name'])}

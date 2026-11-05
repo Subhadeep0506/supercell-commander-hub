@@ -349,7 +349,7 @@ export function ClanCapitalRaids({ tag }: { tag: string }) {
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel={`View ${text(member['name'])}`}
-                      onPress={() => openPlayer(text(member['tag']))}
+                      onPress={() => openPlayer(text(member['tag']), 'coc')}
                     >
                       <Text style={s.profileLink}>View profile ›</Text>
                     </Pressable>

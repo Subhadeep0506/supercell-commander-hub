@@ -27,7 +27,7 @@ export function CocClanScreen({ route }: Props) {
   useEffect(() => {
     if (!tag || opened.current === tag) return;
     opened.current = tag;
-    openClan(tag);
+    openClan(tag, 'coc');
   }, [tag, openClan]);
 
   return (

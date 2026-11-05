@@ -176,7 +176,10 @@ check('lists an attack', /Attacked /.test(home), home);
 check('lists a defence', /Defended against /.test(home), home);
 check('names the live war', /Current war/i.test(home), home);
 check('reaches the league rounds too', /War league · round \d/i.test(home), home);
-check('says there is no battle log', /publishes no battle log/i.test(home), home);
+// Not "says there is no battle log" any more -- Clash of Clans has one since
+// the League Tier update, this section just does not read it yet. The
+// assertion is that the copy still describes what is actually on screen.
+check('says these are war attacks only', /War attacks only/i.test(home), home);
 // Collapsed rows carry no attack length or map position detail.
 check('keeps attack detail collapsed', !/Attack length/i.test(home), home);
 

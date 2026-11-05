@@ -202,7 +202,7 @@ export function Scoreboard({
         accessibilityRole="button"
         accessibilityLabel={`View ${text(army['name'])}`}
         style={s.boardSide}
-        onPress={() => openClan(text(army['tag']))}
+        onPress={() => openClan(text(army['tag']), 'coc')}
       >
         {inner}
       </Pressable>
