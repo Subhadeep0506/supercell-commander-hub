@@ -16,9 +16,14 @@ import { allWarTags } from '@/lib/cwl';
  * array gets a new identity every render, so a memo keyed on it would re-parse
  * all 28 bodies each time. `select` results are cached by React Query against
  * the query data itself.
+ *
+ * `tags` overrides which wars to ask for. Today passes `sampleWarTags` -- one
+ * war per round rather than all four -- because it only needs each round's
+ * timing, and the four wars of a round agree on that. Everything else wants
+ * the default, because it reads results, which differ.
  */
-export function useLeagueWars(group: ApiRecord | undefined) {
-  const tags = group ? allWarTags(group) : [];
+export function useLeagueWars(group: ApiRecord | undefined, tagsOverride?: string[]) {
+  const tags = tagsOverride ?? (group ? allWarTags(group) : []);
 
   const results = useQueries({
     queries: tags.map((tag) => ({

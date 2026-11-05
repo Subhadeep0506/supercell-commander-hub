@@ -17,6 +17,8 @@ import {
   shortDate,
 } from '@/lib/clan';
 import { useCountdown } from '@/hooks/use-countdown';
+import { SkeletonRows } from '@/components/ui/Shimmer';
+import { Chevron } from '@/components/ui/Chevron';
 import { Meter } from '@/components/ui/Meter';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Panel } from '@/components/ui/Panel';
@@ -322,7 +324,7 @@ export function ClanCapitalRaids({ tag }: { tag: string }) {
                   </View>
 
                   <Text style={s.memberLoot}>{groupedNumber(looted)}</Text>
-                  <Text style={s.chevron}>{open ? '⌄' : '›'}</Text>
+                  <Chevron open={open} size={18} />
                 </Pressable>
 
                 {open ? (
@@ -377,7 +379,7 @@ export function ClanCapitalRaids({ tag }: { tag: string }) {
         </>
       ) : null}
 
-      {loading ? <Text style={s.loading}>Loading raid weekends…</Text> : null}
+      {loading ? <SkeletonRows rows={3} avatar label="Loading raid weekends" /> : null}
       {failed ? <Source result={failed} /> : null}
     </View>
   );
@@ -510,11 +512,4 @@ const build = (t: Theme) =>
     detailLabel: { fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
     detailValue: { fontSize: 11, color: t.foreground, fontFamily: t.fonts.sans },
 
-    loading: {
-      paddingVertical: 18,
-      textAlign: 'center',
-      fontSize: 13,
-      color: t.primary,
-      fontFamily: t.fonts.sans,
-    },
   });

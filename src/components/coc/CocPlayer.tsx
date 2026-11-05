@@ -230,8 +230,9 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
             <>
               <Art name="trophy" size={32} />
               <Text style={s.summaryText}>Achievements</Text>
+              {/* The trailing `›` is gone: Collapsible draws the chevron now. */}
               <Text style={s.summaryCount}>
-                {stars}/{maxStars} stars · {complete} of {achievements.length} ›
+                {stars}/{maxStars} stars · {complete} of {achievements.length}
               </Text>
             </>
           )}

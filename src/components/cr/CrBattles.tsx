@@ -17,6 +17,7 @@ import {
   type NormalBattle,
   type Outcome,
 } from '@/lib/royale-battles';
+import { Chevron } from '@/components/ui/Chevron';
 import { ChipRow, type Chip } from '@/components/ui/ChipRow';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { clanBadgeArt } from '@/assets/royale';
@@ -305,7 +306,7 @@ function BattleRow({
             </Text>
           )}
         </View>
-        <Text style={s.chevron}>{open ? '▾' : '▸'}</Text>
+        <Chevron open={open} size={18} />
       </Pressable>
 
       {open ? <BattleDetail battle={battle} onPressCard={onPressCard} /> : null}

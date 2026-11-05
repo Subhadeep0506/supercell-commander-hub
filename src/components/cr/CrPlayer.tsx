@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { gameQuery } from '@/api/queries';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { modeLabel } from '@/lib/royale-battles';
+import { SkeletonRows } from '@/components/ui/Shimmer';
 import { Meter } from '@/components/ui/Meter';
 import { RemoteImage } from '@/components/ui/RemoteImage';
 import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
@@ -70,11 +71,16 @@ export function CrPlayer({ player, tag }: { player: ApiRecord; tag: string }) {
         <Section title="Current deck" count={deck.length}>
           <CardGrid cards={deck} showCopies={false} onPressCard={openCard} />
           {deckSupport.length > 0 && (
-            <View style={s.towerRow}>
+            /*
+              Tower troops are cards, so they get the card treatment: artwork,
+              level badge and the same tap-to-open sheet as the eight above.
+              They used to print as a comma-joined list of names, which was the
+              only place in either game where a card appeared as bare text.
+              The Decks tab already renders them this way.
+            */
+            <View style={s.towerBlock}>
               <Text style={s.towerLabel}>Tower troop</Text>
-              <Text style={s.towerValue}>
-                {deckSupport.map((c) => text(c['name'])).join(', ')}
-              </Text>
+              <CardGrid cards={deckSupport} showCopies={false} onPressCard={openCard} />
             </View>
           )}
         </Section>
@@ -365,7 +371,7 @@ function ChestTrack({
   if (loading && !items.length) {
     return (
       <Section title="Upcoming chests">
-        <Text style={s.loadingLine}>Loading the chest track…</Text>
+        <SkeletonRows rows={3} avatar label="Loading the chest track" />
       </Section>
     );
   }
@@ -729,18 +735,16 @@ const build = (t: Theme) =>
     bannerScoreValue: { fontFamily: t.fonts.display, fontSize: 16, color: t.foreground },
     bannerScoreLabel: { fontFamily: t.fonts.sans, fontSize: 9, color: t.arena.shine },
 
-    towerRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+    // A column now, not a row: the label captions a grid of card tiles rather
+    // than sitting opposite a line of names.
+    towerBlock: {
       gap: 10,
-      marginTop: 12,
+      marginTop: 14,
       paddingTop: 12,
       borderTopWidth: 1,
       borderTopColor: t.border,
     },
     towerLabel: { fontFamily: t.fonts.sans, fontSize: 11, color: t.mutedForeground },
-    towerValue: { fontFamily: t.fonts.display, fontSize: 12, color: t.foreground, flexShrink: 1 },
 
     arenaCard: {
       flexDirection: 'row',
@@ -776,12 +780,6 @@ const build = (t: Theme) =>
     modeName: { fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
     modeMeta: { fontFamily: t.fonts.sans, fontSize: 9, marginTop: 3, color: t.mutedForeground },
     modeScore: { fontFamily: t.fonts.display, fontSize: 12, color: t.accent },
-    loadingLine: {
-      fontFamily: t.fonts.sans,
-      fontSize: 12,
-      color: t.accent,
-      paddingVertical: 12,
-    },
 
     // flexGrow: 0 keeps the scroller from eating the page scroller's remaining
     // vertical space -- the same fix HGrid and ChipRow need.

@@ -521,6 +521,33 @@ check('walls counted against the hall allowance', /300\s*\n?\s*Walls left/.test(
 check('plan projects a completion date', /Everything maxed by/.test(plan));
 check('village grid sections render', /Defenses/.test(plan) && /Traps/.test(plan));
 
+// The timeline used to be the one place on this screen where an upgrade was
+// not tappable, and its bars carried text only -- name, level and duration
+// crammed into 9px inside a 24px bar. They carry the item's artwork now and
+// open the same Clash Book entry the lists below do.
+const ganttBars = await page.evaluate(() =>
+  [...document.querySelectorAll('[aria-label]')]
+    .map((n) => n.getAttribute('aria-label') ?? '')
+    .filter((l) => / to level \d+, /.test(l)),
+);
+check('the plan timeline has tappable bars', ganttBars.length > 0, `${ganttBars.length} bars`);
+if (ganttBars.length) {
+  // clickLabel matches the label exactly, so the raw string is what it wants.
+  const barName = ganttBars[0].replace(/ to level \d+,.*$/, '');
+  await clickLabel(ganttBars[0], 1600);
+  const opened = await body();
+  // Asserted against *this item's* catalog heading ("Cannon · Level 8"), not a
+  // bare /Level \d+/ -- the builder page behind the sheet is full of levels, so
+  // a loose match would pass even if the sheet never opened.
+  check(
+    'a timeline bar opens that item in the catalog',
+    new RegExp(`${barName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} · Level \\d+`).test(opened),
+    `${barName} — ${opened.slice(0, 120)}`,
+  );
+  await page.keyboard.press('Escape');
+  await settle(800);
+}
+
 // Crafted defenses live inside the Crafting Station's `types` array, not the
 // building list, so the parser walked past all three and the Defenses grid
 // never showed them. Their module levels ride on the tile's label because a

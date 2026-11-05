@@ -4,6 +4,7 @@ import { resourceArt } from '@/assets/art';
 import { districtArt } from '@/assets/capital';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { attacksPerCapital, compactNumber, raidLogTotals, raidOpponent } from '@/lib/clan';
+import { Chevron } from '@/components/ui/Chevron';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
@@ -100,7 +101,7 @@ export function RaidLog({
                     {gold ? <Image source={gold} style={s.lootIcon} resizeMode="contain" /> : null}
                     <Text style={s.lootText}>{compactNumber(totals.loot)} loot</Text>
                   </View>
-                  <Text style={s.chevron}>{expanded ? '⌃' : '⌄'}</Text>
+                  <Chevron open={expanded} size={18} />
                 </Pressable>
               </View>
 
@@ -192,8 +193,14 @@ export function RaidLog({
                             <Text style={s.districtStat}>
                               {text(district['attackCount'])} attacks ·{' '}
                               {compactNumber(district['totalLooted'])}
-                              {attacks.length ? (dOpen ? ' ⌃' : ' ⌄') : ''}
                             </Text>
+                            {/*
+                              A district with no attacks does not expand, so it
+                              gets no arrow -- the glyph used to be appended to
+                              the text run above, which made it scale with the
+                              caption rather than match every other toggle.
+                            */}
+                            {attacks.length > 0 ? <Chevron open={dOpen} size={16} /> : null}
                           </View>
                         </Pressable>
 

@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { VillageSide } from '@/lib/village-export';
 import { STRATEGIES, schedule, type Remaining, type Strategy } from '@/lib/village-plan';
 import { ChipRow } from '@/components/ui/ChipRow';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
-import { GroupLegend, briefDuration, groupColour, useNow } from './BuilderBits';
+import { GroupLegend, briefDuration, groupColour, itemImage, useNow } from './BuilderBits';
 
 const RANGES = [
   { id: '3d', label: '3 days', days: 3 },
@@ -15,7 +15,19 @@ const RANGES = [
 
 /** Pixels per day. Wide enough that a 4-hour upgrade is still a visible bar. */
 const DAY_WIDTH = 150;
-const ROW_HEIGHT = 34;
+/**
+ * Rows are tall enough for the item's artwork beside two lines of label.
+ *
+ * Was 34, which left a 24px bar carrying 9px text -- the name, the target
+ * level and the duration all on one line, truncated on anything but the
+ * longest bar. The art is what makes a row scannable: a hero upgrade should
+ * read as the hero at a glance rather than as a coloured block.
+ */
+const ROW_HEIGHT = 56;
+const BAR_HEIGHT = ROW_HEIGHT - 12;
+const ART_SIZE = BAR_HEIGHT - 10;
+/** Keeps a short upgrade wide enough to still show its icon. */
+const MIN_BAR = ART_SIZE + 14;
 
 /**
  * The plan timeline: one row per builder, plus the Laboratory and Pet House.
@@ -27,9 +39,16 @@ const ROW_HEIGHT = 34;
 export function BuilderPlanGantt({
   side,
   remaining,
+  onOpenItem,
 }: {
   side: VillageSide;
   remaining: Remaining[];
+  /**
+   * Opens the Clash Book entry for a bar, the same way the lists below this
+   * chart do. Without it the timeline was the only place on the screen where
+   * an upgrade was not tappable.
+   */
+  onOpenItem?: (catalogId: string, level: number) => void;
 }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
@@ -132,23 +151,50 @@ export function BuilderPlanGantt({
                 if (row < 0) return null;
                 const left = Math.max(0, xFor(task.startsAt));
                 const right = Math.min(width, xFor(task.endsAt));
+                const barWidth = Math.max(MIN_BAR, right - left);
+                // The artwork always fits; the label only earns its place once
+                // the bar is wide enough to show more than a truncated word.
+                const roomForText = barWidth > MIN_BAR + 46;
+                const art = itemImage(task.catalogId, task.fromLevel);
                 return (
-                  <View
+                  <Pressable
                     key={i}
-                    style={[
+                    accessibilityRole="button"
+                    accessibilityLabel={`${task.name} to level ${task.toLevel}, ${briefDuration(
+                      task.seconds * 1000,
+                    )}`}
+                    disabled={!onOpenItem}
+                    onPress={() => onOpenItem?.(task.catalogId, task.fromLevel)}
+                    style={({ pressed }) => [
                       s.bar,
+                      pressed && s.barPressed,
                       {
-                        top: row * ROW_HEIGHT + 4,
+                        top: row * ROW_HEIGHT + 6,
                         left,
-                        width: Math.max(26, right - left),
+                        width: barWidth,
                         backgroundColor: groupColour(task.group, theme),
                       },
                     ]}
                   >
-                    <Text style={s.barText} numberOfLines={1}>
-                      {task.name} → {task.toLevel} · {briefDuration(task.seconds * 1000)}
-                    </Text>
-                  </View>
+                    {art ? (
+                      <Image
+                        source={art}
+                        style={s.barArt}
+                        resizeMode="contain"
+                        accessibilityIgnoresInvertColors
+                      />
+                    ) : null}
+                    {roomForText ? (
+                      <View style={s.barText}>
+                        <Text style={s.barName} numberOfLines={1}>
+                          {task.name}
+                        </Text>
+                        <Text style={s.barMeta} numberOfLines={1}>
+                          → {task.toLevel} · {briefDuration(task.seconds * 1000)}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </Pressable>
                 );
               })}
 
@@ -187,13 +233,25 @@ const build = (t: Theme) =>
 
     bar: {
       position: 'absolute',
-      height: ROW_HEIGHT - 10,
-      borderRadius: 5,
-      paddingHorizontal: 7,
-      justifyContent: 'center',
+      height: BAR_HEIGHT,
+      borderRadius: 6,
+      paddingHorizontal: 5,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
       overflow: 'hidden',
     },
-    barText: { fontSize: 9, color: t.primaryForeground, fontFamily: t.fonts.display },
+    barPressed: { opacity: 0.75 },
+    barArt: { width: ART_SIZE, height: ART_SIZE, flexShrink: 0 },
+    barText: { flex: 1, minWidth: 0 },
+    barName: { fontSize: 10, color: t.primaryForeground, fontFamily: t.fonts.display },
+    barMeta: {
+      marginTop: 1,
+      fontSize: 9,
+      color: t.primaryForeground,
+      fontFamily: t.fonts.sans,
+      opacity: 0.85,
+    },
 
     nowLine: { position: 'absolute', top: 0, bottom: 0, width: 2, backgroundColor: t.destructive },
   });

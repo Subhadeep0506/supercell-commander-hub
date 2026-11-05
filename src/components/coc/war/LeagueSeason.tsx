@@ -12,6 +12,7 @@ import {
   type SeasonRound,
 } from '@/lib/cwl';
 import { useLeagueWars } from '@/hooks/use-league-wars';
+import { Chevron } from '@/components/ui/Chevron';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Panel } from '@/components/ui/Panel';
@@ -229,6 +230,11 @@ function ClanRow({ clan, own }: { clan: ApiRecord; own: boolean }) {
         // The bar belongs to the summary, not after the body: dropped below a
         // twenty-row roster it would be a quarter of a screen away from the
         // clan it describes.
+        //
+        // This summary is two stacked rows, so it draws its own chevron beside
+        // the clan name rather than taking Collapsible's, which would centre it
+        // against the whole block and leave it floating beside the TH bar.
+        chevron={false}
         summary={(open) => (
           <View style={s.clanSummary}>
             <View style={s.clanTop}>
@@ -240,7 +246,7 @@ function ClanRow({ clan, own }: { clan: ApiRecord; own: boolean }) {
                 <Text style={s.clanMeta}>Avg. TH {avg ? avg.toFixed(1) : '—'}</Text>
               </View>
               <Text style={s.clanCount}>{members.length} 👤</Text>
-              <Text style={s.chevron}>{open ? '⌃' : '⌄'}</Text>
+              <Chevron open={open} />
             </View>
             <ThBar members={members} style={s.clanBar} />
           </View>

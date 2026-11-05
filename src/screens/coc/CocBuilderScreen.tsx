@@ -88,7 +88,19 @@ export function CocBuilderScreen() {
           </Button>
         </Panel>
       ) : (
-        <>
+        /*
+          The gap lives here, not on CocShell.
+
+          Every other Clash of Clans screen hands CocShell a *single* child that
+          brings its own `gap: 16` wrapper -- CocPlayer's `stack`, CocLookup's
+          `stack`. This screen is the only one that renders its panels as direct
+          siblings of the shell, and the shell's content container has no gap,
+          which is why these five cards sat flush against each other.
+
+          Adding the gap to CocShell instead would space the actions row off the
+          tabs here and change the rhythm of every other screen.
+        */
+        <View style={s.panels}>
           <HallCard
             side={side}
             remaining={remaining}
@@ -99,7 +111,11 @@ export function CocBuilderScreen() {
             side={side}
             onOpenItem={(catalogId, level) => setSelected({ catalogId, level })}
           />
-          <BuilderPlanGantt side={side} remaining={remaining} />
+          <BuilderPlanGantt
+            side={side}
+            remaining={remaining}
+            onOpenItem={(catalogId, level) => setSelected({ catalogId, level })}
+          />
           <MaxedByList
             side={side}
             remaining={remaining}
@@ -109,7 +125,7 @@ export function CocBuilderScreen() {
             side={side}
             onOpenItem={(catalogId, level) => setSelected({ catalogId, level })}
           />
-        </>
+        </View>
       )}
 
       <ImportVillageSheet
@@ -133,6 +149,8 @@ export function CocBuilderScreen() {
 const build = (t: Theme) =>
   StyleSheet.create({
     actions: { flexDirection: 'row', gap: 8, marginBottom: 4 },
+    // Matches the 16px rhythm CocPlayer and CocLookup use on the other screens.
+    panels: { gap: 16, marginTop: 16 },
     panel: { alignItems: 'center' },
     title: { marginTop: 16, fontFamily: t.fonts.display, fontSize: 20, color: t.foreground },
     body: {

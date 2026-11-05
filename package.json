@@ -23,6 +23,7 @@
     "test": "jest",
     "check:nav": "node scripts/check-nav.mjs",
     "check:screens": "node scripts/check-screens.mjs",
+    "check:today": "node scripts/check-today.mjs",
     "check:cr-screens": "node scripts/check-cr-screens.mjs",
     "check:cr-api": "node --use-system-ca --no-warnings scripts/check-cr-api.mjs"
   },

@@ -83,8 +83,38 @@ export const gameRequestSchema = z
      * `war` is the CR clan-wars ladder and has no CoC form.
      */
     mode: z.enum(['home', 'builder', 'capital', 'war']).optional(),
-    /** Leaderboard only: a location id from the `locations` resource, or 'global'. */
+    /**
+     * A location id from the `locations` resource, or 'global'.
+     *
+     * Used by the leaderboards, and by `clanSearch` as a filter.
+     */
     locationId: z.union([z.string(), z.number()]).optional(),
+
+    /*
+     * ---- clanSearch filters ------------------------------------------------
+     *
+     * Both games filter server side, which matters: the name search returns a
+     * single capped page, so filtering it in the app would hide clans that
+     * match rather than find them.
+     *
+     * The two games do not accept the same parameters. Clash of Clans scores
+     * clans in points and knows about clan level and war frequency; Clash
+     * Royale has a single `minScore` and neither of the others. Sending a
+     * CoC-only filter to Royale is a 400, so `endpoint()` emits each only for
+     * the game that has it.
+     */
+    minMembers: z.number().int().min(1).max(50).optional(),
+    maxMembers: z.number().int().min(1).max(50).optional(),
+    /** Clash of Clans only. */
+    minClanPoints: z.number().int().nonnegative().optional(),
+    /** Clash of Clans only. */
+    minClanLevel: z.number().int().min(1).max(30).optional(),
+    /** Clash of Clans only. */
+    warFrequency: z
+      .enum(['always', 'moreThanOncePerWeek', 'oncePerWeek', 'lessThanOncePerWeek', 'never'])
+      .optional(),
+    /** Clash Royale only -- its equivalent of `minClanPoints`. */
+    minScore: z.number().int().nonnegative().optional(),
     /**
      * `pathOfLegend` only: a season id from the `seasons` resource, like
      * "2026-10". The *current* season 404s until it closes, so the picker must
@@ -105,6 +135,37 @@ export const gameRequestSchema = z
         code: 'custom',
         message: 'Enter a clan name of 3–60 characters.',
         path: ['name'],
+      });
+    }
+    // A filter the target game does not have is a 400 from the service, so it
+    // is caught here where the message can say which game is the problem.
+    if (value.resource === 'clanSearch' && value.game === 'cr') {
+      for (const key of ['minClanPoints', 'minClanLevel', 'warFrequency'] as const) {
+        if (value[key] !== undefined) {
+          ctx.addIssue({
+            code: 'custom',
+            message: `Clash Royale clan search has no ${key} filter.`,
+            path: [key],
+          });
+        }
+      }
+    }
+    if (value.resource === 'clanSearch' && value.game === 'coc' && value.minScore !== undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Clash of Clans clan search uses minClanPoints, not minScore.',
+        path: ['minScore'],
+      });
+    }
+    if (
+      value.minMembers !== undefined &&
+      value.maxMembers !== undefined &&
+      value.minMembers > value.maxMembers
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'The smallest clan size must not be larger than the largest.',
+        path: ['maxMembers'],
       });
     }
     if (
@@ -213,11 +274,45 @@ export function text(value: unknown): string {
   return typeof value === 'string' || typeof value === 'number' ? String(value) : '—';
 }
 
+/**
+ * `/v1/clans` with whichever filters the game actually supports.
+ *
+ * Each parameter is emitted only when set, because the services treat an empty
+ * value as a malformed one rather than as "no filter" -- `&minMembers=` is a
+ * 400, not a no-op. `locationId=global` is the app's own sentinel for "no
+ * location filter" and is dropped here rather than sent.
+ */
+function clanSearchPath(input: GameRequest): string {
+  const params = new URLSearchParams();
+  params.set('name', input.name?.trim() ?? '');
+
+  const put = (key: string, value: string | number | undefined) => {
+    if (value !== undefined && value !== '') params.set(key, String(value));
+  };
+
+  put('minMembers', input.minMembers);
+  put('maxMembers', input.maxMembers);
+  if (input.locationId !== undefined && input.locationId !== 'global') {
+    put('locationId', input.locationId);
+  }
+
+  if (input.game === 'coc') {
+    put('minClanPoints', input.minClanPoints);
+    put('minClanLevel', input.minClanLevel);
+    put('warFrequency', input.warFrequency);
+  } else {
+    put('minScore', input.minScore);
+  }
+
+  params.set('limit', '25');
+  return `/v1/clans?${params.toString()}`;
+}
+
 export function endpoint(input: GameRequest) {
   const tag = encodeURIComponent(normalizeTag(input.tag ?? ''));
   switch (input.resource) {
     case 'clanSearch':
-      return `/v1/clans?name=${encodeURIComponent(input.name?.trim() ?? '')}&limit=25`;
+      return clanSearchPath(input);
     case 'player':
       return `/v1/players/${tag}`;
     case 'clan':

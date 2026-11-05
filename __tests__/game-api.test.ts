@@ -169,3 +169,79 @@ describe('parameter guards', () => {
     expect(ok({ game: 'cr', resource: 'tournamentSearch', name: 'royale' })).toBe(true);
   });
 });
+
+/**
+ * Clan search filtering happens server side, and the two games do not take the
+ * same parameters -- sending a Clash of Clans filter to Royale is a 400. These
+ * assert the split holds, and that an unset filter is *absent* rather than
+ * emitted empty: `&minMembers=` is itself a 400, not a no-op.
+ */
+describe('clan search filters', () => {
+  it('sends only the name when nothing is filtered', () => {
+    expect(endpoint(req({ game: 'coc', resource: 'clanSearch', name: 'wolves' }))).toBe(
+      '/v1/clans?name=wolves&limit=25',
+    );
+  });
+
+  it('emits the Clash of Clans filter set', () => {
+    expect(
+      endpoint(
+        req({
+          game: 'coc',
+          resource: 'clanSearch',
+          name: 'wolves',
+          minMembers: 25,
+          minClanPoints: 20000,
+          minClanLevel: 10,
+          warFrequency: 'always',
+          locationId: 32000006,
+        }),
+      ),
+    ).toBe(
+      '/v1/clans?name=wolves&minMembers=25&locationId=32000006&minClanPoints=20000&minClanLevel=10&warFrequency=always&limit=25',
+    );
+  });
+
+  it('emits the Clash Royale filter set, which uses minScore', () => {
+    expect(
+      endpoint(
+        req({
+          game: 'cr',
+          resource: 'clanSearch',
+          name: 'wolves',
+          maxMembers: 40,
+          minScore: 30000,
+        }),
+      ),
+    ).toBe('/v1/clans?name=wolves&maxMembers=40&minScore=30000&limit=25');
+  });
+
+  it('drops the global sentinel rather than sending it as a location', () => {
+    expect(
+      endpoint(req({ game: 'cr', resource: 'clanSearch', name: 'wolves', locationId: 'global' })),
+    ).toBe('/v1/clans?name=wolves&limit=25');
+  });
+
+  it('escapes a name with spaces and symbols', () => {
+    expect(endpoint(req({ game: 'cr', resource: 'clanSearch', name: 'king & co' }))).toBe(
+      '/v1/clans?name=king+%26+co&limit=25',
+    );
+  });
+
+  it('rejects a filter the target game does not have', () => {
+    const base = { resource: 'clanSearch', name: 'wolves' } as const;
+    expect(ok({ ...base, game: 'cr', minClanPoints: 20000 })).toBe(false);
+    expect(ok({ ...base, game: 'cr', minClanLevel: 10 })).toBe(false);
+    expect(ok({ ...base, game: 'cr', warFrequency: 'always' })).toBe(false);
+    expect(ok({ ...base, game: 'coc', minScore: 30000 })).toBe(false);
+    // Each is fine on the game that does have it.
+    expect(ok({ ...base, game: 'coc', minClanPoints: 20000 })).toBe(true);
+    expect(ok({ ...base, game: 'cr', minScore: 30000 })).toBe(true);
+  });
+
+  it('rejects an inverted member range', () => {
+    const base = { game: 'coc', resource: 'clanSearch', name: 'wolves' } as const;
+    expect(ok({ ...base, minMembers: 40, maxMembers: 10 })).toBe(false);
+    expect(ok({ ...base, minMembers: 10, maxMembers: 40 })).toBe(true);
+  });
+});

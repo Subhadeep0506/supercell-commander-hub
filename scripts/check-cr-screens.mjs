@@ -97,6 +97,14 @@ let t = await body();
 check('resolves the account', t.includes('DenCT'), t);
 check('shows the clan', t.includes('KING SLAYERS'), t);
 check('shows the current deck', /Current deck/i.test(t), t);
+// Tower troops are cards and render as cards. They used to print as a
+// comma-joined list of names -- the only place in either game where a card
+// appeared as bare text -- so this asserts the artwork, not the heading.
+check('labels the tower troop', /Tower troop/i.test(t), t);
+// `img/arena/`, not `img/cr-arena/` -- the card renders live in the former.
+// Eight deck cards plus at least one tower troop.
+const homeCardArt = await imgs('img/arena/');
+check('the deck and tower troop render as art', homeCardArt >= 9, `${homeCardArt} card images`);
 check('shows the arena', t.includes('Electro Valley'), t);
 check('shows Merge Tactics progress', /Merge Tactics/i.test(t), t);
 check('derives a per-mode record', /Recent record by mode/i.test(t), t);
@@ -116,9 +124,12 @@ check('keeps battle detail collapsed', !/King tower destroyed/i.test(t), t);
 const clickLabel = async (pattern) =>
   page.evaluate((p) => {
     const re = new RegExp(p, 'i');
-    const el = [...document.querySelectorAll('[role="button"]')].find((n) =>
-      re.test(n.getAttribute('aria-label') ?? ''),
-    );
+    const el = [...document.querySelectorAll('[role="button"],[role="link"]')]
+      // Visible only: the detail sheet keeps every back-stack layer mounted
+      // and hidden, so an unfiltered query finds a buried copy first.
+      .filter((n) => n.getClientRects().length > 0)
+      .find((n) => re.test(n.getAttribute('aria-label') ?? ''));
+    el?.scrollIntoView({ block: 'center' });
     el?.click();
     return Boolean(el);
   }, pattern);
@@ -246,8 +257,35 @@ check('no key icon left on a locked tile', (await imgs('cr-icon/key')) === 0, ''
 console.log('\nClan');
 await go('/cr/clan');
 t = await body();
-check('opens on your own clan', t.includes('KING SLAYERS'), t);
-check('shows clan metrics', /War trophies/i.test(t), t);
+// The Clan tab is a finder now, matching Clash of Clans': your own clan is
+// offered as a card and the profile opens in the sheet. It used to render
+// expanded in place, which made the same clan look like two different things
+// depending on how you reached it.
+check('offers your clan as a card', t.includes('KING SLAYERS'), t);
+check('does not expand the clan in place', !/War trophies/i.test(t), t);
+check('the search field and button share a row', /Search/.test(t), t);
+check('offers filters below the search', /Filters/i.test(t), t);
+
+check('the clan card is tappable', await clickLabel('^View KING SLAYERS'), '');
+await settle(1800);
+t = await body();
+check('the card opens the clan sheet', /War trophies/i.test(t), t);
+// The clan's own description sits with its crest and name *above* the tabs,
+// so it stays visible on all four rather than being filed under Overview.
+// Asserted by position, not just presence: it rendered before this change too,
+// just in the wrong place.
+const descAbove = await page.evaluate(() => {
+  const text = document.body?.innerText ?? '';
+  // '🦅' is this clan's whole description in the capture.
+  const desc = text.indexOf('🦅');
+  const tabs = text.indexOf('Overview');
+  return { desc, tabs, ok: desc >= 0 && tabs >= 0 && desc < tabs };
+});
+check(
+  'the description sits above the tabs',
+  descAbove.ok,
+  `description at ${descAbove.desc}, tabs at ${descAbove.tabs}`,
+);
 
 // A clan is a ladder of 50, so its roster gets the leaderboard's podium rather
 // than three ordinary rows with a gold square.
@@ -328,7 +366,12 @@ const chestArt = await imgs('cr-chest');
 check('chest art on the track', chestArt >= 15, `${chestArt} of 16`);
 
 await go('/cr/clan');
-check('clan crest on the clan banner', (await imgs('cr-badge')) > 0);
+// The crest is on the clan *card* here now; the banner it used to sit on
+// moved into the sheet along with the rest of the profile.
+check('clan crest on the clan card', (await imgs('cr-badge')) > 0);
+await clickLabel('^View KING SLAYERS');
+await settle(1800);
+check('clan crest on the sheet banner', (await imgs('cr-badge')) > 0);
 await tab('Members');
 await settle(1800);
 // Every row carries a portrait, but not every portrait is an arena badge.

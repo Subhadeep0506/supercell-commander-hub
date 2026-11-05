@@ -6,6 +6,8 @@ import { record, rows, text, type GameResult } from '@/api/game-api';
 import { useLiveAccount } from '@/hooks/use-live-account';
 import { useHub } from '@/state/HubProvider';
 import { Button } from '@/components/ui/Button';
+import { ClanFilters, type ClanFilterValues } from '@/components/ui/ClanFilters';
+import { SkeletonRows } from '@/components/ui/Shimmer';
 import { Panel } from '@/components/ui/Panel';
 import { SearchField } from '@/components/ui/SearchField';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
@@ -35,6 +37,7 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
   const [tag, setTag] = useState('');
   const [matches, setMatches] = useState<GameResult>();
   const [finding, setFinding] = useState(false);
+  const [filters, setFilters] = useState<ClanFilterValues>({});
 
   async function load() {
     // A typed clan tag goes straight to the profile sheet -- that is the clan
@@ -48,7 +51,17 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
     if (view === 'clan' && !tag.trim().startsWith('#')) {
       setFinding(true);
       try {
-        setMatches(await getGameData({ game: 'coc', resource: 'clanSearch', name: tag.trim() }));
+        setMatches(
+          await getGameData({
+            game: 'coc',
+            resource: 'clanSearch',
+            name: tag.trim(),
+            // Filters go to the service, not to the result list: the response
+            // is one capped page, so narrowing it here would hide matches
+            // rather than find them.
+            ...filters,
+          }),
+        );
       } catch {
         setMatches({
           ok: false,
@@ -123,18 +136,25 @@ export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupV
         </View>
       ) : null}
 
+      {/* Clan search only: a player tag is exact, so there is nothing to narrow. */}
+      {showForm && view === 'clan' ? (
+        <ClanFilters game="coc" value={filters} onChange={setFilters} />
+      ) : null}
+
       {account.busy || finding ? (
-        <Text accessibilityRole="alert" style={s.loading}>
-          Loading{' '}
-          {finding
-            ? 'clans'
-            : view === 'player'
-              ? 'your village'
-              : view === 'war'
-                ? 'current war'
-                : 'your clan'}
-          …
-        </Text>
+        <SkeletonRows
+          rows={finding ? 5 : 3}
+          avatar
+          label={`Loading ${
+            finding
+              ? 'clans'
+              : view === 'player'
+                ? 'your village'
+                : view === 'war'
+                  ? 'current war'
+                  : 'your clan'
+          }`}
+        />
       ) : null}
 
       {matches?.ok ? (
@@ -222,7 +242,6 @@ const build = (t: Theme) =>
     form: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
     formField: { flex: 1, minWidth: 0 },
 
-    loading: { paddingVertical: 24, textAlign: 'center', fontSize: 13, color: t.primary, fontFamily: t.fonts.sans },
     error: { fontSize: 13, color: t.destructive, fontFamily: t.fonts.sans },
     empty: { paddingVertical: 24, textAlign: 'center', fontSize: 13, color: t.mutedForeground, fontFamily: t.fonts.sans },
 

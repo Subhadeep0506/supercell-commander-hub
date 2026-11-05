@@ -19,6 +19,7 @@ import { CrDecksScreen } from '@/screens/cr/CrDecksScreen';
 import { CrClanScreen } from '@/screens/cr/CrClanScreen';
 import { CrLeaderboardScreen } from '@/screens/cr/CrLeaderboardScreen';
 import { PassportScreen } from '@/screens/PassportScreen';
+import { TodayScreen } from '@/screens/TodayScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -29,8 +30,11 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
  */
 export function RootNavigator() {
   return (
+    // Today is the landing screen, which is also the root path it already
+    // owned in ROUTE_PATHS -- the two used to disagree, so opening the app and
+    // opening its URL gave different screens.
     <Stack.Navigator
-      initialRouteName="CocHome"
+      initialRouteName="Today"
       screenOptions={{ headerShown: false, animation: 'fade', contentStyle: { flex: 1 } }}
     >
       <Stack.Screen name="CocHome" component={CocHomeScreen} />
@@ -41,7 +45,7 @@ export function RootNavigator() {
       <Stack.Screen name="CocBuilder" component={CocBuilderScreen} />
       <Stack.Screen name="CocBook" component={CocBookScreen} />
       <Stack.Screen name="Passport" component={PassportScreen} />
-      <Stack.Screen name="Today" component={TodayPlaceholder} />
+      <Stack.Screen name="Today" component={TodayScreen} />
       <Stack.Screen name="CrHome" component={CrHomeScreen} />
       <Stack.Screen name="CrDecks" component={CrDecksScreen} />
       <Stack.Screen name="CrClan" component={CrClanScreen} />
@@ -79,12 +83,6 @@ function Placeholder({ title, detail }: { title: string; detail: string }) {
   );
 }
 
-const TodayPlaceholder = () => (
-  <Placeholder
-    title="Today"
-    detail="The cross-game Today screen is built after Clash Royale and Brawl Stars, because its main panel is the Brawl Stars event rotation."
-  />
-);
 const BsPlaceholder = () => (
   <Placeholder
     title="Brawl Stars"

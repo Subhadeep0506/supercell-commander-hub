@@ -46,6 +46,27 @@ export function allWarTags(group: ApiRecord): string[] {
 }
 
 /**
+ * One war tag per drawn round -- at most 7 instead of 28.
+ *
+ * **All four wars of a round share one `state` and one pair of timestamps**,
+ * because a round starts and ends for every pairing at the same moment. So a
+ * caller that only needs to know *when the round is* can sample one war and
+ * be exactly right, not approximately.
+ *
+ * `buildRounds` works unchanged on the resulting sparse map: `statusOf` reads
+ * `wars.some(...)` and `wars.every(...)`, which agree with the full set
+ * precisely because the four wars agree with each other.
+ *
+ * The full `allWarTags` is still what the season board and the standings need
+ * -- those read each war's *results*, which do differ.
+ */
+export function sampleWarTags(group: ApiRecord): string[] {
+  return rows(group['rounds'])
+    .map((round) => realWarTags(round)[0])
+    .filter((tag): tag is string => Boolean(tag));
+}
+
+/**
  * The season's rounds, each carrying whichever of its wars have loaded.
  *
  * A round's status comes from its *wars*, not from the group. The group has

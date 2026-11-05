@@ -5,6 +5,7 @@ import { record, rows, text, type ApiRecord, type GameResult } from '@/api/game-
 import { useLiveAccount } from '@/hooks/use-live-account';
 import { useHub } from '@/state/HubProvider';
 import { Button } from '@/components/ui/Button';
+import { ClanFilters, type ClanFilterValues } from '@/components/ui/ClanFilters';
 import { SearchField } from '@/components/ui/SearchField';
 import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import { clanBadgeArt } from '@/assets/royale';
@@ -41,6 +42,7 @@ export function CrLookup({
   const [query, setQuery] = useState('');
   const [matches, setMatches] = useState<GameResult>();
   const [finding, setFinding] = useState(false);
+  const [filters, setFilters] = useState<ClanFilterValues>({});
   const searched = useRef(false);
 
   const result = account.result;
@@ -73,7 +75,12 @@ export function CrLookup({
       }
       setFinding(true);
       try {
-        setMatches(await getGameData({ game: 'cr', resource: 'clanSearch', name: value }));
+        // Filters are sent to the service for the same reason as in Clash of
+        // Clans: the response is one capped page, so filtering it here would
+        // hide matching clans rather than find them.
+        setMatches(
+          await getGameData({ game: 'cr', resource: 'clanSearch', name: value, ...filters }),
+        );
       } catch {
         setMatches({
           ok: false,
@@ -97,7 +104,10 @@ export function CrLookup({
   const found = matches?.ok ? rows(record(JSON.parse(matches.data))['items']) : [];
 
   return (
-    <View>
+    // A gap, not per-child margins: the search block is a card now, and
+    // whatever follows it -- matches, the resolved clan, an empty state --
+    // used to butt straight against its bottom edge.
+    <View style={s.stack}>
       {(needsTag || view === 'clan') && (
         <View style={s.connect}>
           <View style={s.connectHead}>
@@ -111,25 +121,37 @@ export function CrLookup({
               </Text>
             </View>
           </View>
-          <SearchField
-            value={query}
-            onChangeText={setQuery}
-            onSubmitEditing={() => void load()}
-            placeholder={view === 'clan' ? 'Explore clans by name or #tag…' : '#L8YV8P2CL'}
-            accessibilityLabel={view === 'clan' ? 'Clan name or tag' : 'Player tag'}
-            autoCapitalize="characters"
-          />
-          <Button size="sm" style={s.searchBtn} disabled={finding} onPress={() => void load()}>
-            {finding ? 'Searching…' : 'Search'}
-          </Button>
+          {/*
+            Field and button share a row, matching the Clash of Clans finder.
+            The button used to sit on its own line below the field, which read
+            as a separate action rather than as part of the search.
+          */}
+          <View style={s.form}>
+            <SearchField
+              style={s.formField}
+              value={query}
+              onChangeText={setQuery}
+              onSubmitEditing={() => void load()}
+              placeholder={view === 'clan' ? 'Explore clans by name or #tag…' : '#L8YV8P2CL'}
+              accessibilityLabel={view === 'clan' ? 'Clan name or tag' : 'Player tag'}
+              autoCapitalize="characters"
+            />
+            <Button disabled={finding} onPress={() => void load()}>
+              {finding ? 'Searching…' : 'Search'}
+            </Button>
+          </View>
+
+          {/* A player tag is exact, so only the clan search has anything to narrow. */}
+          {view === 'clan' ? (
+            <ClanFilters game="cr" value={filters} onChange={setFilters} framed={false} />
+          ) : null}
         </View>
       )}
 
       {matches && !matches.ok && <Source result={matches} />}
       {matches?.ok && !found.length && <CrEmpty body="No clans matched that name." />}
       {found.length > 0 && (
-        <View style={s.matches}>
-          <CrList>
+        <CrList>
             {found.map((clan) => (
               <RankRow
                 key={text(clan['tag'])}
@@ -143,10 +165,9 @@ export function CrLookup({
                   openClan(text(clan['tag']), 'cr');
                   setMatches(undefined);
                 }}
-              />
-            ))}
-          </CrList>
-        </View>
+            />
+          ))}
+        </CrList>
       )}
 
       {account.busy && !data && <CrLoading label="Loading your Royale account…" />}
@@ -164,17 +185,24 @@ export function CrLookup({
 
 const build = (t: Theme) =>
   StyleSheet.create({
+    // A card, like every other block on these screens now. It used to be
+    // fenced off by a rule above and below, which was the old way CR separated
+    // sections -- see Section in CrBits.
     connect: {
-      borderTopWidth: 2,
-      borderBottomWidth: 2,
-      borderColor: t.border,
-      paddingVertical: 20,
+      padding: 14,
       gap: 12,
+      backgroundColor: t.card,
+      borderWidth: 2,
+      borderColor: t.border,
+      borderRadius: t.radius.md,
+      ...t.shadow.panel,
     },
     connectHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     connectText: { flex: 1, minWidth: 0 },
     connectTitle: { fontFamily: t.fonts.display, fontSize: 18, color: t.foreground },
     connectHint: { fontFamily: t.fonts.sans, fontSize: 11, marginTop: 5, color: t.mutedForeground },
-    searchBtn: { alignSelf: 'flex-start' },
-    matches: { marginTop: 16 },
+    stack: { gap: 16 },
+    form: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
+    formField: { flex: 1, minWidth: 0 },
+    // The stack gap handles separation now.
   });

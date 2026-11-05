@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { gameQuery } from '@/api/queries';
 import { record, type ApiRecord, type GameResult } from '@/api/game-api';
+import { SkeletonBlock, Spinner } from '@/components/ui/Shimmer';
 import { Tabs } from '@/components/ui/Tabs';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Source } from '../CocBits';
@@ -86,11 +87,18 @@ export function WarTabs({ tag, warResult }: { tag: string; warResult?: GameResul
           </View>
         )
       ) : group && inLeague ? (
-        <LeagueSeason tag={tag} group={group} leagueName={leagueName} />
+        <View>
+          {/*
+            A refetch over a warm cache keeps the season on screen and marks
+            itself with a spinner. It used to replace the whole tab with a line
+            of text that appeared and vanished faster than it could be read,
+            which is what made a cached load look like a glitch.
+          */}
+          {groupBusy ? <Spinner label="Refreshing…" style={s.refreshing} /> : null}
+          <LeagueSeason tag={tag} group={group} leagueName={leagueName} />
+        </View>
       ) : groupBusy && !group ? (
-        <Text accessibilityRole="alert" style={s.loading}>
-          Loading war league…
-        </Text>
+        <SkeletonBlock height={140} label="Loading war league" />
       ) : (
         <View style={s.fill}>
           <EmptyState
@@ -123,15 +131,9 @@ function parsed(result: GameResult | undefined): ApiRecord | undefined {
   }
 }
 
-const build = (t: Theme) =>
+const build = (_t: Theme) =>
   StyleSheet.create({
     stack: { gap: 16 },
     fill: { flex: 1 },
-    loading: {
-      paddingVertical: 40,
-      textAlign: 'center',
-      fontSize: 13,
-      color: t.primary,
-      fontFamily: t.fonts.sans,
-    },
+    refreshing: { paddingBottom: 12 },
   });

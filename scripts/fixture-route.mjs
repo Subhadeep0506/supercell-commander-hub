@@ -125,6 +125,46 @@ const WAR_DAY = process.env.FIXTURE_CR_RACE === 'warday';
  */
 const WITH_POL = process.env.FIXTURE_CR_POL === 'present';
 
+/**
+ * Set FIXTURE_CR_TOURNAMENT=live to answer /globaltournaments with a running
+ * tournament.
+ *
+ * The real capture is `{"items": []}` -- **an empty list is the normal answer
+ * from this endpoint**, which is precisely the problem: Today's only Clash
+ * Royale countdown hangs off a live tournament, so without this flag that card
+ * can never render under test and would ship unexercised.
+ *
+ * Times are generated relative to now rather than baked in, because a fixed
+ * stamp would expire the way the Clash of Clans war fixture does and turn a
+ * passing check into a confusing failure a few hours later.
+ */
+const LIVE_TOURNAMENT = process.env.FIXTURE_CR_TOURNAMENT === 'live';
+
+function liveTournaments() {
+  const stamp = (offsetMs) => {
+    const d = new Date(Date.now() + offsetMs);
+    const p = (n) => String(n).padStart(2, '0');
+    return (
+      `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}T` +
+      `${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}.000Z`
+    );
+  };
+  return {
+    items: [
+      {
+        tag: '#GT2026A',
+        title: 'Event_MegaDraftChallenge',
+        startTime: stamp(-6 * 3600_000),
+        endTime: stamp(30 * 3600_000),
+        gameMode: { id: 72000006, name: 'MegaDraft' },
+        maxLosses: 3,
+        minExpLevel: 8,
+        tournamentLevel: 11,
+      },
+    ],
+  };
+}
+
 function playerWithPathOfLegend() {
   const player = JSON.parse(readFileSync(resolve(FIXTURES, 'cr-player.json'), 'utf8'));
   return {
@@ -187,6 +227,14 @@ export async function serveFixtures(page) {
           contentType: 'application/json',
           headers: { 'access-control-allow-origin': '*' },
           body: JSON.stringify(playerWithPathOfLegend()),
+        });
+      }
+      if (LIVE_TOURNAMENT && /\/globaltournaments/.test(url)) {
+        return void req.respond({
+          status: 200,
+          contentType: 'application/json',
+          headers: { 'access-control-allow-origin': '*' },
+          body: JSON.stringify(liveTournaments()),
         });
       }
       if (WAR_DAY && /\/currentriverrace/.test(url)) {

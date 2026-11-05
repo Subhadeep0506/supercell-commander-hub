@@ -130,9 +130,11 @@ function PlayedDecks({
       <Section title={deck.isCurrent ? 'Current deck' : `Deck ${index + 1}`} count={deck.cards.length}>
         <CardGrid cards={deck.cards} showCopies={false} onPressCard={openCard} />
         {deck.supportCards.length > 0 && (
-          <Text style={s.tower}>
-            Tower troop · {deck.supportCards.map((c) => text(c['name'])).join(', ')}
-          </Text>
+          /* Same treatment as the Home tab: cards render as cards, not names. */
+          <View style={s.towerBlock}>
+            <Text style={s.tower}>Tower troop</Text>
+            <CardGrid cards={deck.supportCards} showCopies={false} onPressCard={openCard} />
+          </View>
         )}
 
         <MetricGrid>
@@ -498,10 +500,10 @@ function Builder({
 
 const build = (t: Theme) =>
   StyleSheet.create({
+    towerBlock: { gap: 10, marginTop: 14 },
     tower: {
       fontFamily: t.fonts.sans,
       fontSize: 11,
-      marginTop: 12,
       color: t.mutedForeground,
     },
     winRate: {

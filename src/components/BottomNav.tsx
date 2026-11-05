@@ -44,7 +44,10 @@ export function BottomNav() {
     // there is no Clash Book shortcut beside it. Icons come from the arena
     // set, because NAV_ART has no card icon -- index-aligned with GAME_NAV.cr.
     // Index-aligned with GAME_NAV.cr: Home, Decks, Clan, Leaderboard.
-    const crIcons = [CR_ICONS.king, CR_ICONS.cards, CR_ICONS.clanWars, CR_ICONS.trophy];
+    // Home is the blue crown, not the king: the king render is already the
+    // app's generic Royale fallback (player portraits, missing arena badges),
+    // so using it for a tab as well made the bar look like a placeholder.
+    const crIcons = [CR_ICONS.crownBlue, CR_ICONS.cards, CR_ICONS.clanWars, CR_ICONS.trophy];
     return (
       <View
         style={[s.wrap, { paddingBottom: Math.max(12, insets.bottom) }]}

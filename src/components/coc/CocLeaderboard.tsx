@@ -19,6 +19,8 @@ import {
   type Board,
   type Mode,
 } from '@/lib/rankings';
+import { SkeletonRows } from '@/components/ui/Shimmer';
+import { Chevron } from '@/components/ui/Chevron';
 import { Button } from '@/components/ui/Button';
 import { ChipRow } from '@/components/ui/ChipRow';
 import { LeagueTierBadge } from '@/components/ui/LeagueTierBadge';
@@ -137,7 +139,7 @@ export function CocLeaderboard() {
           <Text style={s.locationName} numberOfLines={1}>
             {location.name.toUpperCase()}
           </Text>
-          <Text style={s.chevron}>▾</Text>
+          <Chevron open={picking} size={18} />
         </Pressable>
         <Button variant="outline" size="sm" disabled={isFetching} onPress={() => void refetch()}>
           {isFetching ? 'Refreshing…' : 'Refresh'}
@@ -158,7 +160,7 @@ export function CocLeaderboard() {
         placeholder="Search name or tag"
       />
 
-      {isFetching && !result ? <Text style={s.loading}>Loading rankings…</Text> : null}
+      {isFetching && !result ? <SkeletonRows rows={6} avatar label="Loading rankings" /> : null}
 
       {podium.length ? (
         <View style={s.podium}>
@@ -272,7 +274,7 @@ export function CocLeaderboard() {
               </Pressable>
             );
           })}
-          {locations.isFetching ? <Text style={s.loading}>Loading locations…</Text> : null}
+          {locations.isFetching ? <SkeletonRows rows={5} label="Loading locations" /> : null}
           {locations.data && !locations.data.ok ? <Source result={locations.data} /> : null}
         </ScrollView>
       </Sheet>
@@ -427,7 +429,6 @@ const build = (t: Theme) =>
     locationName: { flexShrink: 1, fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
     chevron: { marginLeft: 'auto', color: t.primary, fontSize: 12 },
 
-    loading: { paddingVertical: 24, textAlign: 'center', fontSize: 13, color: t.primary, fontFamily: t.fonts.sans },
     empty: { paddingVertical: 32, textAlign: 'center', fontSize: 13, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
     podium: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, paddingTop: 10 },

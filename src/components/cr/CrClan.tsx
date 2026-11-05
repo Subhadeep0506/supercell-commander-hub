@@ -69,6 +69,7 @@ export function CrClanPanel({ clan, tag }: { clan: ApiRecord; tag: string }) {
   const s = useMemo(() => build(theme), [theme]);
   const [tab, setTab] = useState<ClanTab>('overview');
   const badge = clanBadgeArt(clan['badgeId']);
+  const description = text(clan['description']);
 
   return (
     <View>
@@ -100,6 +101,14 @@ export function CrClanPanel({ clan, tag }: { clan: ApiRecord; tag: string }) {
         </View>
       </View>
 
+      {/*
+        The clan's own description of itself belongs with its name and crest,
+        not filed under Overview. It was only visible on one of four tabs, so
+        switching to Members hid what the clan says it is -- and in the sheet
+        it sat below the fold entirely.
+      */}
+      {description !== '—' && <Text style={s.description}>{description}</Text>}
+
       <Tabs tabs={TABS} value={tab} onChange={setTab} />
 
       {tab === 'overview' && <Overview clan={clan} />}
@@ -118,12 +127,11 @@ export function CrClanPanel({ clan, tag }: { clan: ApiRecord; tag: string }) {
 function Overview({ clan }: { clan: ApiRecord }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  const description = text(clan['description']);
   const chestMax = Number(clan['clanChestMaxLevel']) || 0;
 
+  // The description moved up to the banner, above the tabs.
   return (
     <View>
-      {description !== '—' && <Text style={s.description}>{description}</Text>}
       <MetricGrid>
         <Metric label="Members" value={clan['members']} icon="members" />
         <Metric label="Clan score" value={clan['clanScore']} icon="trophy" />

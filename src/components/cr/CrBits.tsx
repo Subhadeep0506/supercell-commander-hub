@@ -19,6 +19,7 @@ import {
   type CrIconName,
 } from '@/assets/royale';
 import { RemoteImage } from '@/components/ui/RemoteImage';
+import { SkeletonRows } from '@/components/ui/Shimmer';
 import { record, text, type ApiRecord, type GameResult } from '@/api/game-api';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 
@@ -161,7 +162,17 @@ export function SectionHead({
   );
 }
 
-/** `.arena-section` -- a titled block. */
+/**
+ * `.arena-section` -- a titled card.
+ *
+ * Was a bare block separated from its neighbours by a rule under the heading,
+ * while every Clash of Clans section sat in a Panel. One app, two ways of
+ * grouping things. It is a card in both games now; the heading keeps its
+ * title and count but loses the rule, which the card edge makes redundant.
+ *
+ * Do not nest one of these inside another card -- a card within a card reads
+ * as a rendering fault rather than as structure. No caller does today.
+ */
 export function Section({
   title,
   count,
@@ -176,7 +187,7 @@ export function Section({
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
   return (
-    <View style={s.section}>
+    <View style={[s.section, s.sectionCard]}>
       <SectionHead title={title} count={count}>
         {right}
       </SectionHead>
@@ -580,15 +591,19 @@ export function CrEmpty({ title, body }: { title?: string; body: string }) {
   );
 }
 
-/** `.arena-loading`. */
-export function CrLoading({ label }: { label: string }) {
-  const theme = useTheme();
-  const s = useMemo(() => build(theme), [theme]);
-  return (
-    <Text accessibilityRole="alert" style={s.loading}>
-      {label}
-    </Text>
-  );
+/**
+ * `.arena-loading`.
+ *
+ * Was a line of text, which read as an error message and -- on a warm cache --
+ * flashed on and off before it could be read. Now a skeleton of the list that
+ * is coming; `label` survives as the screen-reader announcement, so none of
+ * the call sites changed.
+ *
+ * `rows` lets a caller match the shape it is standing in for: a short header
+ * block wants two, a ladder wants six.
+ */
+export function CrLoading({ label, rows: count = 4 }: { label: string; rows?: number }) {
+  return <SkeletonRows rows={count} avatar label={label} />;
 }
 
 /**
@@ -648,18 +663,28 @@ export const build = (t: Theme) =>
       alignSelf: 'center',
     },
 
-    // The first section on a screen has no heading above it to space off, so
-    // it starts flush rather than 28px down.
-    section: { marginTop: 28 },
+    // Cards carry their own separation now, so the 28px that used to stand in
+    // for it would read as a gap twice over.
+    section: { marginTop: 14 },
     sectionFirst: { marginTop: 0 },
+    sectionCard: {
+      padding: 14,
+      backgroundColor: t.card,
+      borderWidth: 2,
+      borderColor: t.border,
+      borderRadius: t.radius.md,
+      // Clips the fan-kit art that several sections scale past their box, the
+      // same reason CoC's Panel does.
+      overflow: 'hidden',
+      ...t.shadow.panel,
+    },
     sectionHead: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 12,
-      marginBottom: 16,
-      paddingBottom: 10,
-      borderBottomWidth: 2,
-      borderBottomColor: t.border,
+      marginBottom: 14,
+      // The rule is gone: the card edge already separates this from whatever
+      // sits above it, and the two together read as a double border.
     },
     sectionHeadLeft: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'baseline', gap: 8 },
     h2: { fontFamily: t.fonts.display, fontSize: 18, color: t.foreground, flexShrink: 1 },
@@ -754,12 +779,15 @@ export const build = (t: Theme) =>
     rankScore: { flexDirection: 'row', alignItems: 'center', gap: 5 },
     rankScoreText: { fontFamily: t.fonts.display, fontSize: 12, color: t.cardForeground },
 
+    // A card, not a pair of rules: an empty state sits where content would,
+    // so it should occupy the same shape the content would have.
     empty: {
       paddingVertical: 25,
       paddingHorizontal: 12,
-      borderTopWidth: 1,
-      borderBottomWidth: 1,
+      borderWidth: 2,
       borderColor: t.border,
+      borderRadius: t.radius.md,
+      backgroundColor: t.card,
       alignItems: 'center',
     },
     emptyTitle: { fontFamily: t.fonts.display, fontSize: 16, color: t.foreground, marginBottom: 6 },
@@ -770,7 +798,6 @@ export const build = (t: Theme) =>
       textAlign: 'center',
       color: t.mutedForeground,
     },
-    loading: { padding: 18, fontFamily: t.fonts.sans, fontSize: 12, color: t.accent },
     source: {
       fontFamily: t.fonts.sans,
       fontSize: 10,

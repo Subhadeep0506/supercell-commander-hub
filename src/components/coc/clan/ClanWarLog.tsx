@@ -5,6 +5,8 @@ import { COC_ART, NAV_ART, UI_ART, resourceArt } from '@/assets/art';
 import { gameQuery } from '@/api/queries';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { groupedNumber, shortDate, timeAgo } from '@/lib/clan';
+import { SkeletonRows } from '@/components/ui/Shimmer';
+import { Chevron } from '@/components/ui/Chevron';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
@@ -64,7 +66,7 @@ export function ClanWarLog({ clan, tag }: { clan: ApiRecord; tag: string }) {
   }
 
   if (isFetching && !wars.length) {
-    return <Text style={s.loading}>Loading war history…</Text>;
+    return <SkeletonRows rows={4} avatar label="Loading war history" />;
   }
 
   if (!wars.length) {
@@ -143,7 +145,7 @@ export function ClanWarLog({ clan, tag }: { clan: ApiRecord; tag: string }) {
                     {pct(us['destructionPercentage'])} · {pct(them['destructionPercentage'])}
                   </Text>
                 </View>
-                <Text style={s.chevron}>{expanded ? '⌃' : '⌄'}</Text>
+                <Chevron open={expanded} size={18} />
               </Pressable>
             </View>
 
@@ -357,11 +359,4 @@ const build = (t: Theme) =>
     statValue: { fontFamily: t.fonts.display, fontSize: 13, color: t.foreground },
     statLabel: { marginTop: 2, fontSize: 9, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
-    loading: {
-      paddingVertical: 40,
-      textAlign: 'center',
-      fontSize: 13,
-      color: t.primary,
-      fontFamily: t.fonts.sans,
-    },
   });

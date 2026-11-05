@@ -13,6 +13,7 @@ import {
   type WarBattle,
 } from '@/lib/coc-attacks';
 import { useLeagueWars } from '@/hooks/use-league-wars';
+import { Chevron } from '@/components/ui/Chevron';
 import { Button } from '@/components/ui/Button';
 import { ChipRow, type Chip } from '@/components/ui/ChipRow';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
@@ -221,7 +222,7 @@ function BattleRow({ battle }: { battle: WarBattle }) {
           <Stars count={battle.stars} size={12} />
           <Text style={s.percent}>{battle.destruction}%</Text>
         </View>
-        <Text style={s.chevron}>{open ? '▾' : '▸'}</Text>
+        <Chevron open={open} size={18} />
       </Pressable>
 
       {open ? (

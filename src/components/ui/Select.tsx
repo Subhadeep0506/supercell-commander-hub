@@ -10,6 +10,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
+import { Chevron } from './Chevron';
 import { Sheet } from './Sheet';
 
 /**
@@ -75,7 +76,7 @@ export function Select({
         <Text style={s.triggerLabel} numberOfLines={1}>
           {selected?.label ?? placeholder}
         </Text>
-        <Text style={s.chevron}>▾</Text>
+        <Chevron open={open} size={18} color={theme.mutedForeground} />
       </Pressable>
 
       <Sheet

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   Image,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -12,6 +13,8 @@ import { gameQuery } from '@/api/queries';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { countryLocations, flagEmoji, rankMove } from '@/lib/rankings';
 import { groupLadders, seasonIds } from '@/lib/royale-ladders';
+import { Button } from '@/components/ui/Button';
+import { Chevron } from '@/components/ui/Chevron';
 import { ChipRow, type Chip } from '@/components/ui/ChipRow';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { SearchField } from '@/components/ui/SearchField';
@@ -349,22 +352,36 @@ function ClanLadders() {
         accessibilityLabel="Choose a clan ladder"
       />
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Choose location"
-        style={s.location}
-        onPress={() => setPicking(true)}
-      >
-        {place.id === 'global' ? (
-          <CrIcon name="globe" size={18} />
-        ) : (
-          <Text style={s.locationFlag}>{flagEmoji(place.countryCode) ?? '📍'}</Text>
-        )}
-        <Text style={s.locationName} numberOfLines={1}>
-          {place.name.toUpperCase()}
-        </Text>
-        <Text style={s.locationChevron}>▾</Text>
-      </Pressable>
+      {/* Refresh sits beside the location, the way the Clash of Clans ladder
+          does -- a ladder is the one screen where "is this current?" is the
+          obvious question and there was no way to ask it. */}
+      <View style={s.locationRow}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Choose location"
+          style={[s.location, s.locationGrow]}
+          onPress={() => setPicking(true)}
+        >
+          {place.id === 'global' ? (
+            <CrIcon name="globe" size={18} />
+          ) : (
+            <Text style={s.locationFlag}>{flagEmoji(place.countryCode) ?? '📍'}</Text>
+          )}
+          <Text style={s.locationName} numberOfLines={1}>
+            {place.name.toUpperCase()}
+          </Text>
+          <Chevron open={picking} size={18} color={theme.mutedForeground} />
+        </Pressable>
+        <Button
+          variant="outline"
+          size="sm"
+          accessibilityLabel="Refresh rankings"
+          disabled={board.isFetching}
+          onPress={() => void board.refetch()}
+        >
+          {board.isFetching ? 'Refreshing…' : 'Refresh'}
+        </Button>
+      </View>
 
       {board.isFetching && !items.length && <CrLoading label="Loading rankings…" />}
       {!board.isFetching && !items.length && (
@@ -428,46 +445,61 @@ function ClanLadders() {
       {board.data && !board.data.ok ? <Source result={board.data} /> : null}
 
       <Sheet open={picking} onClose={() => setPicking(false)} title="Choose location">
-        <View style={s.picker}>
+        {/*
+          The list scrolls. It used to be a plain View, so with ~250 countries
+          everything past the fold was simply unreachable -- the sheet clips its
+          body, and nothing inside it could scroll.
+
+          The search field stays outside the scroller so it cannot be scrolled
+          away from the list it filters, which is the arrangement `Select` uses
+          for exactly the same job.
+        */}
+        <View style={s.pickerWrap}>
           <SearchField
             value={query}
             onChangeText={setQuery}
             placeholder="Search locations…"
             accessibilityLabel="Search locations"
           />
-          <Pressable
-            style={[s.pickerRow, place.id === 'global' && s.pickerRowOn]}
-            onPress={() => {
-              setPlace(GLOBAL);
-              setPicking(false);
-            }}
+          <ScrollView
+            style={s.pickerScroll}
+            contentContainerStyle={s.picker}
+            keyboardShouldPersistTaps="handled"
           >
-            <CrIcon name="globe" size={18} />
-            <Text style={s.pickerName}>Global</Text>
-          </Pressable>
-          {countries.map((l) => {
-            const id = Number(l['id']);
-            return (
-              <Pressable
-                key={id}
-                style={[s.pickerRow, place.id === id && s.pickerRowOn]}
-                onPress={() => {
-                  setPlace({
-                    id,
-                    name: text(l['name']),
-                    countryCode: text(l['countryCode']),
-                  });
-                  setPicking(false);
-                }}
-              >
-                <Text style={s.pickerFlag}>{flagEmoji(l['countryCode']) ?? '📍'}</Text>
-                <Text style={s.pickerName} numberOfLines={1}>
-                  {text(l['name'])}
-                </Text>
-              </Pressable>
-            );
-          })}
-          {locations.isFetching && <CrLoading label="Loading locations…" />}
+            <Pressable
+              style={[s.pickerRow, place.id === 'global' && s.pickerRowOn]}
+              onPress={() => {
+                setPlace(GLOBAL);
+                setPicking(false);
+              }}
+            >
+              <CrIcon name="globe" size={18} />
+              <Text style={s.pickerName}>Global</Text>
+            </Pressable>
+            {countries.map((l) => {
+              const id = Number(l['id']);
+              return (
+                <Pressable
+                  key={id}
+                  style={[s.pickerRow, place.id === id && s.pickerRowOn]}
+                  onPress={() => {
+                    setPlace({
+                      id,
+                      name: text(l['name']),
+                      countryCode: text(l['countryCode']),
+                    });
+                    setPicking(false);
+                  }}
+                >
+                  <Text style={s.pickerFlag}>{flagEmoji(l['countryCode']) ?? '📍'}</Text>
+                  <Text style={s.pickerName} numberOfLines={1}>
+                    {text(l['name'])}
+                  </Text>
+                </Pressable>
+              );
+            })}
+            {locations.isFetching && <CrLoading label="Loading locations…" rows={6} />}
+          </ScrollView>
         </View>
       </Sheet>
     </View>
@@ -483,13 +515,14 @@ const build = (t: Theme) =>
       marginBottom: 10,
       color: t.mutedForeground,
     },
+    locationRow: { flexDirection: 'row', alignItems: 'stretch', gap: 8, marginBottom: 8 },
+    locationGrow: { flex: 1, minWidth: 0 },
     location: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 8,
       paddingVertical: 11,
       paddingHorizontal: 12,
-      marginBottom: 8,
       backgroundColor: t.card,
       borderWidth: 2,
       borderColor: t.border,
@@ -503,7 +536,11 @@ const build = (t: Theme) =>
     down: { color: t.destructive },
     more: { marginTop: 12, alignSelf: 'flex-start' },
 
-    picker: { padding: 12, gap: 6 },
+    // flex: 1 against the Sheet's definite height, so the scroller below has a
+    // bounded box to scroll inside.
+    pickerWrap: { flex: 1, padding: 12, gap: 10 },
+    pickerScroll: { flex: 1 },
+    picker: { gap: 6, paddingBottom: 12 },
     pickerRow: {
       flexDirection: 'row',
       alignItems: 'center',
