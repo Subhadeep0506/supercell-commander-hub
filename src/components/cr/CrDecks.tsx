@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { gameQuery } from '@/api/queries';
 import { rows, text, type ApiRecord } from '@/api/game-api';
 import { splitCollection, sortCards, rarityCounts, type CardSort } from '@/lib/royale-cards';
-import { ARCHETYPES, deckLink, deckStats, generateDeck, myDecks, referenceDeck } from '@/lib/royale-decks';
+import { deckLink, deckStats, generateDeck, myDecks } from '@/lib/royale-decks';
 import { readJson, writeJson } from '@/state/storage';
 import { Button } from '@/components/ui/Button';
 import { ChipRow, type Chip } from '@/components/ui/ChipRow';
@@ -24,6 +24,7 @@ import {
   Source,
 } from './CrBits';
 import { CardGrid, useCardSheet } from './CrCards';
+import { CrMeta } from './CrMeta';
 
 /**
  * The Decks tab: the decks you have played, your whole collection, and a
@@ -440,36 +441,14 @@ function Builder({
         ) : null}
       </Section>
 
-      <Section title="Archetypes" count={ARCHETYPES.length}>
-        {ARCHETYPES.map((archetype) => {
-          const have = referenceDeck(archetype.cards, owned);
-          return (
-            <View key={archetype.name} style={s.archetype}>
-              <Text style={s.archetypeName}>{archetype.name}</Text>
-              <Text style={s.archetypeMeta}>
-                {have.length}/8 owned · {archetype.cards.join(' · ')}
-              </Text>
-              <CardGrid cards={have} showCopies={false} onPressCard={openCard} emptyLabel="None of these owned." />
-              <Button
-                variant="outline"
-                size="sm"
-                style={s.generate}
-                onPress={() => {
-                  setStyle(archetype.style);
-                  setDeck(generateDeck(owned, '', archetype.style));
-                  setNotice('');
-                }}
-              >
-                Build owned-card version
-              </Button>
-            </View>
-          );
-        })}
-        <DerivedNote>
-          Curated archetype references, not live meta rankings — the API publishes no deck or
-          usage statistics.
-        </DerivedNote>
-      </Section>
+      {/*
+        Was a list of four hardcoded archetypes under a note saying the API
+        publishes no deck or usage statistics. True of any single endpoint, and
+        beside the point: the battle log returns both players' decks and the
+        result, so the meta is countable. `ARCHETYPES` stays as the Builder's
+        generator templates above -- it is what "Generate" walks.
+      */}
+      <CrMeta player={player} tag={tag} ownBattles={battles} />
 
       <Section title="Saved decks" count={saved.length}>
         {!saved.length && <CrEmpty body="No saved decks on this device." />}

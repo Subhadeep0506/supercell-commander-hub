@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { Chevron } from '@/components/ui/Chevron';
 import { ChipRow, type Chip } from '@/components/ui/ChipRow';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
+import { useRankingPages } from '@/hooks/use-ranking-pages';
 import { SearchField } from '@/components/ui/SearchField';
 import { Sheet } from '@/components/ui/Sheet';
 import { Tabs, type Tab } from '@/components/ui/Tabs';
@@ -313,16 +314,15 @@ function ClanLadders() {
   const [picking, setPicking] = useState(false);
   const [query, setQuery] = useState('');
 
-  const board = useQuery(
-    gameQuery({
-      game: 'cr',
-      resource: 'leaderboard',
-      board: 'clans',
-      mode,
-      locationId: place.id,
-      limit: 50,
-    }),
-  );
+  // Paged against the service with Supercell's own `after` cursor, a page per
+  // tap, rather than capped at whatever one request returned.
+  const board = useRankingPages({
+    game: 'cr',
+    resource: 'leaderboard',
+    board: 'clans',
+    mode,
+    locationId: place.id,
+  });
 
   // 262 locations are not worth fetching until the picker is opened.
   const locations = useQuery({
@@ -330,12 +330,11 @@ function ClanLadders() {
     enabled: picking,
   });
 
-  const items = useMemo(
-    () => (board.data?.ok ? rows(record(JSON.parse(board.data.data))['items']) : []),
-    [board.data],
-  );
+  const items = board.items;
   const tail = useMemo(() => items.slice(items.length >= 3 ? 3 : 0), [items]);
-  const paged = usePaged(tail, `${mode}:${place.id}`);
+  // 25 a tap rather than the shared default of 10 -- a ladder is scanned, not
+  // read, and the service pages fifty at a time behind this.
+  const paged = usePaged(tail, `${mode}:${place.id}`, 25);
 
   const countries = locations.data?.ok
     ? countryLocations(JSON.parse(locations.data.data)).filter((l) =>
@@ -433,16 +432,35 @@ function ClanLadders() {
               );
             })}
           </CrList>
-          <LoadMore
-            remaining={paged.remaining}
-            onPress={paged.loadMore}
-            noun="clans"
-            style={s.more}
-          />
+          {board.isFetchingMore ? <CrLoading label="Loading more clans…" rows={3} /> : null}
+          {/*
+            One button, two layers: it reveals rows already fetched, then asks
+            the service for the next page once those run out.
+          */}
+          {paged.remaining > 0 ? (
+            <LoadMore
+              remaining={paged.remaining}
+              onPress={paged.loadMore}
+              size={25}
+              noun="clans"
+              style={s.more}
+            />
+          ) : board.hasMore ? (
+            <Button
+              variant="outline"
+              size="sm"
+              style={s.more}
+              accessibilityLabel="Load more"
+              disabled={board.isFetchingMore}
+              onPress={board.loadMore}
+            >
+              {board.isFetchingMore ? 'Loading…' : `Load more clans · ${items.length} so far`}
+            </Button>
+          ) : null}
         </Section>
       )}
 
-      {board.data && !board.data.ok ? <Source result={board.data} /> : null}
+      {board.first && !board.first.ok ? <Source result={board.first} /> : null}
 
       <Sheet open={picking} onClose={() => setPicking(false)} title="Choose location">
         {/*

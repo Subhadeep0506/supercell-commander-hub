@@ -79,9 +79,16 @@ describe('real player response', () => {
 describe('real collection split', () => {
   const split = splitCollection(catalog, player);
 
-  it('splits 78 unlocked from 45 locked cards', () => {
-    expect(split.cards.unlocked).toHaveLength(78);
-    expect(split.cards.locked).toHaveLength(45);
+  /*
+   * The two counts drift with the account -- it was 78/45 when first captured
+   * and 80/43 a week later, because the player unlocked two cards. The
+   * *invariant* is the third assertion: every catalog card lands on exactly
+   * one side. That is what would actually break if `splitOne` regressed, and
+   * the literals are kept only so a wild change still gets noticed.
+   */
+  it('splits every catalog card into unlocked or locked', () => {
+    expect(split.cards.unlocked).toHaveLength(80);
+    expect(split.cards.locked).toHaveLength(43);
     expect(split.cards.unlocked.length + split.cards.locked.length).toBe(
       rows(record(catalog)['items']).length,
     );
@@ -156,8 +163,18 @@ describe('bundled artwork', () => {
 });
 
 describe('real battle log', () => {
+  /*
+   * A count, not a shape -- it was 26 on one capture and 28 on the next,
+   * simply because the account played twice. Asserting the literal made the
+   * suite fail on every recapture while telling nobody anything, so this
+   * asserts what is actually claimed: a bare array, short, and with no paging
+   * cursor to follow.
+   */
   it('returns a short, unpaged window', () => {
-    expect(battlelog).toHaveLength(26);
+    expect(Array.isArray(battlelog)).toBe(true);
+    expect(battlelog.length).toBeGreaterThan(0);
+    expect(battlelog.length).toBeLessThanOrEqual(50);
+    expect(record(battlelog as unknown)['paging']).toBeUndefined();
   });
 
   it('parses every timestamp', () => {
@@ -209,11 +226,20 @@ describe('real upcoming chests', () => {
 });
 
 describe('real river race', () => {
-  it('is a training week with five clans and no period logs', () => {
-    expect(periodLabel(race)).toBe('Training');
+  /*
+   * **This capture is a war day**, which the previous one was not.
+   *
+   * The old assertion pinned `Training` with a note that "the war-day shape
+   * stays unverified until the clan reaches a war day". It has, so the shape
+   * that was guesswork is now covered: `periodType: "warDay"` and a real
+   * `periodLogs` entry, which is the branch `periodDays` exists for and which
+   * was previously only ever exercised against an empty array.
+   */
+  it('is a war day with five clans and a period log', () => {
+    expect(periodLabel(race)).toBe('War Day');
     expect(rows(record(race)['clans'])).toHaveLength(5);
-    // The war-day shape stays unverified until the clan reaches a war day.
-    expect(periodDays(race)).toEqual([]);
+    const days = periodDays(race);
+    expect(days.length).toBeGreaterThan(0);
   });
 
   it('ranks the five clans and finds our own', () => {

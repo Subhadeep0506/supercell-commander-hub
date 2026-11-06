@@ -1,0 +1,779 @@
+{
+  "items": [
+    {
+      "tag": "#P02C",
+      "name": "Legend 26",
+      "rank": 26,
+      "previousRank": 27,
+      "expLevel": 225,
+      "townHallLevel": 16,
+      "trophies": 115,
+      "clan": {
+        "tag": "#G02C",
+        "name": "Top Clan 4",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-25.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000011,
+        "name": "Wizard League 11",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-11.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-11.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P02U",
+      "name": "Legend 27",
+      "rank": 27,
+      "previousRank": 25,
+      "expLevel": 224,
+      "townHallLevel": 15,
+      "trophies": 98,
+      "clan": {
+        "tag": "#G02U",
+        "name": "Top Clan 5",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-26.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000010,
+        "name": "Wizard League 10",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-10.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-10.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P02V",
+      "name": "Legend 28",
+      "rank": 28,
+      "previousRank": 31,
+      "expLevel": 223,
+      "townHallLevel": 17,
+      "trophies": 81,
+      "clan": {
+        "tag": "#G02V",
+        "name": "Top Clan 6",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-27.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000009,
+        "name": "Archer League 9",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-9.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-9.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P080",
+      "name": "Legend 29",
+      "rank": 29,
+      "previousRank": 30,
+      "expLevel": 222,
+      "townHallLevel": 16,
+      "trophies": 64,
+      "clan": {
+        "tag": "#G080",
+        "name": "Top Clan 0",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-28.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000008,
+        "name": "Archer League 8",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-8.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-8.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P082",
+      "name": "Legend 30",
+      "rank": 30,
+      "previousRank": 28,
+      "expLevel": 221,
+      "townHallLevel": 15,
+      "trophies": 47,
+      "clan": {
+        "tag": "#G082",
+        "name": "Top Clan 1",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-29.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000007,
+        "name": "Archer League 7",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-7.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-7.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P088",
+      "name": "Legend 31",
+      "rank": 31,
+      "previousRank": 32,
+      "expLevel": 220,
+      "townHallLevel": 17,
+      "trophies": 30,
+      "clan": {
+        "tag": "#G088",
+        "name": "Top Clan 2",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-30.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000006,
+        "name": "Barbarian League 6",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-6.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-6.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P089",
+      "name": "Legend 32",
+      "rank": 32,
+      "previousRank": 35,
+      "expLevel": 219,
+      "townHallLevel": 16,
+      "trophies": 13,
+      "clan": {
+        "tag": "#G089",
+        "name": "Top Clan 3",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-31.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000005,
+        "name": "Barbarian League 5",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-5.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-5.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08P",
+      "name": "Legend 33",
+      "rank": 33,
+      "previousRank": 31,
+      "expLevel": 218,
+      "townHallLevel": 15,
+      "trophies": -4,
+      "clan": {
+        "tag": "#G08P",
+        "name": "Top Clan 4",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-32.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000004,
+        "name": "Barbarian League 4",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-4.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-4.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08Y",
+      "name": "Legend 34",
+      "rank": 34,
+      "previousRank": 35,
+      "expLevel": 217,
+      "townHallLevel": 17,
+      "trophies": -21,
+      "clan": {
+        "tag": "#G08Y",
+        "name": "Top Clan 5",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-33.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000003,
+        "name": "Skeleton League 3",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-3.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-3.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08L",
+      "name": "Legend 35",
+      "rank": 35,
+      "previousRank": 36,
+      "expLevel": 216,
+      "townHallLevel": 16,
+      "trophies": -38,
+      "clan": {
+        "tag": "#G08L",
+        "name": "Top Clan 6",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-34.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000002,
+        "name": "Skeleton League 2",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-2.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-2.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08Q",
+      "name": "Legend 36",
+      "rank": 36,
+      "previousRank": 39,
+      "expLevel": 215,
+      "townHallLevel": 15,
+      "trophies": -55,
+      "clan": {
+        "tag": "#G08Q",
+        "name": "Top Clan 0",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-35.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08G",
+      "name": "Legend 37",
+      "rank": 37,
+      "previousRank": 38,
+      "expLevel": 214,
+      "townHallLevel": 17,
+      "trophies": -72,
+      "clan": {
+        "tag": "#G08G",
+        "name": "Top Clan 1",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-36.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08R",
+      "name": "Legend 38",
+      "rank": 38,
+      "previousRank": 39,
+      "expLevel": 213,
+      "townHallLevel": 16,
+      "trophies": -89,
+      "clan": {
+        "tag": "#G08R",
+        "name": "Top Clan 2",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-37.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08J",
+      "name": "Legend 39",
+      "rank": 39,
+      "previousRank": 37,
+      "expLevel": 212,
+      "townHallLevel": 15,
+      "trophies": -106,
+      "clan": {
+        "tag": "#G08J",
+        "name": "Top Clan 3",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-38.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08C",
+      "name": "Legend 40",
+      "rank": 40,
+      "previousRank": 43,
+      "expLevel": 211,
+      "townHallLevel": 17,
+      "trophies": -123,
+      "clan": {
+        "tag": "#G08C",
+        "name": "Top Clan 4",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-39.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08U",
+      "name": "Legend 41",
+      "rank": 41,
+      "previousRank": 42,
+      "expLevel": 210,
+      "townHallLevel": 16,
+      "trophies": -140,
+      "clan": {
+        "tag": "#G08U",
+        "name": "Top Clan 5",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-40.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P08V",
+      "name": "Legend 42",
+      "rank": 42,
+      "previousRank": 40,
+      "expLevel": 209,
+      "townHallLevel": 15,
+      "trophies": -157,
+      "clan": {
+        "tag": "#G08V",
+        "name": "Top Clan 6",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-41.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P090",
+      "name": "Legend 43",
+      "rank": 43,
+      "previousRank": 44,
+      "expLevel": 208,
+      "townHallLevel": 17,
+      "trophies": -174,
+      "clan": {
+        "tag": "#G090",
+        "name": "Top Clan 0",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-42.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P092",
+      "name": "Legend 44",
+      "rank": 44,
+      "previousRank": 47,
+      "expLevel": 207,
+      "townHallLevel": 16,
+      "trophies": -191,
+      "clan": {
+        "tag": "#G092",
+        "name": "Top Clan 1",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-43.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P098",
+      "name": "Legend 45",
+      "rank": 45,
+      "previousRank": 43,
+      "expLevel": 206,
+      "townHallLevel": 15,
+      "trophies": -208,
+      "clan": {
+        "tag": "#G098",
+        "name": "Top Clan 2",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-44.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P099",
+      "name": "Legend 46",
+      "rank": 46,
+      "previousRank": 47,
+      "expLevel": 205,
+      "townHallLevel": 17,
+      "trophies": -225,
+      "clan": {
+        "tag": "#G099",
+        "name": "Top Clan 3",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-45.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P09P",
+      "name": "Legend 47",
+      "rank": 47,
+      "previousRank": 48,
+      "expLevel": 204,
+      "townHallLevel": 16,
+      "trophies": -242,
+      "clan": {
+        "tag": "#G09P",
+        "name": "Top Clan 4",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-46.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P09Y",
+      "name": "Legend 48",
+      "rank": 48,
+      "previousRank": 51,
+      "expLevel": 203,
+      "townHallLevel": 15,
+      "trophies": -259,
+      "clan": {
+        "tag": "#G09Y",
+        "name": "Top Clan 5",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-47.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P09L",
+      "name": "Legend 49",
+      "rank": 49,
+      "previousRank": 50,
+      "expLevel": 202,
+      "townHallLevel": 17,
+      "trophies": -276,
+      "clan": {
+        "tag": "#G09L",
+        "name": "Top Clan 6",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-48.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    },
+    {
+      "tag": "#P09Q",
+      "name": "Legend 50",
+      "rank": 50,
+      "previousRank": 51,
+      "expLevel": 201,
+      "townHallLevel": 16,
+      "trophies": -293,
+      "clan": {
+        "tag": "#G09Q",
+        "name": "Top Clan 0",
+        "badgeUrls": {
+          "medium": "https://api-assets.clashofclans.com/badges/200/placeholder-49.png"
+        }
+      },
+      "leagueTier": {
+        "id": 105000001,
+        "name": "Skeleton League 1",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leaguetiers/125/tier-1.png",
+          "large": "https://api-assets.clashofclans.com/leaguetiers/326/tier-1.png"
+        }
+      },
+      "league": {
+        "id": 29000000,
+        "name": "Unranked",
+        "iconUrls": {
+          "small": "https://api-assets.clashofclans.com/leagues/72/unranked.png"
+        }
+      }
+    }
+  ]
+}

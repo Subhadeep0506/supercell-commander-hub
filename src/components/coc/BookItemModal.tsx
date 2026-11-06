@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
-import { COC_ART, bookArt, resourceArt, townHallArt } from '@/assets/art';
+import { COC_ART, bookArt, hasLevelArt, resourceArt, townHallArt } from '@/assets/art';
 import { StatIcon, STAT_ICON_FOR, type StatIconName } from '@/components/ui/StatIcon';
 import {
+  BOOK_ITEMS,
   bookCategory,
   bookLevels,
   fieldLabel,
@@ -12,9 +13,12 @@ import {
   levelSections,
   playerLevelIndex,
   relatedItems,
+  superchargeLevels,
   type BookItem,
   type BookRecord,
 } from '@/lib/clash-book';
+import { formatDuration } from '@/lib/clan';
+import { remainingUpgradeCost, type PlayerContext } from '@/lib/player-progress';
 import { Button } from '@/components/ui/Button';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { Sheet } from '@/components/ui/Sheet';
@@ -183,17 +187,35 @@ function Fields({ values }: { values: Field[] }) {
 export function BookItemModal({
   item,
   initialLevel,
+  startLevel,
+  context,
   open,
   onClose,
 }: {
   item: BookItem;
   initialLevel?: number;
+  /**
+   * Opens on this level without claiming the player has one.
+   *
+   * A locked or not-yet-built entry opens at level 1 so the card shows what
+   * unlocking it costs. `initialLevel` cannot do that job: it is what adds the
+   * "Your player level" line and the "Next upgrade" section.
+   */
+  startLevel?: number;
+  /**
+   * The village this card was opened from.
+   *
+   * Every player-facing section below is gated on it, so the Clash Book screen
+   * -- which browses the catalog with no player in sight -- renders exactly
+   * the card it rendered before.
+   */
+  context?: PlayerContext;
   open: boolean;
   onClose: () => void;
 }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  const [stack, setStack] = useState<Layer[]>(() => [layerFor(item, initialLevel)]);
+  const [stack, setStack] = useState<Layer[]>(() => [layerFor(item, initialLevel, startLevel)]);
 
   const top = stack[stack.length - 1]!;
   const topRow = bookLevels(top.item)[top.index];
@@ -216,11 +238,15 @@ export function BookItemModal({
         <BookItemCard
           key={`${layer.item.id}-${i}`}
           layer={layer}
+          context={context}
           hidden={i !== stack.length - 1}
           onIndex={(index) =>
             setStack((st) => st.map((l, n) => (n === st.length - 1 ? { ...l, index } : l)))
           }
-          onOpen={(next) => setStack((st) => [...st, layerFor(next)])}
+          // A pushed layer inherits the player's own level where there is one,
+          // so stepping from an equipment card to the hero wearing it opens on
+          // that hero's level rather than on the game maximum.
+          onOpen={(next) => setStack((st) => [...st, layerFor(next, context?.levelOf(next.id))])}
         />
       ))}
     </Sheet>
@@ -236,25 +262,25 @@ export function BookItemModal({
  */
 type Layer = { item: BookItem; initialLevel?: number; index: number };
 
-function layerFor(item: BookItem, initialLevel?: number): Layer {
+function layerFor(item: BookItem, initialLevel?: number, startLevel?: number): Layer {
   const levels = bookLevels(item);
+  const at = initialLevel ?? startLevel;
   return {
     item,
     initialLevel,
-    index:
-      initialLevel === undefined
-        ? Math.max(0, levels.length - 1)
-        : playerLevelIndex(item, initialLevel),
+    index: at === undefined ? Math.max(0, levels.length - 1) : playerLevelIndex(item, at),
   };
 }
 
 function BookItemCard({
   layer,
+  context,
   hidden,
   onIndex,
   onOpen,
 }: {
   layer: Layer;
+  context?: PlayerContext;
   hidden: boolean;
   onIndex: (index: number) => void;
   onOpen: (item: BookItem) => void;
@@ -268,10 +294,14 @@ function BookItemCard({
 
   const [expanded, setExpanded] = useState(false);
   const related = relatedItems(item);
+  const supercharge = superchargeLevels(item);
 
   const row = levels[index];
   const sections = row ? levelSections(row) : undefined;
-  const image = itemArt(item);
+  // Keyed off the selected row, so moving the slider changes the picture and
+  // not just the numbers. Items with no per-level art fall back to their one
+  // image inside `itemArt` -- see the source note at the foot of this card.
+  const image = itemArt(item, row ? Number(row['level']) : undefined);
   const nextRow = initialLevel !== undefined && index >= 0 ? levels[index + 1] : undefined;
   const nextSections = nextRow ? levelSections(nextRow) : undefined;
 
@@ -349,6 +379,32 @@ function BookItemCard({
   );
 
   const gameMax = levels.length ? Number(levels[levels.length - 1]!['level']) : undefined;
+
+  /*
+   * What this account can actually reach, and what the rest of the way costs.
+   *
+   * The service's own `maxLevel` is the *game* maximum -- a Town Hall 13
+   * Barbarian comes back 9/13 when 9 is all that hall allows -- so the ceiling
+   * that matters comes from the catalog's requirement rows instead. Crafted
+   * defenses are excluded: they have no single level, three module tracks
+   * carry the levels.
+   */
+  const hallMax = context && !item.modules?.length ? context.hallMaxOf(item.id) : 0;
+  const owned = initialLevel ?? 0;
+  const rollUp = useMemo(
+    () =>
+      context && hallMax > owned ? remainingUpgradeCost(item, owned, hallMax) : undefined,
+    [context, hallMax, owned, item],
+  );
+  // Hero equipment names the hero it is worn by. Deliberately not folded into
+  // `relatedItems`, which resolves both ways -- a Barbarian King card would
+  // then list every one of the 43 equipment pieces.
+  const wornBy = useMemo(() => {
+    const hero = item['hero'];
+    if (!context || typeof hero !== 'string') return undefined;
+    return BOOK_ITEMS.find((i) => i.id === `${item.base}/${hero}`);
+  }, [context, item]);
+
   const base =
     item.base === 'builder' ? 'Builder Base' : item.base === 'magic-items' ? 'Magic Items' : 'Home Village';
 
@@ -377,9 +433,11 @@ function BookItemCard({
             )}
           </View>
           <View style={s.introText}>
+            {/* The hall-cap block below prints its own "Game max", two lines
+                down, so this one would be the same number twice. */}
             <Text style={s.meta}>
               {bookCategory(item.category)} · {base}
-              {gameMax ? ` · Game max ${gameMax}` : ''}
+              {gameMax && hallMax === 0 ? ` · Game max ${gameMax}` : ''}
             </Text>
             <Text style={s.description} numberOfLines={expanded ? undefined : 3}>
               {item.description || 'No description is included in this reference.'}
@@ -423,9 +481,31 @@ function BookItemCard({
           </View>
         ) : null}
 
-        {/* A crafted defense has no level of its own -- its three module
-            tracks below carry the levels -- so neither line applies to it. */}
-        {initialLevel !== undefined && !item.modules?.length ? (
+        {/*
+          A crafted defense has no level of its own -- its three module tracks
+          below carry the levels -- so none of this applies to it.
+
+          With a village in hand the bare "Your player level: 14" becomes the
+          figure a player is actually asking for: 14 of the 18 this Town Hall
+          allows, against a game maximum of 27 they cannot touch yet.
+        */}
+        {context && hallMax > 0 && !item.modules?.length ? (
+          <View style={s.hallProgress}>
+            <Text style={s.hallLine}>
+              Level <Text style={s.hallLevel}>{initialLevel ?? 0}</Text> / {hallMax} for{' '}
+              {context.hallLabel}
+            </Text>
+            <View style={s.bar}>
+              <View
+                style={[
+                  s.barFill,
+                  { width: `${Math.min(100, ((initialLevel ?? 0) / hallMax) * 100)}%` },
+                ]}
+              />
+            </View>
+            {gameMax ? <Text style={s.hallGameMax}>Game max: {gameMax}</Text> : null}
+          </View>
+        ) : initialLevel !== undefined && !item.modules?.length ? (
           <Text style={s.playerLevel}>Your player level: {initialLevel}</Text>
         ) : null}
         {!row && initialLevel !== undefined && !item.modules?.length ? (
@@ -481,6 +561,58 @@ function BookItemCard({
             <Fields values={mergeCostRows(nextSections.costs)} />
           </Section>
         ) : null}
+
+        {/*
+          The whole rest of the way, in one figure.
+
+          Run through the same flatten -> merge -> Fields pipeline as every
+          other cost block, which is what gets it the ore, resource and clock
+          artwork without a second copy of that mapping. Time is appended
+          rather than summed in: it is an object in the data, so adding numeric
+          fields would never have found it -- and for hero equipment, which
+          costs ore and no time at all, it correctly does not appear.
+        */}
+        {rollUp && context ? (
+          <Section
+            title={`To reach the ${context.hallLabel} max · ${rollUp.levels} ${
+              rollUp.levels === 1 ? 'level' : 'levels'
+            } to go`}
+          >
+            <Fields
+              values={[
+                ...mergeCostRows(flattenBook(rollUp.costs)),
+                ...(rollUp.seconds > 0
+                  ? [{ label: 'Total time', value: formatDuration(rollUp.seconds * 1000) }]
+                  : []),
+              ]}
+            />
+          </Section>
+        ) : null}
+
+        {wornBy ? (
+          <Section title="Worn by">
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${wornBy.name}`}
+              style={s.relatedTile}
+              onPress={() => onOpen(wornBy)}
+            >
+              {itemArt(wornBy, context?.levelOf(wornBy.id)) ? (
+                <Image
+                  source={itemArt(wornBy, context?.levelOf(wornBy.id))!.source}
+                  resizeMode="contain"
+                  style={s.relatedArt}
+                />
+              ) : null}
+              <Text style={s.relatedName} numberOfLines={2}>
+                {wornBy.name}
+              </Text>
+              {context?.levelOf(wornBy.id) !== undefined ? (
+                <Text style={s.wornLevel}>{context.levelOf(wornBy.id)}</Text>
+              ) : null}
+            </Pressable>
+          </Section>
+        ) : null}
         {stats.length > 0 ? (
           <Section title={`At level ${String(row?.['level'])}`}>
             <Fields values={stats} />
@@ -494,6 +626,24 @@ function BookItemCard({
         {needs.length > 0 ? (
           <Section title="Needs">
             <FieldGrid cells={needs} />
+          </Section>
+        ) : null}
+
+        {/*
+          Supercharge is a second upgrade track on top of a maxed building,
+          numbered from 1 again. It is kept out of the level slider above --
+          mixing the two made the card read "14 levels" under "Game max 12" --
+          but it is real data, so it gets its own section rather than being
+          dropped on the floor.
+        */}
+        {supercharge.length > 0 ? (
+          <Section title={`Supercharge · ${supercharge.length} levels`}>
+            {supercharge.map((row, i) => (
+              <View key={i} style={s.supercharge}>
+                <Text style={s.superchargeLevel}>Supercharge {String(row['level'])}</Text>
+                <Fields values={mergeCostRows(levelSections(row).costs)} />
+              </View>
+            ))}
           </Section>
         ) : null}
         {details.length > 0 ? (
@@ -513,8 +663,10 @@ function BookItemCard({
         <Text style={s.sourceNote}>
           Community reference · clash-of-clans-data 0.19.1 · Clash of Clans Wiki (CC BY-SA).
           Snapshot November 2, 2026; balance changes may differ. Artwork is official Supercell
-          fan-kit where available, otherwise from the community dataset; appearance may differ by
-          level.
+          fan-kit where available, otherwise from the community dataset.
+          {hasLevelArt(item.id)
+            ? ' The picture changes with the level above.'
+            : ' This item is rendered once rather than per level, so the picture stays the same as the level changes.'}
         </Text>
       </ScrollView>
     </View>
@@ -624,6 +776,14 @@ const build = (t: Theme) =>
       maxWidth: 140,
     },
 
+    supercharge: { marginBottom: 10 },
+    superchargeLevel: {
+      marginBottom: 6,
+      fontFamily: t.fonts.display,
+      fontSize: 12,
+      color: t.cocHighlight,
+    },
+
     moduleHeading: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
     moduleLevel: { fontFamily: t.fonts.sans, fontSize: 12, color: t.mutedForeground },
 
@@ -646,6 +806,20 @@ const build = (t: Theme) =>
     description: { marginTop: 10, fontSize: 12, lineHeight: 19, color: t.foreground, fontFamily: t.fonts.sans },
 
     playerLevel: { marginTop: 16, fontSize: 12, color: t.primary, fontFamily: t.fonts.sans },
+    hallProgress: { marginTop: 16 },
+    hallLine: { fontFamily: t.fonts.display, fontSize: 14, color: t.foreground, marginBottom: 7 },
+    hallLevel: { color: t.primary },
+    hallGameMax: { marginTop: 6, fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    wornLevel: {
+      marginLeft: 2,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 4,
+      backgroundColor: t.card,
+      color: t.cocHighlight,
+      fontFamily: t.fonts.display,
+      fontSize: 12,
+    },
     missingLevel: { marginTop: 16, fontSize: 13, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
     levelControl: {

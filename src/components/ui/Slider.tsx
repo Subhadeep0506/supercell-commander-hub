@@ -1,5 +1,12 @@
 import { useMemo, useRef, useState } from 'react';
-import { PanResponder, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import {
+  PanResponder,
+  StyleSheet,
+  View,
+  type GestureResponderEvent,
+  type LayoutChangeEvent,
+  type PanResponderGestureState,
+} from 'react-native';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 
 /**
@@ -28,25 +35,49 @@ export function Slider({
 
   // PanResponder is created once; refs keep it reading current values without
   // tearing down and rebuilding the responder on every render.
-  const state = useRef({ width, max, onChange });
-  state.current = { width, max, onChange };
+  const state = useRef({ width, max, value, onChange });
+  state.current = { width, max, value, onChange };
+
+  /**
+   * The track's left edge in page coordinates.
+   *
+   * This is the whole fix for the drag jitter. The responder used to seek from
+   * `nativeEvent.locationX`, which is measured against **the view that
+   * received the touch** -- and once a drag crosses the thumb or the filled
+   * portion, that view is the child, not the track. The origin moved under the
+   * gesture every few pixels, so the value snapped back and forth instead of
+   * following the finger.
+   *
+   * Taken on grant rather than from `measureInWindow`, which is asynchronous
+   * and would not have answered before the first move event. At grant time the
+   * target really is the track (the children are `pointerEvents="none"`), so
+   * `pageX - locationX` is its left edge exactly.
+   */
+  const originX = useRef(0);
 
   const responder = useMemo(
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onMoveShouldSetPanResponder: () => true,
-        onPanResponderGrant: (e) => seek(e.nativeEvent.locationX),
-        onPanResponderMove: (e) => seek(e.nativeEvent.locationX),
+        onPanResponderGrant: (e: GestureResponderEvent) => {
+          originX.current = e.nativeEvent.pageX - e.nativeEvent.locationX;
+          seek(e.nativeEvent.pageX);
+        },
+        onPanResponderMove: (_e, gesture: PanResponderGestureState) => seek(gesture.moveX),
       }),
     [],
   );
 
-  function seek(x: number) {
-    const { width: w, max: m, onChange: cb } = state.current;
+  function seek(pageX: number) {
+    const { width: w, max: m, value: current, onChange: cb } = state.current;
     if (w <= 0 || m <= 0) return;
-    const ratio = Math.max(0, Math.min(1, x / w));
-    cb(Math.round(ratio * m));
+    const ratio = Math.max(0, Math.min(1, (pageX - originX.current) / w));
+    const next = Math.round(ratio * m);
+    // A move that lands on the same step must not call back: BookItemModal's
+    // handler rebuilds the whole layer stack, so an unchanged value still
+    // re-renders every card behind the sheet.
+    if (next !== current) cb(next);
   }
 
   const pct = max > 0 ? (Math.max(0, Math.min(max, value)) / max) * 100 : 0;
@@ -60,10 +91,13 @@ export function Slider({
       style={s.hit}
       {...responder.panHandlers}
     >
-      <View style={s.track}>
+      {/* pointerEvents="none" so the track stays the gesture target for the
+          whole drag -- without it the thumb captures the touch and `locationX`
+          and `pageX - locationX` are both measured against the wrong box. */}
+      <View style={s.track} pointerEvents="none">
         <View style={[s.fill, { width: `${pct}%` }]} />
       </View>
-      <View style={[s.thumb, { left: `${pct}%` }]} />
+      <View style={[s.thumb, { left: `${pct}%` }]} pointerEvents="none" />
     </View>
   );
 }

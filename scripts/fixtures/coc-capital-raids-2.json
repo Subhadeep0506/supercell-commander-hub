@@ -2,8 +2,8 @@
   "items": [
     {
       "state": "ended",
-      "startTime": "20260821T070000.000Z",
-      "endTime": "20260824T070000.000Z",
+      "startTime": "20260828T070000.000Z",
+      "endTime": "20260831T070000.000Z",
       "capitalTotalLoot": 1286012,
       "raidsCompleted": 11,
       "totalAttacks": 277,
@@ -6377,8 +6377,8 @@
     },
     {
       "state": "ended",
-      "startTime": "20260814T070000.000Z",
-      "endTime": "20260817T070000.000Z",
+      "startTime": "20260821T070000.000Z",
+      "endTime": "20260824T070000.000Z",
       "capitalTotalLoot": 1284755,
       "raidsCompleted": 11,
       "totalAttacks": 276,
@@ -12736,8 +12736,8 @@
     },
     {
       "state": "ended",
-      "startTime": "20260807T070000.000Z",
-      "endTime": "20260810T070000.000Z",
+      "startTime": "20260814T070000.000Z",
+      "endTime": "20260817T070000.000Z",
       "capitalTotalLoot": 1283498,
       "raidsCompleted": 11,
       "totalAttacks": 276,
@@ -19095,8 +19095,8 @@
     },
     {
       "state": "ended",
-      "startTime": "20260731T070000.000Z",
-      "endTime": "20260803T070000.000Z",
+      "startTime": "20260807T070000.000Z",
+      "endTime": "20260810T070000.000Z",
       "capitalTotalLoot": 1287441,
       "raidsCompleted": 11,
       "totalAttacks": 277,
@@ -25470,8 +25470,8 @@
     },
     {
       "state": "ended",
-      "startTime": "20260724T070000.000Z",
-      "endTime": "20260727T070000.000Z",
+      "startTime": "20260731T070000.000Z",
+      "endTime": "20260803T070000.000Z",
       "capitalTotalLoot": 1286184,
       "raidsCompleted": 11,
       "totalAttacks": 276,
@@ -31829,8 +31829,8 @@
     },
     {
       "state": "ended",
-      "startTime": "20260717T070000.000Z",
-      "endTime": "20260720T070000.000Z",
+      "startTime": "20260724T070000.000Z",
+      "endTime": "20260727T070000.000Z",
       "capitalTotalLoot": 1290127,
       "raidsCompleted": 11,
       "totalAttacks": 276,

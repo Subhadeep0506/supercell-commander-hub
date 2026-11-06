@@ -76,6 +76,7 @@ export function CardTile({
   locked = false,
   showCopies = true,
   showName = false,
+  showLevel = true,
   onPress,
 }: {
   card: ApiRecord;
@@ -83,6 +84,12 @@ export function CardTile({
   locked?: boolean;
   showCopies?: boolean;
   showName?: boolean;
+  /**
+   * The "Level N" badge. Off for grids narrow enough to truncate it to "Le…",
+   * and for any grid where the level is not the reader's -- a sampled
+   * opponent's card level says nothing about the card.
+   */
+  showLevel?: boolean;
   onPress?: () => void;
 }) {
   const theme = useTheme();
@@ -115,7 +122,7 @@ export function CardTile({
             itself puts on an evolved card, and it survives being 18px wide,
             which three letters of a display face do not. */}
         {evolved && <CrIcon name="evolution" size={20} style={s.evolved} />}
-        {level !== null && (
+        {showLevel && level !== null && (
           <View style={s.levelBadge}>
             <Text style={s.levelText} numberOfLines={1}>
               Level {level}
@@ -171,6 +178,7 @@ export function CardGrid({
   locked = false,
   showCopies = true,
   showName = false,
+  showLevel = true,
   onPressCard,
   emptyLabel = 'No cards.',
   pageSize,
@@ -182,6 +190,8 @@ export function CardGrid({
   locked?: boolean;
   showCopies?: boolean;
   showName?: boolean;
+  /** Passed through to every tile. See CardTile. */
+  showLevel?: boolean;
   onPressCard?: (card: ApiRecord) => void;
   emptyLabel?: string;
   /**
@@ -218,6 +228,7 @@ export function CardGrid({
               locked={locked}
               showCopies={showCopies}
               showName={showName}
+              showLevel={showLevel}
               onPress={onPressCard ? () => onPressCard(card) : undefined}
             />
           ))}

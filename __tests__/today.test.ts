@@ -220,19 +220,21 @@ describe('untimed Clash Royale events', () => {
 
   it('lists events that carry no time at all', () => {
     const { live } = build({ crEvents: sample });
-    expect(live).toHaveLength(2);
     expect(live[0]).toMatchObject({ game: 'cr', title: 'Classic Challenge' });
   });
 
-  it('keeps an event whose description is null', () => {
+  it('drops an event whose description is null', () => {
+    // These rows have no clock either, so the description is the only thing
+    // on the card -- without it there is nothing to show but a heading.
     const { live } = build({ crEvents: sample });
-    expect(live[1]).toMatchObject({ title: 'Merge Tactics' });
-    expect(live[1]!.body).toBeUndefined();
+    expect(live).toHaveLength(1);
+    expect(live.map((e) => e.title)).not.toContain('Merge Tactics');
+    expect(live.every((e) => e.body)).toBe(true);
   });
 
   it('never puts an untimed event in the countdown list', () => {
     const { events, live } = build({ crEvents: sample });
-    expect(live).toHaveLength(2);
+    expect(live).toHaveLength(1);
     expect(events).toHaveLength(0);
   });
 
@@ -243,14 +245,20 @@ describe('untimed Clash Royale events', () => {
 
   it('reads a localized title object as well as a plain string', () => {
     const { live } = build({
-      crEvents: [{ eventTag: '#D', title: { en: 'Draft Day' } }] as ApiRecord[],
+      crEvents: [
+        { eventTag: '#D', title: { en: 'Draft Day' }, description: { en: 'Pick eight.' } },
+      ] as ApiRecord[],
     });
     expect(live[0]!.title).toBe('Draft Day');
+    expect(live[0]!.body).toBe('Pick eight.');
   });
 
   it('gives every event a distinct id, even without an eventTag', () => {
     const { live } = build({
-      crEvents: [{ title: 'One' }, { title: 'Two' }] as ApiRecord[],
+      crEvents: [
+        { title: 'One', description: 'a' },
+        { title: 'Two', description: 'b' },
+      ] as ApiRecord[],
     });
     expect(new Set(live.map((e) => e.id)).size).toBe(2);
   });
@@ -262,6 +270,17 @@ describe('untimed Clash Royale events', () => {
     // With events listed, the note explains the *missing countdown* instead of
     // claiming nothing is happening.
     expect(withEvents).toMatch(/without a published end time/i);
+  });
+
+  it('counts the events it will actually show, not the ones it was handed', () => {
+    // Every row filtered out leaves an empty section, so the note must read as
+    // the quiet one rather than pointing at a list that is not there.
+    const allBlank = build({
+      crEvents: [{ eventTag: '#A', title: 'Only a title' }] as ApiRecord[],
+      tournaments: [],
+    });
+    expect(allBlank.live).toHaveLength(0);
+    expect(allBlank.notes[0]!.body).toMatch(/No global tournament is running right now/i);
   });
 });
 

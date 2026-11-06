@@ -1,10 +1,13 @@
 import type { ImageSourcePropType } from 'react-native';
+import { arenaImages } from './registry.arena';
 import { cocImages } from './registry.coc';
 import { cocDetailImages } from './registry.cocDetail';
+import { crIconImages } from './registry.crIcon';
 import { bookImages } from './registry.book';
 import { logoImages } from './registry.logo';
 import { navImages } from './registry.nav';
 import { bookExtraImages } from './registry.bookExtra';
+import { bookLevelImages } from './registry.bookLevel';
 import { resourceImages } from './registry.resource';
 import artTitles from '@/data/clash-book/art-titles.json';
 
@@ -107,6 +110,23 @@ export const GAME_LOGOS = {
 } as const;
 
 /**
+ * Square app icons for the game switcher.
+ *
+ * Three different packs, because that is where each one lives: Clash of Clans
+ * has always shipped `coc/main/game-icon.png`, Brawl Stars `bs/main/bsicon.png`
+ * (which lands in the `arena` registry with the rest of that pack), and Royale
+ * had none until `Clash_Royale_App_Icon` was pulled from the fan kit.
+ *
+ * Distinct from GAME_LOGOS, which are the wide wordmarks. A wordmark cannot
+ * sit in a 34px tab, and the switcher is a tab bar rather than a billboard.
+ */
+export const GAME_ICONS = {
+  coc: cocImages['game-icon'],
+  cr: crIconImages['appicon'],
+  bs: arenaImages['bsicon'],
+} as const;
+
+/**
  * Bottom-nav icons, trimmed to their content by the asset pipeline so they all
  * carry the same visual weight in an identical box. Drawn from the Clash Book
  * artwork, which is one consistent render style, rather than the mix of
@@ -136,6 +156,75 @@ export function bookArt(id: string): { source: ImageSourcePropType; title: strin
   // the rest fall back to clash-of-clans-data, which has the other 60.
   const source = bookImages[key] ?? bookExtraImages[key];
   return source ? { source, title: TITLES[id] ?? '' } : undefined;
+}
+
+/**
+ * Which levels of an item have artwork of their own.
+ *
+ * Built once from the generated registry's keys rather than stored as a second
+ * table, so the two can never disagree. ~1,800 keys, parsed at module load.
+ */
+const LEVELS_WITH_ART = (() => {
+  const map = new Map<string, number[]>();
+  for (const key of Object.keys(bookLevelImages)) {
+    const cut = key.lastIndexOf('_l');
+    if (cut < 0) continue;
+    const id = key.slice(0, cut);
+    const level = Number(key.slice(cut + 2));
+    if (!Number.isFinite(level)) continue;
+    const list = map.get(id);
+    if (list) list.push(level);
+    else map.set(id, [level]);
+  }
+  for (const list of map.values()) list.sort((a, b) => a - b);
+  return map;
+})();
+
+/**
+ * Clash Book artwork for a catalog item *at a level*.
+ *
+ * A level-1 and a level-14 Inferno Tower are different buildings to look at,
+ * and this is what makes the level slider, the player's unit tiles and the
+ * builder plan show the one the number refers to.
+ *
+ * Three fallbacks, in order:
+ *
+ *  - The exact level.
+ *  - **The nearest level at or below it.** Upstream level tables are sparse --
+ *    Battle Copter declares max level 35 and ships 21 rows -- so an exact-only
+ *    lookup would blank out the top of several items rather than holding the
+ *    last render the game actually changed.
+ *  - `bookArt(id)`, the single image. This is the answer for every hero, pet,
+ *    spell, hero equipment, guardian and Super Troop: the dataset ships one
+ *    `icon.png` for those and no per-level art exists anywhere, so the picture
+ *    legitimately does not change as their slider moves.
+ */
+export function bookArtAt(
+  id: string,
+  level?: number,
+): { source: ImageSourcePropType; title: string } | undefined {
+  const key = id.replace(/\//g, '_');
+  const wanted = Number(level);
+  if (Number.isFinite(wanted) && wanted > 0) {
+    const exact = bookLevelImages[`${key}_l${wanted}`];
+    if (exact) return { source: exact, title: TITLES[id] ?? '' };
+    const available = LEVELS_WITH_ART.get(key);
+    if (available) {
+      let best: number | undefined;
+      for (const candidate of available) {
+        if (candidate > wanted) break;
+        best = candidate;
+      }
+      const source = best === undefined ? undefined : bookLevelImages[`${key}_l${best}`];
+      if (source) return { source, title: TITLES[id] ?? '' };
+    }
+  }
+  return bookArt(id);
+}
+
+/** True when this item's artwork actually changes with its level. */
+export function hasLevelArt(id: string): boolean {
+  return LEVELS_WITH_ART.has(id.replace(/\//g, '_'));
 }
 
 /**

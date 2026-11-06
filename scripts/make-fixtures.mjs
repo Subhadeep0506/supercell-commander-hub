@@ -675,8 +675,21 @@ const TROPHY_LEAGUES = [
   'Bronze League I',
 ];
 
-const playerBoard = (mode) => ({
-  items: Array.from({ length: 25 }, (_, i) => ({
+/**
+ * A page of the player ladder.
+ *
+ * `page` exists so one board is genuinely paged. The real ladders carry
+ * `paging.cursors.after` and the app now walks it a page at a time; with every
+ * fixture answering a single capped page, that path would ship unexercised.
+ * Only the Home player board is paged -- one of each branch beats five.
+ */
+const playerBoard = (mode, page = 0) => ({
+  ...(page === 0 && mode === 'home'
+    ? { paging: { cursors: { after: PLAYER_CURSOR } } }
+    : {}),
+  items: Array.from({ length: 25 }, (_, n) => {
+  const i = page * 25 + n;
+  return ({
     tag: fakeTag('P', i),
     name: `${mode === 'builder' ? 'Builder' : 'Legend'} ${i + 1}`,
     rank: i + 1,
@@ -693,11 +706,12 @@ const playerBoard = (mode) => ({
     },
     // The top of the ladder is the top of the ladder: these walk down from
     // Legend III rather than cycling, which is what the real board does.
-    // The last two rows keep the pre-update shape so the fallback for an old
-    // cached payload stays exercised here too.
-    ...(i >= 23
-      ? { league: { id: 29000022, name: TROPHY_LEAGUES[i % TROPHY_LEAGUES.length] } }
-      : { leagueTier: leagueTier(36 - i), league: DEAD_LEAGUE }),
+    // The last two rows of the *first* page keep the pre-update shape so the
+    // fallback for an old cached payload stays exercised here too -- keyed on
+    // the row within the page, or page two would be entirely old-shape.
+    ...(page === 0 && n >= 23
+      ? { league: { id: 29000022, name: TROPHY_LEAGUES[n % TROPHY_LEAGUES.length] } }
+      : { leagueTier: leagueTier(Math.max(1, 36 - i)), league: DEAD_LEAGUE }),
     // No iconUrls: the builder ladder genuinely has none, which is why the
     // bundled set is the only way this badge ever renders.
     ...(mode === 'builder'
@@ -708,8 +722,12 @@ const playerBoard = (mode) => ({
           },
         }
       : {}),
-  })),
+  });
+  }),
 });
+
+/** Opaque, like Supercell's own -- base64 of `{"pos":25}`. */
+const PLAYER_CURSOR = 'eyJwb3MiOjI1fQ';
 
 const COUNTRIES = [
   ['United States', 'US'], ['India', 'IN'], ['Iraq', 'IQ'], ['Germany', 'DE'],
@@ -924,6 +942,10 @@ const files = {
   'coc-war-log.json': warLog,
   'coc-locations.json': locations,
   'coc-rank-players-home.json': playerBoard('home'),
+  // The second page, reached through `paging.cursors.after`. Its ranks run
+  // 26-50, so a check can tell a real second page from the first one served
+  // twice.
+  'coc-rank-players-home-2.json': playerBoard('home', 1),
   'coc-rank-players-builder.json': playerBoard('builder'),
   'coc-rank-clans-home.json': clanBoard('home'),
   'coc-rank-clans-builder.json': clanBoard('builder'),

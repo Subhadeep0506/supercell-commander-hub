@@ -30,7 +30,7 @@ import { useTheme, type Theme } from '@/theme/ThemeProvider';
 export function TodayScreen() {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  const { events, notes, live, accounts, loading, empty } = useToday();
+  const { events, notes, live, accounts, loading, loadingLive, empty } = useToday();
 
   return (
     <ScrollView style={s.scroll} contentContainerStyle={s.shell}>
@@ -54,7 +54,7 @@ export function TodayScreen() {
         -- and only when there is genuinely nothing else, so it never sits
         above a list of events that are plainly running.
       */}
-      {!empty && !loading && events.length === 0 && live.length === 0 ? (
+      {!empty && !loading && !loadingLive && events.length === 0 && live.length === 0 ? (
         <TodaySection title="Next up">
           <Panel>
             <Text style={s.quietTitle}>Nothing is running</Text>
@@ -71,6 +71,12 @@ export function TodayScreen() {
         gives them no end time, and a card in a timeline with a blank clock
         would claim one exists.
       */}
+      {loadingLive ? (
+        <TodaySection title="Running now">
+          <SkeletonRows rows={2} avatar label="Loading live events" />
+        </TodaySection>
+      ) : null}
+
       {live.length > 0 ? (
         <TodaySection
           title="Running now"

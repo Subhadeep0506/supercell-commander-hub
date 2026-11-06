@@ -118,6 +118,7 @@ export type Gates = {
   laboratory: number;
   heroHall: number;
   petHouse: number;
+  blacksmith: number;
   starLab: number;
 };
 
@@ -128,28 +129,76 @@ export function gatesFor(side: VillageSide): Gates {
     laboratory: level('home/laboratory'),
     heroHall: level('home/hero-hall'),
     petHouse: level('home/pet-house'),
+    blacksmith: level('home/blacksmith'),
     starLab: level('builder/star-laboratory'),
   };
 }
 
-/** A gates object that only knows the hall, for callers without a village. */
-export function hallOnly(hallLevel: number): Gates {
+/**
+ * The highest level a hall allows of a building, counting whether it allows
+ * one at all.
+ *
+ * The count check is not redundant with the level check. A Pet House's first
+ * level declares `townHallRequired: 14`, but the hall also has to *permit* the
+ * building -- and reading only the level rows of something like the Hero Hall,
+ * which exists from Town Hall 7, would be right by accident rather than by
+ * construction.
+ */
+function buildingMaxAt(id: string, hallLevel: number, base: 'home' | 'builder'): number {
+  const item = BOOK_ITEMS.find((i) => i.id === id);
+  if (!item || maxCountAt(item, hallLevel, base) === 0) return 0;
+  const key = base === 'home' ? 'townHallRequired' : 'builderHallRequired';
+  let max = 0;
+  for (const row of bookLevels(item)) {
+    if (Number(row[key] ?? 0) <= hallLevel) max = Math.max(max, Number(row['level']) || 0);
+  }
+  return max;
+}
+
+/**
+ * Gates for a player we know only the hall level of -- which is every player
+ * read from the API, because the CoC player endpoint returns no building
+ * levels at all.
+ *
+ * **Each gating building is itself hall-gated, so this is derived, not
+ * assumed.** The catalog states that a Hero Hall reaches level 7 at Town Hall
+ * 13, a Laboratory level 11, and that a Pet House cannot be placed below Town
+ * Hall 14 -- so a Town Hall 13 account's Barbarian King caps at 75, its
+ * Barbarian at 9, and its pets are genuinely locked. Those are the real
+ * in-game numbers.
+ *
+ * This replaces mapping every gate onto the hall level directly, which claimed
+ * a Hero Hall 13 for a Town Hall 13 and so reported every hero's cap as the
+ * game maximum.
+ */
+export function hallOnly(hallLevel: number, base: 'home' | 'builder' = 'home'): Gates {
+  // `hallLevel` is a Town Hall or a Builder Hall, never both, so the other
+  // village's gates are reported as zero rather than resolved against the
+  // wrong hall. No item names a gate from the other side, so this only ever
+  // shows up as an honest signature rather than as a behaviour change.
+  const home = base === 'home';
   return {
     hall: hallLevel,
-    laboratory: hallLevel,
-    heroHall: hallLevel,
-    petHouse: hallLevel,
-    starLab: hallLevel,
+    laboratory: home ? buildingMaxAt('home/laboratory', hallLevel, 'home') : 0,
+    heroHall: home ? buildingMaxAt('home/hero-hall', hallLevel, 'home') : 0,
+    petHouse: home ? buildingMaxAt('home/pet-house', hallLevel, 'home') : 0,
+    blacksmith: home ? buildingMaxAt('home/blacksmith', hallLevel, 'home') : 0,
+    starLab: home ? 0 : buildingMaxAt('builder/star-laboratory', hallLevel, 'builder'),
   };
 }
 
 const REQUIREMENTS: { key: string; gate: keyof Gates }[] = [
   { key: 'townHallRequired', gate: 'hall' },
   { key: 'builderHallRequired', gate: 'hall' },
+  // Builder Base heroes spell it the long way, and only this way -- without
+  // the second entry the Battle Machine and Battle Copter were ungated and
+  // reported their game maximum as reachable at every Builder Hall.
+  { key: 'builderHallLevelRequired', gate: 'hall' },
   { key: 'laboratoryRequired', gate: 'laboratory' },
   { key: 'starLabRequired', gate: 'starLab' },
   { key: 'heroHallLevelRequired', gate: 'heroHall' },
   { key: 'petHouseLevelRequired', gate: 'petHouse' },
+  { key: 'blacksmithLevelRequired', gate: 'blacksmith' },
 ];
 
 /**
@@ -160,7 +209,10 @@ const REQUIREMENTS: { key: string; gate: keyof Gates }[] = [
  * Town Hall claims levels the lab cannot research yet.
  */
 export function maxLevelAt(item: BookItem, gates: Gates | number): number {
-  const g = typeof gates === 'number' ? hallOnly(gates) : gates;
+  const g =
+    typeof gates === 'number'
+      ? hallOnly(gates, item.base === 'builder' ? 'builder' : 'home')
+      : gates;
   let max = 0;
   for (const row of bookLevels(item)) {
     const blocked = REQUIREMENTS.some(({ key, gate }) => {
@@ -255,12 +307,26 @@ export type Remaining = {
 export function remainingUpgrades(side: VillageSide): Remaining[] {
   const gates = gatesFor(side);
   const ownedBy = new Map(side.owned.map((o) => [o.catalogId, o]));
+  /*
+   * The level each builder is already part-way through.
+   *
+   * The export parser skips an in-progress row rather than filing it under
+   * `owned`, so a lone building half way from 5 to 6 has no owned entry at
+   * all and `current` fell back to 0 -- the plan then scheduled levels 1
+   * through 6 of a building that is already at 5. The lane reservation in
+   * `schedule()` hid the duplicate behind the running job, so the chart just
+   * looked longer than it should have been.
+   */
+  const runningTo = new Map<string, number>();
+  for (const job of side.inProgress) {
+    runningTo.set(job.catalogId, Math.max(runningTo.get(job.catalogId) ?? 0, job.toLevel));
+  }
   const out: Remaining[] = [];
   for (const item of reachable(side, gates)) {
     const lane = laneOf(item.category);
     if (lane === 'none') continue;
     const maxLevel = maxLevelAt(item, gates);
-    const current = ownedBy.get(item.id)?.level ?? 0;
+    const current = Math.max(ownedBy.get(item.id)?.level ?? 0, runningTo.get(item.id) ?? 0);
     // An item not yet built still has to be built: start from level 0.
     for (const row of bookLevels(item)) {
       const level = Number(row['level']) || 0;
@@ -314,8 +380,15 @@ export function wallsLeft(side: VillageSide): Progress {
  * threshold is calibrated against a real village whose Home Village sits at
  * 91.8% of its previous hall and whose Builder Base sits at 73.5% -- only the
  * second of which reads as rushed.
+ *
+ * Exported because the player screen's own rushed figure
+ * (lib/player-progress.ts) has to use the same calibrated number. The two
+ * measure different things -- this one weighs the whole village, that one can
+ * only weigh the army, because the player endpoint publishes no building
+ * levels -- so they will disagree on the same account. One threshold at least
+ * means they disagree only about the evidence.
  */
-const RUSHED_BELOW = 85;
+export const RUSHED_BELOW = 85;
 
 export function isRushed(side: VillageSide): boolean {
   if (side.hallLevel <= 1) return false;
@@ -323,6 +396,76 @@ export function isRushed(side: VillageSide): boolean {
 }
 
 export type Scheduled = Remaining & { startsAt: number; endsAt: number; lane: Lane; laneIndex: number };
+
+/** An upgrade the village was already part-way through when it was exported. */
+export type RunningJob = {
+  catalogId: string;
+  name: string;
+  category: string;
+  group: Group;
+  lane: Lane;
+  laneIndex: number;
+  fromLevel: number;
+  toLevel: number;
+  /** Seconds for the whole step, from the catalog -- the export only knows what is left. */
+  seconds: number;
+  startsAt: number;
+  endsAt: number;
+};
+
+type LaneSlot = { lane: Lane; index: number; free: number };
+
+function laneSlots(side: VillageSide, now: number): LaneSlot[] {
+  const lanes: LaneSlot[] = [];
+  for (let i = 0; i < Math.max(1, side.builders); i++) {
+    lanes.push({ lane: 'builder', index: i, free: now });
+  }
+  lanes.push({ lane: 'lab', index: 0, free: now });
+  lanes.push({ lane: 'pets', index: 0, free: now });
+  return lanes;
+}
+
+/**
+ * Places the in-progress upgrades onto lanes, reserving each until it ends.
+ *
+ * Mutates `lanes`, and returns what it placed. `schedule` has always done the
+ * reservation half; returning the placement as well is what lets the timeline
+ * draw the job that is actually running -- before this it showed only future
+ * work, so the one bar a player most wants to see was the one missing.
+ */
+function placeRunning(side: VillageSide, lanes: LaneSlot[]): RunningJob[] {
+  const out: RunningJob[] = [];
+  for (const active of side.inProgress) {
+    const lane = laneOf(active.category);
+    const slot = lanes.filter((l) => l.lane === lane).sort((a, b) => a.free - b.free)[0];
+    if (!slot) continue;
+    const seconds = upgradeDuration(active.catalogId, active.toLevel);
+    out.push({
+      catalogId: active.catalogId,
+      name: active.name,
+      category: active.category,
+      group: groupOf(active.category),
+      lane,
+      laneIndex: slot.index,
+      fromLevel: active.fromLevel,
+      toLevel: active.toLevel,
+      seconds,
+      // The export records time *remaining*, so the start is reconstructed
+      // from the catalog's own figure for the whole step. An item the catalog
+      // does not price lands as a zero-length bar at its finish time, which
+      // the chart widens to its minimum rather than dropping.
+      startsAt: active.finishesAt - seconds * 1000,
+      endsAt: active.finishesAt,
+    });
+    slot.free = Math.max(slot.free, active.finishesAt);
+  }
+  return out;
+}
+
+/** The in-progress upgrades, on the lanes `schedule` reserves for them. */
+export function runningJobs(side: VillageSide, now: number): RunningJob[] {
+  return placeRunning(side, laneSlots(side, now));
+}
 
 const ORDER: Record<Strategy, Group[]> = {
   balanced: ['heroes', 'offense', 'defense', 'economy', 'other'],
@@ -380,22 +523,11 @@ export function schedule(
   now: number,
   limit = 60,
 ): Scheduled[] {
-  const lanes: { lane: Lane; index: number; free: number }[] = [];
-  for (let i = 0; i < Math.max(1, side.builders); i++) {
-    lanes.push({ lane: 'builder', index: i, free: now });
-  }
-  lanes.push({ lane: 'lab', index: 0, free: now });
-  lanes.push({ lane: 'pets', index: 0, free: now });
-
+  const lanes = laneSlots(side, now);
   const out: Scheduled[] = [];
 
   // Anything already running owns its lane until finishesAt.
-  for (const active of side.inProgress) {
-    const lane = laneOf(active.category);
-    const slot = lanes.filter((l) => l.lane === lane).sort((a, b) => a.free - b.free)[0];
-    if (!slot) continue;
-    slot.free = Math.max(slot.free, active.finishesAt);
-  }
+  placeRunning(side, lanes);
 
   for (const next of order(remaining, strategy)) {
     if (out.length >= limit) break;
@@ -450,6 +582,10 @@ export function sectionItems(side: VillageSide, categories: readonly string[]) {
     .map((item) => {
       const owned = ownedOf(side, item.id);
       const maxLevel = maxLevelAt(item, gates);
+      const levelRows = bookLevels(item);
+      const gameMax = levelRows.length
+        ? Number(levelRows[levelRows.length - 1]!['level']) || 0
+        : 0;
       return {
         item,
         owned,
@@ -458,6 +594,10 @@ export function sectionItems(side: VillageSide, categories: readonly string[]) {
         maxLevel,
         maxCount: maxCountAt(item, side.hallLevel, side.base),
         maxed: (owned?.level ?? 0) >= maxLevel && maxLevel > 0,
+        // Maxed for the game, not just for this hall -- drawn gold rather
+        // than green, so "nothing more until I upgrade" and "finished for
+        // good" are not the same picture.
+        gameMaxed: gameMax > 0 && (owned?.level ?? 0) >= gameMax,
       };
     });
 
@@ -485,6 +625,8 @@ export function sectionItems(side: VillageSide, categories: readonly string[]) {
       maxLevel,
       maxCount: owned.count,
       maxed: maxLevel > 0 && (owned.modules ?? []).every((m) => m.level >= maxLevel),
+      // A module track has no hall gate, so its only max is the game's.
+      gameMaxed: maxLevel > 0 && (owned.modules ?? []).every((m) => m.level >= maxLevel),
     });
   }
 

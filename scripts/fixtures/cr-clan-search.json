@@ -5,7 +5,7 @@
       "name": "King Slayers",
       "type": "open",
       "badgeId": 16000145,
-      "clanScore": 8969,
+      "clanScore": 8983,
       "clanWarTrophies": 0,
       "location": {
         "id": 57000006,
@@ -13,7 +13,7 @@
         "isCountry": false
       },
       "requiredTrophies": 0,
-      "donationsPerWeek": 40,
+      "donationsPerWeek": 56,
       "clanChestLevel": 1,
       "clanChestMaxLevel": 0,
       "members": 3
@@ -23,7 +23,7 @@
       "name": "King Slayers",
       "type": "open",
       "badgeId": 16000077,
-      "clanScore": 122114,
+      "clanScore": 122858,
       "clanWarTrophies": 1809,
       "location": {
         "id": 57000113,
@@ -32,17 +32,17 @@
         "countryCode": "IN"
       },
       "requiredTrophies": 6000,
-      "donationsPerWeek": 1127,
+      "donationsPerWeek": 2659,
       "clanChestLevel": 1,
       "clanChestMaxLevel": 0,
-      "members": 38
+      "members": 40
     },
     {
       "tag": "#PL92CGR",
       "name": "King Slayers",
       "type": "open",
       "badgeId": 16000029,
-      "clanScore": 139408,
+      "clanScore": 139430,
       "clanWarTrophies": 4463,
       "location": {
         "id": 57000249,
@@ -51,7 +51,7 @@
         "countryCode": "US"
       },
       "requiredTrophies": 13000,
-      "donationsPerWeek": 3418,
+      "donationsPerWeek": 7530,
       "clanChestLevel": 1,
       "clanChestMaxLevel": 0,
       "members": 50
@@ -61,7 +61,7 @@
       "name": "King slayers",
       "type": "open",
       "badgeId": 16000144,
-      "clanScore": 85755,
+      "clanScore": 85887,
       "clanWarTrophies": 910,
       "location": {
         "id": 57000006,
@@ -69,47 +69,10 @@
         "isCountry": false
       },
       "requiredTrophies": 2000,
-      "donationsPerWeek": 0,
+      "donationsPerWeek": 38,
       "clanChestLevel": 1,
       "clanChestMaxLevel": 0,
       "members": 27
-    },
-    {
-      "tag": "#G9RR0QU8",
-      "name": "King Slayers",
-      "type": "open",
-      "badgeId": 16000029,
-      "clanScore": 115501,
-      "clanWarTrophies": 1505,
-      "location": {
-        "id": 57000006,
-        "name": "International",
-        "isCountry": false
-      },
-      "requiredTrophies": 7000,
-      "donationsPerWeek": 436,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 34
-    },
-    {
-      "tag": "#QC8LCPUU",
-      "name": "KING SLAYERS",
-      "type": "open",
-      "badgeId": 16000177,
-      "clanScore": 92062,
-      "clanWarTrophies": 1527,
-      "location": {
-        "id": 57000113,
-        "name": "India",
-        "isCountry": true,
-        "countryCode": "IN"
-      },
-      "requiredTrophies": 3000,
-      "donationsPerWeek": 30,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 35
     },
     {
       "tag": "#2RPVGVQP",
@@ -124,17 +87,54 @@
         "isCountry": false
       },
       "requiredTrophies": 0,
-      "donationsPerWeek": 60,
+      "donationsPerWeek": 80,
       "clanChestLevel": 1,
       "clanChestMaxLevel": 0,
       "members": 11
+    },
+    {
+      "tag": "#G9RR0QU8",
+      "name": "King Slayers",
+      "type": "open",
+      "badgeId": 16000029,
+      "clanScore": 115458,
+      "clanWarTrophies": 1505,
+      "location": {
+        "id": 57000006,
+        "name": "International",
+        "isCountry": false
+      },
+      "requiredTrophies": 7000,
+      "donationsPerWeek": 872,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 34
+    },
+    {
+      "tag": "#QC8LCPUU",
+      "name": "KING SLAYERS",
+      "type": "open",
+      "badgeId": 16000177,
+      "clanScore": 93049,
+      "clanWarTrophies": 1527,
+      "location": {
+        "id": 57000113,
+        "name": "India",
+        "isCountry": true,
+        "countryCode": "IN"
+      },
+      "requiredTrophies": 3000,
+      "donationsPerWeek": 30,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 37
     },
     {
       "tag": "#RV09Q8UJ",
       "name": "King Slayers",
       "type": "inviteOnly",
       "badgeId": 16000035,
-      "clanScore": 51317,
+      "clanScore": 51367,
       "clanWarTrophies": 391,
       "location": {
         "id": 57000006,
@@ -142,7 +142,7 @@
         "isCountry": false
       },
       "requiredTrophies": 3300,
-      "donationsPerWeek": 176,
+      "donationsPerWeek": 375,
       "clanChestLevel": 1,
       "clanChestMaxLevel": 0,
       "members": 11
@@ -152,7 +152,7 @@
       "name": "King Slayers",
       "type": "open",
       "badgeId": 16000096,
-      "clanScore": 78282,
+      "clanScore": 78419,
       "clanWarTrophies": 1381,
       "location": {
         "id": 57000001,
@@ -160,55 +160,17 @@
         "isCountry": false
       },
       "requiredTrophies": 0,
-      "donationsPerWeek": 47,
+      "donationsPerWeek": 92,
       "clanChestLevel": 1,
       "clanChestMaxLevel": 0,
       "members": 22
-    },
-    {
-      "tag": "#28RL0Y2",
-      "name": "King Slayers",
-      "type": "open",
-      "badgeId": 16000077,
-      "clanScore": 100943,
-      "clanWarTrophies": 1345,
-      "location": {
-        "id": 57000038,
-        "name": "Brazil",
-        "isCountry": true,
-        "countryCode": "BR"
-      },
-      "requiredTrophies": 0,
-      "donationsPerWeek": 105,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 46
-    },
-    {
-      "tag": "#2QJYGLG2",
-      "name": "King Slayers",
-      "type": "open",
-      "badgeId": 16000135,
-      "clanScore": 89014,
-      "clanWarTrophies": 1563,
-      "location": {
-        "id": 57000249,
-        "name": "United States",
-        "isCountry": true,
-        "countryCode": "US"
-      },
-      "requiredTrophies": 4000,
-      "donationsPerWeek": 56,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 31
     },
     {
       "tag": "#GQLRCVG",
       "name": "King Slayers",
       "type": "inviteOnly",
       "badgeId": 16000146,
-      "clanScore": 82738,
+      "clanScore": 82807,
       "clanWarTrophies": 1613,
       "location": {
         "id": 57000001,
@@ -220,6 +182,44 @@
       "clanChestLevel": 1,
       "clanChestMaxLevel": 0,
       "members": 23
+    },
+    {
+      "tag": "#28RL0Y2",
+      "name": "King Slayers",
+      "type": "open",
+      "badgeId": 16000077,
+      "clanScore": 101009,
+      "clanWarTrophies": 1345,
+      "location": {
+        "id": 57000038,
+        "name": "Brazil",
+        "isCountry": true,
+        "countryCode": "BR"
+      },
+      "requiredTrophies": 0,
+      "donationsPerWeek": 195,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 46
+    },
+    {
+      "tag": "#2QJYGLG2",
+      "name": "King Slayers",
+      "type": "open",
+      "badgeId": 16000135,
+      "clanScore": 85440,
+      "clanWarTrophies": 1563,
+      "location": {
+        "id": 57000249,
+        "name": "United States",
+        "isCountry": true,
+        "countryCode": "US"
+      },
+      "requiredTrophies": 4000,
+      "donationsPerWeek": 126,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 27
     },
     {
       "tag": "#J0LPR0P9",
@@ -245,7 +245,7 @@
       "name": "King Slayers",
       "type": "open",
       "badgeId": 16000028,
-      "clanScore": 11649,
+      "clanScore": 11664,
       "clanWarTrophies": 973,
       "location": {
         "id": 57000003,
@@ -314,11 +314,121 @@
       "members": 1
     },
     {
+      "tag": "#GJYLPQCV",
+      "name": "king slayers",
+      "type": "inviteOnly",
+      "badgeId": 16000177,
+      "clanScore": 55954,
+      "clanWarTrophies": 580,
+      "location": {
+        "id": 57000006,
+        "name": "International",
+        "isCountry": false
+      },
+      "requiredTrophies": 0,
+      "donationsPerWeek": 10,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 18
+    },
+    {
+      "tag": "#LY2LCL20",
+      "name": "king slayers",
+      "type": "open",
+      "badgeId": 16000139,
+      "clanScore": 45219,
+      "clanWarTrophies": 1124,
+      "location": {
+        "id": 57000038,
+        "name": "Brazil",
+        "isCountry": true,
+        "countryCode": "BR"
+      },
+      "requiredTrophies": 1000,
+      "donationsPerWeek": 0,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 50
+    },
+    {
+      "tag": "#LQPV2JCC",
+      "name": "King slayers",
+      "type": "open",
+      "badgeId": 16000026,
+      "clanScore": 21891,
+      "clanWarTrophies": 316,
+      "location": {
+        "id": 57000006,
+        "name": "International",
+        "isCountry": false
+      },
+      "requiredTrophies": 0,
+      "donationsPerWeek": 0,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 10
+    },
+    {
+      "tag": "#RY8YP2V0",
+      "name": "king slayers",
+      "type": "open",
+      "badgeId": 16000025,
+      "clanScore": 16320,
+      "clanWarTrophies": 0,
+      "location": {
+        "id": 57000006,
+        "name": "International",
+        "isCountry": false
+      },
+      "requiredTrophies": 0,
+      "donationsPerWeek": 0,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 4
+    },
+    {
+      "tag": "#J8RRQYQ9",
+      "name": "King Slayers",
+      "type": "open",
+      "badgeId": 16000154,
+      "clanScore": 7454,
+      "clanWarTrophies": 72,
+      "location": {
+        "id": 57000248,
+        "name": "United Kingdom",
+        "isCountry": true,
+        "countryCode": "GB"
+      },
+      "requiredTrophies": 1000,
+      "donationsPerWeek": 0,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 7
+    },
+    {
+      "tag": "#L8VUQRRC",
+      "name": "King Slayers",
+      "type": "open",
+      "badgeId": 16000165,
+      "clanScore": 6098,
+      "clanWarTrophies": 0,
+      "location": {
+        "id": 57000006,
+        "name": "International",
+        "isCountry": false
+      },
+      "requiredTrophies": 0,
+      "donationsPerWeek": 0,
+      "clanChestLevel": 1,
+      "clanChestMaxLevel": 0,
+      "members": 3
+    },
+    {
       "tag": "#G9LPR90G",
       "name": "king slayers",
       "type": "open",
       "badgeId": 16000000,
-      "clanScore": 44136,
+      "clanScore": 44162,
       "clanWarTrophies": 510,
       "location": {
         "id": 57000006,
@@ -336,7 +446,7 @@
       "name": "King Slayers",
       "type": "open",
       "badgeId": 16000128,
-      "clanScore": 35543,
+      "clanScore": 35532,
       "clanWarTrophies": 427,
       "location": {
         "id": 57000003,
@@ -348,115 +458,6 @@
       "clanChestLevel": 1,
       "clanChestMaxLevel": 0,
       "members": 12
-    },
-    {
-      "tag": "#GJCG9G92",
-      "name": "King Slayers",
-      "type": "open",
-      "badgeId": 16000131,
-      "clanScore": 11859,
-      "clanWarTrophies": 0,
-      "location": {
-        "id": 57000006,
-        "name": "International",
-        "isCountry": false
-      },
-      "requiredTrophies": 0,
-      "donationsPerWeek": 0,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 4
-    },
-    {
-      "tag": "#GQPPQ2VJ",
-      "name": "king Slayers",
-      "type": "open",
-      "badgeId": 16000024,
-      "clanScore": 10893,
-      "clanWarTrophies": 339,
-      "location": {
-        "id": 57000249,
-        "name": "United States",
-        "isCountry": true,
-        "countryCode": "US"
-      },
-      "requiredTrophies": 0,
-      "donationsPerWeek": 0,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 10
-    },
-    {
-      "tag": "#Y908QL9Y",
-      "name": "King Slayers",
-      "type": "open",
-      "badgeId": 16000007,
-      "clanScore": 6150,
-      "clanWarTrophies": 944,
-      "location": {
-        "id": 57000001,
-        "name": "North America",
-        "isCountry": false
-      },
-      "requiredTrophies": 300,
-      "donationsPerWeek": 0,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 6
-    },
-    {
-      "tag": "#QCQQYCL0",
-      "name": "King Slayers",
-      "type": "open",
-      "badgeId": 16000144,
-      "clanScore": 5588,
-      "clanWarTrophies": 195,
-      "location": {
-        "id": 57000006,
-        "name": "International",
-        "isCountry": false
-      },
-      "requiredTrophies": 0,
-      "donationsPerWeek": 0,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 5
-    },
-    {
-      "tag": "#G90JRG9V",
-      "name": "king slayers",
-      "type": "open",
-      "badgeId": 16000018,
-      "clanScore": 4180,
-      "clanWarTrophies": 0,
-      "location": {
-        "id": 57000006,
-        "name": "International",
-        "isCountry": false
-      },
-      "requiredTrophies": 0,
-      "donationsPerWeek": 0,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 1
-    },
-    {
-      "tag": "#JYL2CQLQ",
-      "name": "king slayers",
-      "type": "open",
-      "badgeId": 16000029,
-      "clanScore": 505,
-      "clanWarTrophies": 0,
-      "location": {
-        "id": 57000001,
-        "name": "North America",
-        "isCountry": false
-      },
-      "requiredTrophies": 5000,
-      "donationsPerWeek": 0,
-      "clanChestLevel": 1,
-      "clanChestMaxLevel": 0,
-      "members": 1
     }
   ],
   "paging": {

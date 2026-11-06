@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { COC_ART, NAV_ART, townHallArt } from '@/assets/art';
 import { raidMedalArt } from '@/assets/capital';
 import { gameQuery } from '@/api/queries';
-import { record, rows, text, type ApiRecord } from '@/api/game-api';
+import { text, type ApiRecord } from '@/api/game-api';
 import { playerLeague } from '@/lib/league-tier';
 import {
   MODES,
@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/Button';
 import { ChipRow } from '@/components/ui/ChipRow';
 import { LeagueTierBadge } from '@/components/ui/LeagueTierBadge';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
+import { useRankingPages } from '@/hooks/use-ranking-pages';
 import { RemoteImage } from '@/components/ui/RemoteImage';
 import { SearchField } from '@/components/ui/SearchField';
 import { Sheet } from '@/components/ui/Sheet';
@@ -59,13 +60,23 @@ export function CocLeaderboard() {
   const [picking, setPicking] = useState(false);
   const [locationQuery, setLocationQuery] = useState('');
 
-  const {
-    data: result,
-    refetch,
-    isFetching,
-  } = useQuery(
-    gameQuery({ game: 'coc', resource: 'leaderboard', board, mode, locationId: location.id }),
-  );
+  /*
+   * Paged against the service, not sliced from one response.
+   *
+   * The ladder path used to hardcode `limit=25`, so "more players" had
+   * nowhere to come from however far the list was scrolled. Each tap of the
+   * button below now walks Supercell's own `paging.cursors.after` one page
+   * further, up to 300 rows or whenever the service stops offering a cursor.
+   */
+  const pages = useRankingPages({
+    game: 'coc',
+    resource: 'leaderboard',
+    board,
+    mode,
+    locationId: location.id,
+  });
+  const result = pages.first;
+  const { refetch, isFetching } = pages;
 
   // Only fetched once the picker is opened -- 300 locations are not needed to
   // render the default Global board.
@@ -74,10 +85,7 @@ export function CocLeaderboard() {
     enabled: picking,
   });
 
-  const entries = useMemo(
-    () => (result?.ok ? rows(record(JSON.parse(result.data))['items']) : []),
-    [result],
-  );
+  const entries = pages.items;
   const filtered = useMemo(
     () => entries.filter((e) => searchable(e, board).includes(query.toLowerCase())),
     [entries, board, query],
@@ -90,9 +98,17 @@ export function CocLeaderboard() {
     [filtered, query],
   );
   const podium = !query && entries.length >= 3 ? [entries[1], entries[0], entries[2]] : [];
-  // A global board returns 200 rows. Searching, or changing board, mode or
-  // location, collapses it back to one page.
-  const paged = usePaged(listed, `${board}:${mode}:${location.id}:${query}`);
+  /*
+   * Two layers of paging, and they chain. This one reveals more of what has
+   * already arrived; once it runs out, the button fetches the next page from
+   * the service. Searching, or changing board, mode or location, collapses it
+   * back to the first page.
+   *
+   * 25 a tap, not the shared default of 10: a ladder is a long list people
+   * scan rather than read, and at 10 it would take thirty taps to reach the
+   * 300-row cap.
+   */
+  const paged = usePaged(listed, `${board}:${mode}:${location.id}:${query}`, 25);
 
   const open = (entry: ApiRecord) => {
     const tag = text(entry['tag']);
@@ -221,12 +237,36 @@ export function CocLeaderboard() {
         ))}
       </View>
 
-      <LoadMore
-        remaining={paged.remaining}
-        onPress={paged.loadMore}
-        noun={board === 'clans' ? 'clans' : 'players'}
-        style={s.more}
-      />
+      {pages.isFetchingMore ? <SkeletonRows rows={3} avatar label="Loading more rankings" /> : null}
+
+      {/*
+        One button for both layers. While rows are still hidden it reveals
+        them; when they run out and the service has another page, it fetches
+        it. `remaining` is 0 in the second case, so LoadMore would render
+        nothing -- hence the explicit branch.
+      */}
+      {paged.remaining > 0 ? (
+        <LoadMore
+          remaining={paged.remaining}
+          onPress={paged.loadMore}
+          size={25}
+          noun={board === 'clans' ? 'clans' : 'players'}
+          style={s.more}
+        />
+      ) : pages.hasMore && !query ? (
+        <Button
+          variant="outline"
+          size="sm"
+          style={s.more}
+          accessibilityLabel="Load more"
+          disabled={pages.isFetchingMore}
+          onPress={pages.loadMore}
+        >
+          {pages.isFetchingMore
+            ? 'Loading…'
+            : `Load more ${board === 'clans' ? 'clans' : 'players'} · ${entries.length} so far`}
+        </Button>
+      ) : null}
 
       {result?.ok && !filtered.length ? (
         <Text style={s.empty}>

@@ -60,6 +60,11 @@ const WIDTH = 256;
  */
 const SINGLES = [
   // --- cr/icons -------------------------------------------------------------
+  // The game switcher in the header. Clash of Clans already ships
+  // coc/main/game-icon.png and Brawl Stars bs/main/bsicon.png; Royale was the
+  // only one of the three with no square icon anywhere in the repo, and a
+  // wordmark cannot sit in a 34px tab beside two app icons.
+  { title: 'Clash_Royale_App_Icon', to: 'cr/icons/appicon.png' },
   // Repair points, River Race and the race log. The kit has no UI hammer; the
   // Hog Rider emote is a clean golden hammer once trimmed out of its frame.
   { title: 'emote_hog_rider_hammer', to: 'cr/icons/hammer.png' },

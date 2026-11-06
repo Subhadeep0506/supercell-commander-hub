@@ -76,6 +76,7 @@ export function VillageGrid({
                   count={entry.count}
                   size={62}
                   maxed={entry.maxed}
+                  gameMaxed={entry.gameMaxed}
                   progress={entry.maxLevel > 0 ? entry.level / entry.maxLevel : 0}
                   onPress={() => onOpenItem(entry.item.id, entry.level)}
                   // A crafted defense has no single level, so its three module

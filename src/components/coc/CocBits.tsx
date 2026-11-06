@@ -81,7 +81,10 @@ const starsRow: ViewStyle = { flexDirection: 'row', alignItems: 'center', gap: 1
 const starOff: ImageStyle = { opacity: 0.22 };
 
 function bookFallback(name: string) {
-  const entry = playerBookItem(name);
+  // Home first, then the Builder Base -- the section headings on the player's
+  // Builder Base tab name builder-only items ("Battle Machine", "Push Trap"),
+  // and a home-only lookup drew nothing for all of them.
+  const entry = playerBookItem(name) ?? playerBookItem(name, 'builderBase');
   return entry ? itemArt(entry)?.source : undefined;
 }
 

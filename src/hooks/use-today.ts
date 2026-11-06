@@ -37,6 +37,14 @@ export function useToday(): {
   accounts: { coc?: ApiRecord; cr?: ApiRecord };
   /** True only while nothing has arrived yet -- a refetch must not blank the screen. */
   loading: boolean;
+  /**
+   * The same, for the "Running now" list.
+   *
+   * Tracked separately because that query needs no account and no clan tag:
+   * it resolves on its own schedule, so folding it into `loading` would hold
+   * a skeleton over the whole board for a visitor who has saved nothing.
+   */
+  loadingLive: boolean;
   /** No account saved for any game: the screen has nothing to resolve from. */
   empty: boolean;
 } {
@@ -141,6 +149,7 @@ export function useToday(): {
     live,
     accounts: { coc: cocRecord, cr: crRecord },
     loading,
+    loadingLive: !ready || (!crEvents.data && crEvents.isFetching),
     empty: ready && !cocTag && !crTag,
   };
 }

@@ -137,21 +137,97 @@ if (!input.asElement()) {
   check('and did not add a second passport', count === 1, `${count} passports`);
 }
 
-// The army grids are horizontal scrollers now, not wrapping lists, and the
-// row count is a function of group size: one row up to eight items, three
-// above. Column counts are asserted because they are what proves which branch
-// ran -- 4 heroes in one row is 4 columns, 14 troops in three rows is 5.
+/*
+ * The hall progress card.
+ *
+ * Everything in it is derived from the player endpoint and the catalog, so it
+ * renders for any player -- which is the point of it, and why these checks run
+ * on a plain search result rather than on an imported village. The
+ * denominator is the *catalog's*: 548 army levels at Town Hall 13, which is
+ * what proves Super Troops are being left out (they would take it past 700)
+ * and that hero equipment is off the headline (it would more than double it).
+ */
+const card = await body();
+check('hall progress card renders', /Town Hall 13 progress/.test(card), '');
+check('completion is level-weighted and stated', /\d+ \/ \d+ levels/.test(card), '');
+check(
+  'the headline counts the army, not the whole book',
+  /\b224 \/ 548 levels\b/.test(card),
+  card.match(/\d+ \/ \d+ levels/)?.[0] ?? 'no level count',
+);
+check('a rushed account is flagged with how far short it is', /Rushed · \d+%/.test(card), '');
+check(
+  'each category carries a bar and a behind-the-last-hall count',
+  /Heroes\s+\d+%\s+⚠ 3/.test(card),
+  card.match(/Heroes[\s\S]{0,24}/)?.[0] ?? '',
+);
+// Hero equipment is bought with ore rather than levelled against a hall, so it
+// is reported below the divider and never contributes a warning.
+check('hero equipment is listed but never called behind', /Hero Equipment\s+\d+%\s*\n/.test(card), '');
+check('the card says what it did and did not measure', /publishes no building levels/.test(card), '');
+
+await clickLabel('Spells, 38 percent');
+const opened = await body();
+check('a category expands to what is left', /Left to upgrade for TH13/.test(opened), '');
+check('and each tile says how many levels that is', /\+\d+ to go/.test(opened), '');
+const leftGrid = await gridShape('Spells left to upgrade');
+check('the remaining grid is its own scroller', Boolean(leftGrid), JSON.stringify(leftGrid));
+await clickLabel('Spells, 38 percent');
+
+/*
+ * Buildings are gone from this screen entirely.
+ *
+ * They used to render as a wall of grey "?" tiles above a prompt to paste a
+ * village export -- which exists only for your own account, never for the clan
+ * member whose profile this same component draws.
+ */
+const noBuildings = await body();
+check('buildings are not listed on a player profile', !/no building levels\. Import/.test(noBuildings), '');
+check('the army panel is named for what it holds', /\bArmy\b/.test(noBuildings), '');
+
+// The village switch governs the card as well as the grids, which is why it
+// moved above the card.
+await clickLabel('Builder Base');
+const builderCard = await body();
+check('the card follows the village tabs', /Builder Hall 9 progress/.test(builderCard), '');
+check(
+  'and measures only what the Builder Base has',
+  /Measured over heroes and troops/.test(builderCard),
+  builderCard.match(/Measured over [^.]*/)?.[0] ?? '',
+);
+await clickLabel('Home Village');
+
+// The army grids are horizontal scrollers, not wrapping lists, and the row
+// count is a function of group size: one row up to eight items, three above.
+// Column counts are asserted because they are what proves which branch ran.
 //
-// Spells sits exactly on the boundary at 8, which is the case most likely to
-// come out wrong if the comparison ever flips to `<`.
+// The sizes are the *catalog's*, not the fixture's: these sections list every
+// item in the book and mark each as owned, ready or locked, so a Town Hall 13
+// account shows all 18 Home Village spells rather than the 8 it owns.
 const heroes = await gridShape('Heroes summary');
-check('hero strip is one row (4 items)', heroes?.columns === 4, JSON.stringify(heroes));
+check('hero strip is one row (4 owned heroes)', heroes?.columns === 4, JSON.stringify(heroes));
 
 const spells = await gridShape('Spells');
-check('eight spells stay on one row', spells?.columns === 8, JSON.stringify(spells));
+check(
+  'all 18 spells listed, over three rows',
+  spells?.columns === Math.ceil(18 / 3),
+  JSON.stringify(spells),
+);
 
 const troops = await gridShape('Troops');
-check('14 troops take three rows', troops?.columns === Math.ceil(14 / 3), JSON.stringify(troops));
+check(
+  'all 33 troops listed, over three rows',
+  troops?.columns === Math.ceil(33 / 3),
+  JSON.stringify(troops),
+);
+
+// The reported bug: the service returns no pet rows for an account below Town
+// Hall 14, so a section built from the response was missing entirely.
+const pets = await gridShape('Pets');
+check('every pet is listed, owned or not', pets?.columns === Math.ceil(12 / 3), JSON.stringify(pets));
+
+const collection = await body();
+check('locked entries say so', collection.includes('Locked'), '');
 
 // Super Troops are their own group now. They used to sit inside Troops with no
 // catalog entry behind them, so every tile fell back to a text placeholder and
@@ -163,6 +239,28 @@ check(
   Boolean(troops && troops.scrollWidth > troops.clientWidth),
   troops ? `${troops.scrollWidth} > ${troops.clientWidth}` : 'missing',
 );
+
+/*
+ * The item card, opened from a player rather than from the Clash Book.
+ *
+ * The service's own `maxLevel` is the *game* maximum -- 18 for a Barbarian
+ * Puppet -- while 15 is all a Town Hall 13 Blacksmith can reach, and 15 is the
+ * number a player is actually asking for. Asserting both is what would catch
+ * the cap silently reverting to the game figure.
+ */
+await clickLabel('View Barbarian Puppet level 13');
+const itemCard = await body();
+check('the card caps the item at this hall', /Level 13 \/ 15 for TH13/.test(itemCard), '');
+check('and still names the game maximum', /Game max: 18/.test(itemCard), '');
+check(
+  'the rest of the way is totalled',
+  /To reach the TH13 max · 2 levels to go/.test(itemCard),
+  itemCard.match(/To reach[^\n]*/)?.[0] ?? '',
+);
+// Equipment costs ore and no time at all, so no total-time row should appear.
+check('no time is claimed for an ore-bought upgrade', !/Total time/.test(itemCard), '');
+check('equipment names the hero wearing it', /Worn by\s*\n\s*Barbarian King/.test(itemCard), '');
+await clickLabel('Close item details', 1200);
 
 // The Battles section. Clash of Clans has no battle log, so this is war
 // attacks: the live war plus the league rounds, both of which the generated
@@ -331,7 +429,20 @@ check('district expands to its attackers', await hasLabel('View Twitch Lurmii'))
 // The point of the back-stack: push a player on from three levels down, then
 // come back to a capital raids page that is still exactly as it was left.
 await clickLabel('View Twitch Lurmii', 2500);
-check('attacker opens a player inside the sheet', (await body()).includes('Town Hall 13'));
+const sheetPlayer = await body();
+check('attacker opens a player inside the sheet', sheetPlayer.includes('Town Hall 13'));
+/*
+ * The whole point of deriving progress from the player endpoint rather than
+ * from a village export: it works for somebody else's account.
+ *
+ * The screen underneath is the clan finder, which never renders a player, so
+ * this string can only have come from the sheet.
+ */
+check(
+  'and that player gets the same progress card',
+  /Town Hall \d+ progress/.test(sheetPlayer) && /Rushed · \d+%|Heroes\s+\d+%/.test(sheetPlayer),
+  sheetPlayer.match(/Town Hall \d+ progress/)?.[0] ?? 'no card',
+);
 await clickLabel('Back', 1500);
 check(
   'back restores the expanded raid rather than resetting the page',
@@ -465,6 +576,31 @@ await settle(2500);
 const players = await body();
 check('players ladder loads', players.includes('Legend 1'));
 check('rank movement shown', /[▲▼]\s*\d/.test(players), players.match(/[▲▼]\s*\d+/)?.[0] ?? '');
+// 25 rows a tap, so the first network page is on screen at once -- but only
+// that page: the second is behind the cursor and must not be there yet.
+check('the first page is on screen', players.includes('Legend 25'));
+check('and the second has not been fetched', !players.includes('Legend 26'));
+
+/*
+ * Paging past the first response.
+ *
+ * The ladder path used to hardcode `limit=25`, so the board stopped there
+ * whatever the button said. Load more now reveals the rest of the page it has,
+ * then follows `paging.cursors.after` for the next one -- and the fixture's
+ * second page is ranks 26-50, so "Legend 50" proves a real second request
+ * rather than the first page served twice.
+ */
+for (let i = 0; i < 6; i++) {
+  const more = await page.$$eval('[aria-label="Load more"]', (els) =>
+    els.some((e) => e.getClientRects().length > 0),
+  );
+  if (!more) break;
+  await clickLabel('Load more', 900);
+}
+const paged = await body();
+check('the first page is reachable in full', paged.includes('Legend 25'));
+check('the cursor fetches a real second page', paged.includes('Legend 50'));
+check('the button retires when the service offers no cursor', !/Load more/.test(paged));
 
 await clickLabel('Clans');
 await settle(1500);

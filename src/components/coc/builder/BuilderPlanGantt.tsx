@@ -1,11 +1,27 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { VillageSide } from '@/lib/village-export';
-import { STRATEGIES, schedule, type Remaining, type Strategy } from '@/lib/village-plan';
+import {
+  STRATEGIES,
+  runningJobs,
+  schedule,
+  type Remaining,
+  type RunningJob,
+  type Strategy,
+} from '@/lib/village-plan';
 import { ChipRow } from '@/components/ui/ChipRow';
 import { Panel } from '@/components/ui/Panel';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { GroupLegend, briefDuration, groupColour, itemImage, useNow } from './BuilderBits';
+
+/** A planned step or an in-progress one, laid out the same way. */
+type Bar = (Remaining | RunningJob) & {
+  startsAt: number;
+  endsAt: number;
+  lane: string;
+  laneIndex: number;
+  running: boolean;
+};
 
 const RANGES = [
   { id: '3d', label: '3 days', days: 3 },
@@ -63,9 +79,25 @@ export function BuilderPlanGantt({
   const width = windowDays * DAY_WIDTH;
   const xFor = (at: number) => ((at - start) / (end - start)) * width;
 
+  /*
+   * Two kinds of bar on one chart.
+   *
+   * `running` is what the village was part-way through when it was exported;
+   * `plan` is what would follow. The chart used to draw only the second, so
+   * the upgrade a player most wants to see -- the one actually ticking down --
+   * was the one bar missing from the timeline.
+   */
   const plan = useMemo(
     () => schedule(side, remaining, strategy, now, 80),
     [side, remaining, strategy, now],
+  );
+  const running = useMemo(() => runningJobs(side, now), [side, now]);
+  const bars: Bar[] = useMemo(
+    () => [
+      ...running.map((job) => ({ ...job, running: true })),
+      ...plan.map((task) => ({ ...task, running: false })),
+    ],
+    [running, plan],
   );
 
   // One row per lane that actually has work, so an empty Pet House row does
@@ -75,7 +107,7 @@ export function BuilderPlanGantt({
     for (let i = 0; i < Math.max(1, side.builders); i++) {
       keys.set(`builder:${i}`, { lane: 'builder', index: i, label: String(i + 1) });
     }
-    for (const task of plan) {
+    for (const task of bars) {
       const key = `${task.lane}:${task.laneIndex}`;
       if (!keys.has(key)) {
         keys.set(key, {
@@ -86,14 +118,19 @@ export function BuilderPlanGantt({
       }
     }
     return [...keys.entries()];
-  }, [plan, side.builders]);
+  }, [bars, side.builders]);
 
   const dayMarks = useMemo(
     () => Array.from({ length: windowDays }, (_, i) => start + i * 86400_000),
     [start, windowDays],
   );
 
-  const visible = plan.filter((t) => t.endsAt > start && t.startsAt < end);
+  const visible = bars.filter((t) => t.endsAt > start && t.startsAt < end);
+  // Counted off what is actually on the chart, not off `running`: an export
+  // taken days ago has in-progress upgrades whose timers have long since
+  // elapsed, and those are not running any more. Saying "the outlined bars"
+  // with none on screen is worse than saying nothing.
+  const runningShown = visible.filter((t) => t.running).length;
 
   return (
     <Panel>
@@ -152,27 +189,37 @@ export function BuilderPlanGantt({
                 const left = Math.max(0, xFor(task.startsAt));
                 const right = Math.min(width, xFor(task.endsAt));
                 const barWidth = Math.max(MIN_BAR, right - left);
-                // The artwork always fits; the label only earns its place once
-                // the bar is wide enough to show more than a truncated word.
-                const roomForText = barWidth > MIN_BAR + 46;
+                /*
+                  Only the running bar is labelled.
+
+                  Every bar carrying its name and target level turned the
+                  chart into a wall of 9px text, and nothing in it marked
+                  which upgrade was actually under way. The planned bars are
+                  their artwork and their group colour; their detail is a tap
+                  away, and the lists below the chart spell them out in order.
+                 */
+                const roomForText = task.running && barWidth > MIN_BAR + 46;
                 const art = itemImage(task.catalogId, task.fromLevel);
                 return (
                   <Pressable
                     key={i}
                     accessibilityRole="button"
-                    accessibilityLabel={`${task.name} to level ${task.toLevel}, ${briefDuration(
-                      task.seconds * 1000,
-                    )}`}
+                    accessibilityLabel={`${task.running ? 'Upgrading now: ' : ''}${
+                      task.name
+                    } to level ${task.toLevel}, ${briefDuration(task.seconds * 1000)}`}
                     disabled={!onOpenItem}
                     onPress={() => onOpenItem?.(task.catalogId, task.fromLevel)}
                     style={({ pressed }) => [
                       s.bar,
                       pressed && s.barPressed,
+                      task.running && s.barRunning,
                       {
                         top: row * ROW_HEIGHT + 6,
                         left,
                         width: barWidth,
-                        backgroundColor: groupColour(task.group, theme),
+                        backgroundColor: task.running
+                          ? theme.cocHighlight
+                          : groupColour(task.group, theme),
                       },
                     ]}
                   >
@@ -205,6 +252,14 @@ export function BuilderPlanGantt({
         </View>
       )}
 
+      {runningShown > 0 ? (
+        <Text style={s.runningNote}>
+          The outlined bar{runningShown === 1 ? ' is' : 's are'} upgrading now. Only
+          {runningShown === 1 ? ' it carries' : ' those carry'} a label; tap any bar for its
+          stats.
+        </Text>
+      ) : null}
+
       <GroupLegend groups={['heroes', 'offense', 'defense', 'economy', 'other']} />
     </Panel>
   );
@@ -220,6 +275,13 @@ const build = (t: Theme) =>
     head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     title: { fontFamily: t.fonts.display, fontSize: 16, color: t.foreground },
     empty: { marginTop: 14, fontSize: 12, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    runningNote: {
+      marginTop: 10,
+      fontSize: 10,
+      lineHeight: 15,
+      color: t.mutedForeground,
+      fontFamily: t.fonts.sans,
+    },
 
     chart: { flexDirection: 'row', marginTop: 6 },
     labels: { width: 30, flexShrink: 0 },
@@ -242,6 +304,9 @@ const build = (t: Theme) =>
       overflow: 'hidden',
     },
     barPressed: { opacity: 0.75 },
+    // The running bar is the only one outlined, so it reads as "this one" at a
+    // glance rather than needing the legend.
+    barRunning: { borderWidth: 2, borderColor: t.foreground },
     barArt: { width: ART_SIZE, height: ART_SIZE, flexShrink: 0 },
     barText: { flex: 1, minWidth: 0 },
     barName: { fontSize: 10, color: t.primaryForeground, fontFamily: t.fonts.display },

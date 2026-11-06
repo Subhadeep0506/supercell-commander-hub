@@ -1,20 +1,20 @@
 {
   "tag": "#L8YV8P2CL",
   "name": "DenCT",
-  "collectionLevel": 691,
+  "collectionLevel": 717,
   "kingTowerLevel": 11,
   "expLevel": 27,
-  "trophies": 3604,
-  "bestTrophies": 3604,
-  "wins": 212,
-  "losses": 147,
-  "battleCount": 359,
-  "threeCrownWins": 128,
+  "trophies": 3662,
+  "bestTrophies": 3662,
+  "wins": 218,
+  "losses": 148,
+  "battleCount": 366,
+  "threeCrownWins": 129,
   "challengeCardsWon": 0,
   "challengeMaxWins": 0,
   "tournamentCardsWon": 0,
   "tournamentBattleCount": 0,
-  "currentWinLoseStreak": 1,
+  "currentWinLoseStreak": 3,
   "role": "member",
   "donations": 0,
   "donationsReceived": 0,
@@ -36,7 +36,7 @@
       "name": "YearsPlayed",
       "level": 6,
       "maxLevel": 11,
-      "progress": 2375,
+      "progress": 2378,
       "target": 2555,
       "iconUrls": {
         "large": "https://api-assets.clashroyale.com/playerbadges/512/nSXiP2cMAriEEqxrxiaPpbocBvRmRxZTaNPpCg5wlmY.png"
@@ -46,7 +46,7 @@
       "name": "BattleWins",
       "level": 2,
       "maxLevel": 8,
-      "progress": 212,
+      "progress": 218,
       "target": 250,
       "iconUrls": {
         "large": "https://api-assets.clashroyale.com/playerbadges/512/i9CNP634ogX9R9burS5bvg_-TVv6CaUDFmH2eg3aQUc.png"
@@ -66,7 +66,7 @@
       "name": "BannerCollection",
       "level": 1,
       "maxLevel": 8,
-      "progress": 24,
+      "progress": 25,
       "target": 30,
       "iconUrls": {
         "large": "https://api-assets.clashroyale.com/playerbadges/512/Lzu_2_YeM2OMFLCm-K6XX3mXjjYcrpBQ095pV3BX_ww.png"
@@ -76,7 +76,7 @@
       "name": "CollectionLevel",
       "level": 4,
       "maxLevel": 8,
-      "progress": 691,
+      "progress": 717,
       "target": 800,
       "iconUrls": {
         "large": "https://api-assets.clashroyale.com/playerbadges/512/NaXuE07g3zohGeYiciFJODvF_YVClUOq8GvR7L8Q4kg.png"
@@ -271,7 +271,7 @@
     {
       "name": "Gatherer",
       "stars": 3,
-      "value": 78,
+      "value": 80,
       "target": 40,
       "info": "Collect 40 cards",
       "completionInfo": null
@@ -453,7 +453,7 @@
       "maxLevel": 16,
       "maxEvolutionLevel": 2,
       "rarity": "common",
-      "count": 447,
+      "count": 588,
       "elixirCost": 2,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/X_DQUye_OaS3QN6VC9CPw05Fit7wvSm3XegXIXKP--0.png",
@@ -535,7 +535,7 @@
       "maxLevel": 11,
       "maxEvolutionLevel": 2,
       "rarity": "epic",
-      "count": 10,
+      "count": 11,
       "elixirCost": 4,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/M7fXlrKXHu2IvpSGpk36kXVstslbR08Bbxcy0jQcln8.png",
@@ -667,7 +667,7 @@
       "maxLevel": 14,
       "maxEvolutionLevel": 3,
       "rarity": "rare",
-      "count": 90,
+      "count": 93,
       "elixirCost": 5,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/Mej7vnv4H_3p_8qPs_N6_GKahy6HDr7pU7i9eTHS84U.png",
@@ -718,7 +718,7 @@
       "maxLevel": 16,
       "maxEvolutionLevel": 1,
       "rarity": "common",
-      "count": 21,
+      "count": 1021,
       "elixirCost": 4,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/lPOSw6H7YOHq2miSCrf7ZDL3ANjhJdPPDYOTujdNrVE.png",
@@ -799,7 +799,7 @@
       "starLevel": 1,
       "maxLevel": 11,
       "rarity": "epic",
-      "count": 16,
+      "count": 22,
       "elixirCost": 5,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/3JntJV62aY0G1Qh6LIs-ek-0ayeYFY3VItpG7cb9I60.png"
@@ -823,7 +823,7 @@
       "level": 6,
       "maxLevel": 14,
       "rarity": "rare",
-      "count": 76,
+      "count": 111,
       "elixirCost": 4,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/lZD9MILQv7O-P3XBr_xOLS5idwuz3_7Ws9G60U36yhc.png"
@@ -836,7 +836,7 @@
       "maxLevel": 11,
       "maxEvolutionLevel": 1,
       "rarity": "epic",
-      "count": 33,
+      "count": 35,
       "elixirCost": 7,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/MlArURKhn_zWAZY-Xj1qIRKLVKquarG25BXDjUQajNs.png",
@@ -963,7 +963,7 @@
       "maxLevel": 14,
       "maxEvolutionLevel": 1,
       "rarity": "rare",
-      "count": 192,
+      "count": 195,
       "elixirCost": 5,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/ASSQJG_MoVq9e81HZzo4bynMnyLNpNJMfSLb3hqydOw.png",
@@ -1186,11 +1186,11 @@
     {
       "name": "Berserker",
       "id": 26000102,
-      "level": 7,
+      "level": 9,
       "maxLevel": 16,
       "maxEvolutionLevel": 2,
       "rarity": "common",
-      "count": 965,
+      "count": 365,
       "elixirCost": 2,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/NA6W8S1JBYBlOPwD3dNvJLFvVDKq-UuBs_J3i3ewLFI.png",
@@ -1267,7 +1267,7 @@
       "maxLevel": 16,
       "maxEvolutionLevel": 1,
       "rarity": "common",
-      "count": 30,
+      "count": 1059,
       "elixirCost": 6,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/C88C5JH_F3lLZj6K-tLcMo5DPjrFmvzIb1R2M6xCfTE.png",
@@ -1293,7 +1293,7 @@
       "maxLevel": 11,
       "maxEvolutionLevel": 1,
       "rarity": "epic",
-      "count": 5,
+      "count": 8,
       "elixirCost": 4,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/VNabB1WKnYtYRSG7X_FZfnZjQDHTBs9A96OGMFmecrA.png",
@@ -1318,7 +1318,7 @@
       "level": 1,
       "maxLevel": 14,
       "rarity": "rare",
-      "count": 40,
+      "count": 49,
       "elixirCost": 4,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/QZfHRpLRmutZbCr5fpLnTpIp89vLI6NrAwzGZ8tHEc4.png"
@@ -1341,11 +1341,11 @@
     {
       "name": "Tesla",
       "id": 27000006,
-      "level": 1,
+      "level": 7,
       "maxLevel": 16,
       "maxEvolutionLevel": 1,
       "rarity": "common",
-      "count": 200,
+      "count": 61,
       "elixirCost": 4,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/OiwnGrxFMNiHetYEerE-UZt0L_uYNzFY7qV_CA_OxR4.png",
@@ -1389,6 +1389,34 @@
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/QaJyerT7f7oMyZ3Fv1glKymtLSvx7YUXisAulxl7zRI.png"
       }
+    },
+    {
+      "name": "Inferno Dragon",
+      "id": 26000037,
+      "level": 1,
+      "maxLevel": 8,
+      "maxEvolutionLevel": 1,
+      "rarity": "legendary",
+      "count": 3,
+      "elixirCost": 4,
+      "iconUrls": {
+        "medium": "https://api-assets.clashroyale.com/cards/300/y5HDbKtTbWG6En6TGWU0xoVIGs1-iQpIP4HC-VM7u8A.png",
+        "evolutionMedium": "https://api-assets.clashroyale.com/cardevolutions/300/y5HDbKtTbWG6En6TGWU0xoVIGs1-iQpIP4HC-VM7u8A.png"
+      }
+    },
+    {
+      "name": "Mega Knight",
+      "id": 26000055,
+      "level": 1,
+      "maxLevel": 8,
+      "maxEvolutionLevel": 1,
+      "rarity": "legendary",
+      "count": 1,
+      "elixirCost": 7,
+      "iconUrls": {
+        "medium": "https://api-assets.clashroyale.com/cards/300/O2NycChSNhn_UK9nqBXUhhC_lILkiANzPuJjtjoz0CE.png",
+        "evolutionMedium": "https://api-assets.clashroyale.com/cardevolutions/300/O2NycChSNhn_UK9nqBXUhhC_lILkiANzPuJjtjoz0CE.png"
+      }
     }
   ],
   "supportCards": [
@@ -1413,7 +1441,7 @@
       "maxLevel": 14,
       "maxEvolutionLevel": 3,
       "rarity": "rare",
-      "count": 90,
+      "count": 93,
       "elixirCost": 5,
       "iconUrls": {
         "medium": "https://api-assets.clashroyale.com/cards/300/Mej7vnv4H_3p_8qPs_N6_GKahy6HDr7pU7i9eTHS84U.png",
@@ -1537,19 +1565,18 @@
     }
   ],
   "currentFavouriteCard": {
-    "name": "Wizard",
-    "id": 26000017,
-    "maxLevel": 14,
-    "maxEvolutionLevel": 3,
-    "elixirCost": 5,
+    "name": "Inferno Dragon",
+    "id": 26000037,
+    "maxLevel": 8,
+    "maxEvolutionLevel": 1,
+    "elixirCost": 4,
     "iconUrls": {
-      "medium": "https://api-assets.clashroyale.com/cards/300/Mej7vnv4H_3p_8qPs_N6_GKahy6HDr7pU7i9eTHS84U.png",
-      "heroMedium": "https://api-assets.clashroyale.com/cardheroes/300/Mej7vnv4H_3p_8qPs_N6_GKahy6HDr7pU7i9eTHS84U.png",
-      "evolutionMedium": "https://api-assets.clashroyale.com/cardevolutions/300/Mej7vnv4H_3p_8qPs_N6_GKahy6HDr7pU7i9eTHS84U.png"
+      "medium": "https://api-assets.clashroyale.com/cards/300/y5HDbKtTbWG6En6TGWU0xoVIGs1-iQpIP4HC-VM7u8A.png",
+      "evolutionMedium": "https://api-assets.clashroyale.com/cardevolutions/300/y5HDbKtTbWG6En6TGWU0xoVIGs1-iQpIP4HC-VM7u8A.png"
     },
-    "rarity": "rare"
+    "rarity": "legendary"
   },
-  "starPoints": 643,
+  "starPoints": 1043,
   "expPoints": 2112,
   "legacyTrophyRoadHighScore": 1179,
   "currentPathOfLegendSeasonResult": null,
@@ -1567,12 +1594,12 @@
     },
     "AutoChess_2026_Season_11": {
       "arena": {
-        "id": 168000180,
-        "name": "Bronze I",
-        "rawName": "AutoChessArena1_2026_Season_11"
+        "id": 168000181,
+        "name": "Bronze II",
+        "rawName": "AutoChessArena2_2026_Season_11"
       },
-      "trophies": 174,
-      "bestTrophies": 174
+      "trophies": 291,
+      "bestTrophies": 291
     },
     "seasonal-trophy-road-202611": {
       "arena": {

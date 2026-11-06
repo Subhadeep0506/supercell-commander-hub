@@ -115,7 +115,7 @@ check('lists battles', /Battles in the log/i.test(t), t);
 check('summarises the recent record', /Recent win rate/i.test(t), t);
 check('shows crowns for and against', /Crowns for \/ against/i.test(t), t);
 check('offers result filters', /\bWins\b/.test(t) && /\bLosses\b/.test(t), t);
-check('pages ten battles at a time, not all 26', /Load 10 battles · 16 left/i.test(t), t);
+check('pages ten battles at a time, not the whole log', /Load 10 battles · 18 left/i.test(t), t);
 check('names a real opponent', /TRollJaaKKO/.test(t), t);
 // Collapsed rows carry no deck, no tower HP and no tags.
 check('keeps battle detail collapsed', !/King tower destroyed/i.test(t), t);
@@ -163,9 +163,9 @@ await settle(900);
 // The W/L and dash separators are gone: a record is "23 · 3" with a blue crown
 // on the wins and a red one on the losses, and each figure sits in its own
 // element, so innerText puts a newline between them.
-check('counts the recent record', /23\s*·\s*3/.test(t), t);
-check('totals crowns across the window', /49\s*–\s*12/.test(t), t);
-check('nets the trophy move', /\+636/.test(t), t);
+check('counts the recent record', /25\s*·\s*3/.test(t), t);
+check('totals crowns across the window', /53\s*–\s*12/.test(t), t);
+check('nets the trophy move', /\+694/.test(t), t);
 
 // Blue is yours, red is theirs -- the one rule those figures are built on, and
 // it is only visible as art, so the text assertions above cannot see it.
@@ -243,16 +243,82 @@ await page.evaluate(() => {
 await settle(1800);
 t = await body();
 check('splits unlocked from locked', /Unlocked/.test(t) && /Locked/.test(t), t);
-check('counts 78 unlocked', /\b78\b/.test(t), t);
-check('counts 45 locked', /\b45\b/.test(t), t);
+// Counts drift with the account -- it was 78/45 when first captured and 80/43
+// after the owner unlocked two cards. The load-bearing invariant is that the
+// two sum to the catalog's 123, which royale-fixtures.test.ts asserts directly.
+check('counts 80 unlocked', /\b80\b/.test(t), t);
+check('counts 43 locked', /\b43\b/.test(t), t);
 check('lists tower troops', /Tower troops/i.test(t), t);
 // The section counts above are the whole split; the grids under them page.
-check('pages the collection rather than drawing 123 tiles', /Load 10 cards · 68 left/i.test(t), t);
+check('pages the collection rather than drawing 123 tiles', /Load 10 cards · 70 left/i.test(t), t);
 // A word, because neither fan kit has a padlock -- see assets-req.md #40. The
 // key that used to sit here read as "unlock with a key", which is not how a
 // card is found.
 check('locked tiles say so in words', /LOCKED/.test(t), t);
 check('no key icon left on a locked tile', (await imgs('cr-icon/key')) === 0, '');
+
+/*
+ * The meta, sampled on the device.
+ *
+ * Replaces the four hardcoded archetypes that used to sit in the Builder under
+ * a note saying the API publishes no deck or usage statistics. It does not --
+ * but the battle log carries both players' decks and the result, so the meta
+ * is counted rather than looked up.
+ *
+ * Under --fixture every tag that is not on the Path of Legend leaderboard is
+ * answered with the same battle log, so the match counts here are degenerate
+ * by construction. What is checked is the pipeline and the screen, not the
+ * numbers.
+ */
+await page.evaluate(() => {
+  const el = [...document.querySelectorAll('[role="tab"], [aria-label]')].find((n) =>
+    /^Builder$/i.test((n.textContent ?? '').trim()),
+  );
+  el?.click();
+});
+await settle(1800);
+t = await body();
+check('the builder no longer claims there is no meta data', !/not live meta rankings/i.test(t), t);
+check('the meta section is there but not yet run', /Current meta/i.test(t), t);
+check('and does not sample a hundred logs on mount', /Find the current meta/i.test(t), t);
+
+check('the meta sample starts on a press', await clickLabel('^Find the current meta$'), '');
+// Roughly a hundred requests against the fixture server. Polled rather than
+// slept: a fixed wait is either flaky or slower than it needs to be.
+let metaDone = false;
+for (let i = 0; i < 120 && !metaDone; i++) {
+  await settle(1500);
+  metaDone = /Counted from \d+ battle/i.test(await body());
+}
+check('the sample completes', metaDone, (await body()).slice(0, 200));
+
+t = await body();
+check('reports what it sampled and what it skipped', /Counted from \d+ battles? logs?/i.test(t), t);
+check(
+  'names the three seed sources',
+  /recent opponents/i.test(t) && /clanmates/i.test(t) && /ranked ladder/i.test(t),
+  t,
+);
+check('separates competitive battles from friendlies', /skipped as friendlies/i.test(t), t);
+check('ranks decks with their match counts', /\d+ matches/i.test(t), t);
+check('shows the bracket picker', /League or arena/i.test(t), t);
+// The default bracket is the player's own. The calibration account has never
+// reached Path of Legends, so this is its Trophy Road arena rather than a league.
+check('defaults to the player’s own bracket', /· yours \(/i.test(t), t);
+check('lists the cards played most in the bracket', /Most played here/i.test(t), t);
+check('offers a playable-only filter', /Only decks you can field/i.test(t), t);
+
+check('a deck row expands', await clickLabel('^Meta deck 1'), '');
+await settle(1200);
+t = await body();
+check(
+  'the expanded deck shows its record',
+  /Average elixir/i.test(t) && /Share of this bracket/i.test(t),
+  t,
+);
+check('and how the player’s card levels compare', /Your card levels/i.test(t), t);
+check('and its record into the bracket’s popular cards', /Against the cards played most here/i.test(t), t);
+check('a refresh is offered once there is a sample', /Refresh/i.test(t), t);
 
 console.log('\nClan');
 await go('/cr/clan');
@@ -302,7 +368,7 @@ await tab('Members');
 await settle(1800);
 t = await body();
 check('the roster leads with a podium', /Clasher/.test(t) && /BEAST/.test(t), t);
-check('the roster pages below the podium', /Load 10 members · 22 left/i.test(t), t);
+check('the roster pages below the podium', /Load 10 members · 24 left/i.test(t), t);
 // The podium follows the active sort: order by Donated and the top three
 // donors stand on it, scored by donations rather than trophies.
 await page.evaluate(() => {
@@ -317,7 +383,12 @@ check('the podium follows the sort', /Load 10 members/i.test(await body()), '');
 await tab('River Race');
 await settle(1800);
 t = await body();
-check('river race renders during training', /Training/i.test(t), t);
+// Either, because the capture follows a real clan through a real race: it was
+// a training week when first captured and a war day when recaptured. Pinning
+// one makes the suite fail on a calendar rather than on a regression. The
+// war-day *shape* is asserted properly in royale-fixtures.test.ts, and
+// FIXTURE_CR_RACE=warday forces it when that branch needs exercising.
+check('river race renders its current period', /Training|War Day/i.test(t), t);
 check('ranks five clans', /Standings/i.test(t), t);
 check('shows decks remaining', /Decks remaining/i.test(t), t);
 check('labels the four-deck assumption', /four per member per day/i.test(t), t);
@@ -389,7 +460,13 @@ await settle(2400);
 // short count means art that has not decoded yet, not art that is missing.
 const ladderCrests = await imgs('cr-badge');
 check('clan crests on the ladder', ladderCrests >= 10, `${ladderCrests} crests`);
-check('the ladder pages', /Load 10 clans/i.test(await body()), '');
+/*
+ * 25 a tap on the ladders, not the shared default of ten: a board is scanned
+ * rather than read, and the service pages fifty at a time behind it. Once the
+ * fetched rows run out the same button follows `paging.cursors.after` for the
+ * next page instead, so "Load more clans" is the other shape this can take.
+ */
+check('the ladder pages', /Load (25 clans|more clans)/i.test(await body()), '');
 
 const broken = await page.evaluate(() =>
   [...document.querySelectorAll('img')]

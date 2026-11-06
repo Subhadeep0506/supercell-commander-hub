@@ -76,12 +76,12 @@ describe('Clash Royale endpoints', () => {
   it('builds the two surviving clan ladders, global and per country', () => {
     expect(
       endpoint(req({ game: 'cr', resource: 'leaderboard', board: 'clans', mode: 'home' })),
-    ).toBe('/v1/locations/global/rankings/clans?limit=25');
+    ).toBe('/v1/locations/global/rankings/clans?limit=50');
     expect(
       endpoint(
         req({ game: 'cr', resource: 'leaderboard', board: 'clans', mode: 'war', locationId: 57000006 }),
       ),
-    ).toBe('/v1/locations/57000006/rankings/clanwars?limit=25');
+    ).toBe('/v1/locations/57000006/rankings/clanwars?limit=50');
   });
 
   it('builds the tournament resources', () => {
@@ -122,8 +122,50 @@ describe('the dead-ladder guard', () => {
   it('keeps the Clash of Clans player ladder working', () => {
     expect(ok({ game: 'coc', resource: 'leaderboard', board: 'players', mode: 'home' })).toBe(true);
     expect(endpoint(req({ game: 'coc', resource: 'leaderboard', board: 'players', mode: 'builder' }))).toBe(
-      '/v1/locations/global/rankings/players-builder-base?limit=25',
+      '/v1/locations/global/rankings/players-builder-base?limit=50',
     );
+  });
+
+  /*
+   * The ladders used to hardcode `limit=25` and ignore `input.limit`, which is
+   * why "show more players" had nowhere to go: a second page was unreachable
+   * and the page itself could not grow.
+   */
+  it('honours the page size and the cursor on both games ladders', () => {
+    expect(
+      endpoint(
+        req({ game: 'coc', resource: 'leaderboard', board: 'clans', mode: 'home', limit: 100 }),
+      ),
+    ).toBe('/v1/locations/global/rankings/clans?limit=100');
+    // Supercell's cursor is already base64; re-encoding it is a 400.
+    expect(
+      endpoint(
+        req({
+          game: 'coc',
+          resource: 'leaderboard',
+          board: 'players',
+          mode: 'home',
+          limit: 50,
+          after: 'eyJwb3MiOjUwfQ',
+        }),
+      ),
+    ).toBe('/v1/locations/global/rankings/players?limit=50&after=eyJwb3MiOjUwfQ');
+    expect(
+      endpoint(
+        req({
+          game: 'cr',
+          resource: 'leaderboard',
+          board: 'clans',
+          mode: 'war',
+          after: 'eyJwb3MiOjUwfQ',
+        }),
+      ),
+    ).toBe('/v1/locations/global/rankings/clanwars?limit=50&after=eyJwb3MiOjUwfQ');
+  });
+
+  it('accepts a page size up to 100 and rejects more', () => {
+    expect(ok({ game: 'coc', resource: 'leaderboard', board: 'clans', limit: 100 })).toBe(true);
+    expect(ok({ game: 'coc', resource: 'leaderboard', board: 'clans', limit: 101 })).toBe(false);
   });
 });
 

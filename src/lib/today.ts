@@ -134,13 +134,18 @@ export function buildToday(
   const events: TodayEvent[] = [];
   const notes: TodayNote[] = [];
 
+  // Built first, because the quiet Royale note reads differently depending on
+  // whether anything is visibly running above it -- and the list is filtered,
+  // so the raw response count is not the same number.
+  const live = liveEvents(input);
+
   cocWar(input, now, events);
   cocLeague(input, now, events);
   cocRaid(input, now, events);
-  royale(input, now, events, notes);
+  royale(input, now, events, notes, live.length);
 
   events.sort((a, b) => a.target.getTime() - b.target.getTime());
-  return { events, notes, live: liveEvents(input) };
+  return { events, notes, live };
 }
 
 /**
@@ -157,13 +162,19 @@ function liveEvents(input: TodayInput): LiveEvent[] {
   for (const [i, event] of (input.crEvents ?? []).entries()) {
     const title = localized(event['title']);
     if (!title) continue;
+    // `description` is null on several live rows, and a card that is a bare
+    // title over empty space says less than it takes up -- these have no
+    // clock either, so the body is the only thing on them. Dropped rather
+    // than rendered hollow.
+    const body = localized(event['description']);
+    if (!body) continue;
     // `eventTag` is the stable id, but fall back to the index rather than
     // dropping a row that happens to arrive without one.
     const tag = text(event['eventTag']);
     const id = `cr-event-${tag === '—' ? i : tag}`;
     if (seen.has(id)) continue;
     seen.add(id);
-    out.push({ id, game: 'cr', title, body: localized(event['description']) });
+    out.push({ id, game: 'cr', title, body });
   }
   return out;
 }
@@ -293,6 +304,8 @@ function royale(
   now: Date,
   out: TodayEvent[],
   notes: TodayNote[],
+  /** How many events the board will actually show, after filtering. */
+  liveCount: number,
 ): void {
   const live = liveTournament(input.tournaments ?? [], now);
 
@@ -323,7 +336,7 @@ function royale(
     id: 'cr-quiet',
     game: 'cr',
     title: 'Clash Royale',
-    body: riverRaceSentence(input.riverRace, (input.crEvents ?? []).length > 0),
+    body: riverRaceSentence(input.riverRace, liveCount > 0),
     route: 'CrClan',
   });
 }

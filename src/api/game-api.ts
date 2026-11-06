@@ -72,8 +72,15 @@ export const gameRequestSchema = z
     ]),
     tag: z.string().optional(),
     name: z.string().optional(),
-    /** Page size for the cursor-paged clan histories, and the ranking ladders. */
-    limit: z.number().int().positive().max(50).optional(),
+    /**
+     * Page size for the cursor-paged clan histories, and the ranking ladders.
+     *
+     * Raised from 50 to 100 for the ladders: a board capped at 50 was the
+     * reason "show more players" had nowhere to go. 100 is the largest page
+     * the services are documented to accept; anything past the first page
+     * comes through `after`.
+     */
+    limit: z.number().int().positive().max(100).optional(),
     /** `paging.cursors.after` from the previous page of the same resource. */
     after: z.string().optional(),
     /** Leaderboard only: which ladder to read. */
@@ -415,12 +422,16 @@ export function endpoint(input: GameRequest) {
       const location = encodeURIComponent(String(input.locationId ?? 'global'));
       const board = input.board ?? 'players';
       const mode = input.mode ?? 'home';
+      // `after` is Supercell's own opaque cursor from `paging.cursors`; it is
+      // already base64 and must not be re-encoded, exactly as the capital raid
+      // and war log paths treat it.
+      const page = `limit=${input.limit ?? 50}${input.after ? `&after=${input.after}` : ''}`;
       if (input.game === 'cr') {
         // Clan ladders only -- the schema rejects `board: 'players'` above.
         // Both of these accept a country id as well as 'global'.
         return `/v1/locations/${location}/rankings/${
           mode === 'war' ? 'clanwars' : 'clans'
-        }?limit=${input.limit ?? 25}`;
+        }?${page}`;
       }
       const ladder =
         mode === 'capital'
@@ -432,7 +443,10 @@ export function endpoint(input: GameRequest) {
             : mode === 'builder'
               ? 'players-builder-base'
               : 'players';
-      return `/v1/locations/${location}/rankings/${ladder}?limit=25`;
+      // This used to hardcode `limit=25` and ignore `input.limit` entirely,
+      // which is why the Clash of Clans boards stopped at 25 rows however far
+      // you scrolled.
+      return `/v1/locations/${location}/rankings/${ladder}?${page}`;
     }
   }
 }

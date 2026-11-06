@@ -145,8 +145,15 @@ console.log('\nRunning now');
 check('lists the events that are live in game', /Running now/i.test(t), t);
 check('names a real event', /Classic Challenge/i.test(t), t);
 check('carries an event description', /increase your final prize/i.test(t), t);
-// `description` is null for several of them; those must still render.
-check('keeps an event whose description is null', /Merge Tactics/i.test(t), t);
+/*
+ * `description` is null on two of the six in this capture -- Merge Tactics and
+ * Seasonal Trophy Road. These rows have no clock either, so the description is
+ * the only thing on the card: without it there is a heading over empty space.
+ * They are dropped rather than rendered hollow.
+ */
+check('drops an event whose description is null', !/Merge Tactics/i.test(t), t);
+check('and the other one too', !/Seasonal Trophy Road/i.test(t), t);
+check('while keeping the four that have one', /Classic 1v1/i.test(t) && /Classic 2v2/i.test(t), t);
 check('explains why they have no countdown', /no end time for them/i.test(t), t);
 
 // --- Clash Royale ---------------------------------------------------------

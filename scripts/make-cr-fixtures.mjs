@@ -72,6 +72,36 @@ async function capture(file, request) {
   return json;
 }
 
+/** Fetch without writing a fixture -- used to choose what is worth capturing. */
+async function peek(request) {
+  const parsed = gameRequestSchema.safeParse(request);
+  if (!parsed.success) return null;
+  try {
+    const response = await fetch(`${BASE}${endpoint(parsed.data)}`, {
+      headers: { Authorization: `Bearer ${KEY}` },
+      signal: AbortSignal.timeout(25000),
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The last `count` finished months, newest first.
+ *
+ * A copy of the fallback in src/lib/royale-ladders.ts rather than an import:
+ * that module resolves `@/api/game-api` through the bundler's alias, which
+ * plain Node has no idea about.
+ */
+function finishedMonths(count) {
+  const now = new Date();
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (i + 1), 1));
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+  });
+}
+
 console.log(`\nCapturing Clash Royale fixtures from ${BASE}`);
 console.log(`account ${TAG} · clan ${CLAN}\n`);
 
@@ -85,16 +115,56 @@ await capture('cr-river-race-log.json', { game: 'cr', resource: 'riverRaceLog', 
 await capture('cr-clan-search.json', { game: 'cr', resource: 'clanSearch', name: 'KING SLAYERS' });
 await capture('cr-locations.json', { game: 'cr', resource: 'locations' });
 
-const seasons = await capture('cr-seasons.json', { game: 'cr', resource: 'seasons' });
-if (seasons) {
-  const latest = [...new Set(seasons.items.map((s) => s.id))].pop();
-  await capture('cr-path-of-legend.json', {
+/*
+ * Seasons are derived from the clock rather than read off the response.
+ *
+ * The list intermittently answers with all 145 ids `null` -- caught live on
+ * 2026-11-07 -- and the old `[...new Set(items.map(s => s.id))].pop()` then
+ * produced `null`, so the Path of Legend capture 400'd and left a stale
+ * fixture behind with no error anyone would notice. Season ids are calendar
+ * months; walking back from today needs no endpoint. Same fallback the app
+ * uses, see seasonIds in src/lib/royale-ladders.ts.
+ */
+await capture('cr-seasons.json', { game: 'cr', resource: 'seasons' });
+let polSeason = null;
+for (const season of finishedMonths(3)) {
+  const rankings = await capture('cr-path-of-legend.json', {
     game: 'cr',
     resource: 'pathOfLegend',
-    season: latest,
+    season,
     limit: 25,
   });
+  if (rankings?.items?.length) {
+    polSeason = season;
+    /*
+     * A ranked battle log, which nothing else in this directory contains.
+     *
+     * Every other CR battle fixture is the calibration account, which sits
+     * below Legend arena and so only ever plays Trophy Road -- `type: "PvP"`,
+     * a real `arena`, and a `leagueNumber` permanently stuck at 1. A ranked
+     * battle is the mirror image: `type: "pathOfLegend"`, a meaningful
+     * `leagueNumber`, and an `arena` that reads "Legendary Arena" whatever
+     * league it was. The meta aggregation turns on telling those two apart,
+     * so it needs one of each to test against.
+     *
+     * Top-ranked accounts play a lot of friendlies, so this walks down the
+     * leaderboard until it finds a log that actually holds ranked battles.
+     */
+    for (const player of rankings.items.slice(0, 6)) {
+      const log = await peek({ game: 'cr', resource: 'battles', tag: player.tag });
+      if (Array.isArray(log) && log.some((b) => b?.type === 'pathOfLegend')) {
+        await capture('cr-ranked-battlelog.json', {
+          game: 'cr',
+          resource: 'battles',
+          tag: player.tag,
+        });
+        break;
+      }
+    }
+    break;
+  }
 }
+if (!polSeason) console.log('  note  no Path of Legend season answered; rankings not captured');
 
 const boards = await capture('cr-leaderboards.json', { game: 'cr', resource: 'leaderboards' });
 if (boards) {

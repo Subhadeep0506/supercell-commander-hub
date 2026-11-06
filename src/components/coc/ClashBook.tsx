@@ -96,7 +96,12 @@ export function ClashBook() {
               accessibilityLabel={`${group} items`}
               keyExtractor={(item) => item.id}
               renderItem={(item) => {
-                const art = itemArt(item);
+                // Your level's artwork where a village export knows it, the
+                // top level otherwise. The Book is a catalog rather than a
+                // collection, so "what this looks like finished" is the right
+                // default -- but once the app knows what you own, showing
+                // someone else's level back to them is not.
+                const art = itemArt(item, ownedLevel(item.id));
                 return (
                   <Pressable
                     accessibilityRole="button"

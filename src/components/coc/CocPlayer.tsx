@@ -1,34 +1,20 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { ART_SCALE, NAV_ART, townHallArt } from '@/assets/art';
-import { BOOK_ITEMS, playerBookItem } from '@/lib/clash-book';
-import { gatesFor, maxLevelAt } from '@/lib/village-plan';
+import { playerCollection } from '@/lib/player-collection';
+import { playerContext } from '@/lib/player-progress';
 import { playerLeague } from '@/lib/league-tier';
 import { useHub } from '@/state/HubProvider';
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { Meter } from '@/components/ui/Meter';
 import { Panel } from '@/components/ui/Panel';
-import { Tabs } from '@/components/ui/Tabs';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { Art, LeagueStat, SmallStat, Stars } from './CocBits';
 import { CocBattles } from './CocBattles';
+import { PlayerProgress } from './PlayerProgress';
 import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
 import { UnitGrid } from './UnitGrid';
-
-/** Army sections, in the reference's order. */
-const GROUPS = [
-  { name: 'Heroes', key: 'heroes', icon: 'Barbarian King' },
-  { name: 'Pets', key: 'troops', icon: 'pets', category: 'pet' },
-  { name: 'Troops', key: 'troops', icon: 'Barbarian', category: 'troop' },
-  // Super Troops come back in `troops` alongside the rest, and used to pad
-  // the Troops row with 17 extra tiles. They are a catalog category of their
-  // own now, so the same category filter separates them.
-  { name: 'Super Troops', key: 'troops', icon: 'Super Barbarian', category: 'super-troop' },
-  { name: 'Spells', key: 'spells', icon: 'Spell Factory' },
-  { name: 'Siege Machines', key: 'troops', icon: 'Wall Wrecker', category: 'siege-machine' },
-  { name: 'Hero Equipment', key: 'heroEquipment', icon: 'Giant Gauntlet' },
-] as const;
 
 /** Ported from the `CocPlayer` component in frontend/src/components/coc-mobile.tsx. */
 export function CocPlayer({ player }: { player: ApiRecord }) {
@@ -41,33 +27,55 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
   const clan = record(player['clan']);
   const hall = townHallArt(player['townHallLevel']);
 
-  const unitsFor = (group: (typeof GROUPS)[number]) => {
-    const fromApi = rows(player[group.key]).filter(
-      (u) =>
-        (u['village'] ?? 'home') === village &&
-        (!('category' in group) ||
-          (playerBookItem(u['name'], u['village'])?.category ?? 'troop') === group.category),
-    );
-    if (fromApi.length || village !== 'builderBase' || !imported) return fromApi;
+  /*
+   * The whole army book for this village, not just what the service returned.
+   *
+   * `/v1/players/{tag}` only lists what you own, so a Pets section built from
+   * it is short -- and on an account below Town Hall 14 it was missing
+   * entirely, which is exactly how this read as "pets are broken". Driving it
+   * from the catalog instead means every section is complete and each tile
+   * says whether you own it, could unlock it today, or cannot reach it yet.
+   */
+  const homeSections = useMemo(
+    () => playerCollection(player, 'home', imported),
+    [player, imported],
+  );
+  const builderSections = useMemo(
+    () => playerCollection(player, 'builderBase', imported),
+    [player, imported],
+  );
+  const sections = village === 'home' ? homeSections : builderSections;
 
-    // The player API returns no Builder Base troop or hero levels at all --
-    // the tab was simply empty. A village export carries them, so it stands in
-    // when one has been imported.
-    const wanted = 'category' in group ? group.category : 'hero';
-    const gates = gatesFor(imported.builder);
-    return imported.builder.owned
-      .filter((owned) => owned.category === wanted)
-      .map((owned) => {
-        const item = BOOK_ITEMS.find((i) => i.id === owned.catalogId);
-        return {
-          name: owned.name,
-          level: owned.level,
-          maxLevel: item ? maxLevelAt(item, gates) : owned.level,
-          village: 'builderBase',
-        };
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
-  };
+  const townHallLevel = Number(player['townHallLevel']) || 0;
+  const builderHallLevel = Number(player['builderHallLevel']) || 0;
+  const hallLevel = village === 'home' ? townHallLevel : builderHallLevel;
+
+  /*
+   * One per village, built from every section of it.
+   *
+   * The item sheet needs levels from outside the grid a tile was tapped in: a
+   * piece of hero equipment names the hero wearing it, and equipment and
+   * heroes are two different sections. Both villages are built because the
+   * hero strip at the top of the page is always the Home Village's, whichever
+   * tab the grids below are showing.
+   */
+  const homeContext = useMemo(
+    () => playerContext(homeSections, townHallLevel, 'home'),
+    [homeSections, townHallLevel],
+  );
+  const builderContext = useMemo(
+    () => playerContext(builderSections, builderHallLevel, 'builder'),
+    [builderSections, builderHallLevel],
+  );
+  const context = village === 'home' ? homeContext : builderContext;
+
+  // The summary beside the Town Hall is always the Home Village heroes,
+  // whichever tab the Army panel below is showing.
+  const heroSummary = useMemo(
+    () =>
+      homeSections.find((x) => x.id === 'heroes')?.entries.filter((e) => e.state === 'owned') ?? [],
+    [homeSections],
+  );
 
   const achievements = rows(player['achievements']);
   const complete = achievements.filter((a) => Number(a['stars']) === 3).length;
@@ -135,11 +143,7 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
         </View>
 
         <View style={s.compactGrid}>
-          <UnitGrid
-            items={rows(player['heroes']).filter((h) => h['village'] === 'home')}
-            compact
-            label="Heroes summary"
-          />
+          <UnitGrid entries={heroSummary} compact label="Heroes summary" context={homeContext} />
         </View>
       </Panel>
 
@@ -159,6 +163,14 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
           </Panel>
         </Pressable>
       ) : null}
+
+      <PlayerProgress
+        sections={sections}
+        hallLevel={hallLevel}
+        village={village}
+        onVillage={setVillage}
+        context={context}
+      />
 
       <Panel>
         <Text style={s.sectionTitle}>Village stats</Text>
@@ -197,31 +209,31 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
       */}
       <CocBattles player={player} />
 
+      {/*
+        "Army", not "Collection": buildings, defenses, traps and walls are no
+        longer listed here. The player endpoint carries no level for any of
+        them, so they rendered as a wall of grey "?" tiles above a prompt to go
+        and paste a village export -- which only ever existed for your own
+        account, and never for the clan member whose profile this same
+        component draws. The Builder screen keeps the grid that has the data.
+
+        The village tabs moved up into the progress card, which governs both.
+      */}
       <Panel>
         <Text style={s.sectionTitle}>Army</Text>
-        <Tabs
-          value={village}
-          onChange={setVillage}
-          tabs={[
-            { id: 'home', label: 'Home Village' },
-            { id: 'builderBase', label: 'Builder Base' },
-          ]}
-        />
-        {GROUPS.map((group) => {
-          const units = unitsFor(group);
-          if (!units.length) return null;
-          return (
-            <View key={group.name} style={s.group}>
-              <View style={s.groupHeading}>
-                <Art name={group.icon} size={24} />
-                <Text style={s.groupTitle}>{group.name}</Text>
-                <Text style={s.groupCount}>{units.length}</Text>
-                <View style={s.groupSpacer} />
-              </View>
-              <UnitGrid items={units} label={group.name} />
+        {sections.map((group) => (
+          <View key={group.id} style={s.group}>
+            <View style={s.groupHeading}>
+              <Art name={group.icon} size={24} />
+              <Text style={s.groupTitle}>{group.name}</Text>
+              <Text style={s.groupCount}>
+                {group.owned}/{group.total}
+              </Text>
+              <View style={s.groupSpacer} />
             </View>
-          );
-        })}
+            <UnitGrid entries={group.entries} label={group.name} context={context} />
+          </View>
+        ))}
       </Panel>
 
       <Panel>

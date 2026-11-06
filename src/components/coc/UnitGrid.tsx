@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { COC_ART } from '@/assets/art';
-import { itemArt, playerBookItem, type BookItem } from '@/lib/clash-book';
-import { text, type ApiRecord } from '@/api/game-api';
+import { itemArt } from '@/lib/clash-book';
+import type { CollectionEntry } from '@/lib/player-collection';
+import type { PlayerContext } from '@/lib/player-progress';
 import { HGrid } from '@/components/ui/HGrid';
-import { Sheet } from '@/components/ui/Sheet';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { BookItemModal } from './BookItemModal';
+
+/** A collection entry, optionally carrying how many levels are left to go. */
+type GridEntry = CollectionEntry & { toGo?: number };
 
 /**
  * Tile widths, in pixels.
@@ -19,80 +21,144 @@ const TILE_REGULAR = 96;
 const TILE_COMPACT = 62;
 
 /**
- * `.coc-units` -- the troop/hero/spell grid, each tile carrying the current
- * level and a progress bar towards maxLevel.
+ * `.coc-units` -- the troop/hero/spell/building grid.
+ *
+ * Driven by `playerCollection`, not by the API response, so it shows the whole
+ * Clash Book for the village and marks each entry against the player: what
+ * they own, what this Town Hall could unlock today, and what is still out of
+ * reach. The service only ever returns what you own, which is why the Pets
+ * section used to be missing rather than locked.
+ *
+ * Artwork is drawn at the entry's own level -- a level-3 and a level-14
+ * Inferno Tower are different buildings to look at.
  *
  * Laid out by HGrid: one row for a short group, three rows that scroll
- * sideways for a long one. Hero equipment is 30+ items, and as a wrapping
- * grid it buried everything below it.
- *
- * Tapping a tile opens the Clash Book entry for that item at the player's
- * level. Items the community reference does not cover fall back to a plain
- * level readout, as in the reference app.
+ * sideways for a long one.
  */
 export function UnitGrid({
-  items,
+  entries,
   compact = false,
   label,
+  remaining = false,
+  context,
 }: {
-  items: ApiRecord[];
+  entries: GridEntry[];
   compact?: boolean;
   /** Names the scroller for screen readers, e.g. "Spells". */
   label?: string;
+  /**
+   * Label each tile with the levels still to go rather than its state.
+   *
+   * Set by the "Left to upgrade" grids inside the progress card, where every
+   * tile is by definition unfinished and "how much is left" is the whole
+   * reason the grid is open.
+   */
+  remaining?: boolean;
+  /**
+   * What the player has, for the item sheet.
+   *
+   * Optional, and the sheet's player-facing sections are skipped without it --
+   * which is what keeps the Clash Book screen, where there is no player,
+   * rendering the same card it always did.
+   */
+  context?: PlayerContext;
 }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  const [selected, setSelected] = useState<ApiRecord>();
-
-  const book: BookItem | undefined = selected
-    ? playerBookItem(selected['name'], selected['village'])
-    : undefined;
+  const [selected, setSelected] = useState<GridEntry>();
 
   return (
     <>
       <HGrid
-        items={items}
+        items={entries}
         tileWidth={compact ? TILE_COMPACT : TILE_REGULAR}
         gap={compact ? 6 : 8}
         accessibilityLabel={label}
-        keyExtractor={(unit, i) => `${text(unit['name'])}-${i}`}
-        renderItem={(unit) => {
-          const entry = playerBookItem(unit['name'], unit['village']);
-          const art = (entry && itemArt(entry)) ?? undefined;
-          const source = art?.source ?? COC_ART[text(unit['name'])];
-          const level = Number(unit['level']);
-          const max = Number(unit['maxLevel']);
-          const pct = max > 0 ? Math.min(100, (level / max) * 100) : 0;
+        keyExtractor={(entry) => entry.item.id}
+        renderItem={(entry) => {
+          const owned = entry.state === 'owned';
+          const art = itemArt(entry.item, entry.level)?.source;
+          // Progress towards what this hall allows, not towards the game
+          // maximum -- so a full bar and the green border mean the same thing.
+          const ceiling = entry.hallMax > 0 ? entry.hallMax : entry.gameMax;
+          const pct = owned && ceiling > 0 ? Math.min(100, ((entry.level ?? 0) / ceiling) * 100) : 0;
+          const badge = owned ? String(entry.level) : '';
+          // `> 0`, never a bare `entry.toGo &&`: a zero would render as a text
+          // node inside a View, which the browser warns about and Android
+          // crashes on.
+          const toGo = remaining && owned && (entry.toGo ?? 0) > 0 ? `+${entry.toGo} to go` : '';
 
           return (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={`View ${text(unit['name'])} level ${text(unit['level'])}`}
-              onPress={() => setSelected(unit)}
+              accessibilityLabel={describe(entry)}
+              onPress={() => setSelected(entry)}
               style={s.unit}
             >
-              <View style={s.tile}>
-                {source ? (
-                  <Image
-                    source={source}
-                    resizeMode="contain"
-                    style={s.portrait}
-                  />
+              <View
+                style={[
+                  s.tile,
+                  !owned && s.tileDim,
+                  entry.maxedForHall && s.tileHallMaxed,
+                  entry.maxedForGame && s.tileGameMaxed,
+                ]}
+              >
+                {art ? (
+                  <Image source={art} resizeMode="contain" style={[s.portrait, !owned && s.faded]} />
                 ) : (
                   <Text style={s.fallback} numberOfLines={3}>
-                    {text(unit['name'])}
+                    {entry.name}
                   </Text>
                 )}
-                <View style={s.levelBadge}>
-                  <Text style={s.levelText}>{text(unit['level'])}</Text>
-                </View>
-                <View style={s.meter}>
-                  <View style={[s.meterFill, { width: `${pct}%` }]} />
-                </View>
+                {badge ? (
+                  <View style={s.levelBadge}>
+                    <Text
+                      style={[
+                        s.levelText,
+                        entry.maxedForHall && s.levelMaxed,
+                        entry.maxedForGame && s.levelGameMaxed,
+                      ]}
+                    >
+                      {badge}
+                    </Text>
+                  </View>
+                ) : null}
+                {owned ? (
+                  <View style={s.meter}>
+                    <View
+                      style={[
+                        s.meterFill,
+                        { width: `${pct}%` },
+                        entry.maxedForHall && s.meterMaxed,
+                        entry.maxedForGame && s.meterGameMaxed,
+                      ]}
+                    />
+                  </View>
+                ) : null}
               </View>
+              {/*
+                No padlock exists in either fan kit, so the state is a word.
+                The CR card grid already prints "Locked" for the same reason.
+
+                Always rendered, empty for an owned entry: the line has a fixed
+                height, so every name in the row sits on the same baseline
+                whether or not the tile above it is locked.
+              */}
+              {compact ? null : (
+                <Text
+                  style={[
+                    s.state,
+                    entry.state === 'ready' && s.stateReady,
+                    toGo !== '' && s.stateToGo,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {toGo !== '' ? toGo : STATE_LABEL[entry.state]}
+                </Text>
+              )}
               {compact ? null : (
                 <Text style={s.name} numberOfLines={2}>
-                  {text(unit['name'])}
+                  {entry.name}
                 </Text>
               )}
             </Pressable>
@@ -100,31 +166,35 @@ export function UnitGrid({
         }}
       />
 
-      {selected && book ? (
+      {selected ? (
         <BookItemModal
-          key={book.id}
-          item={book}
-          initialLevel={Number(selected['level'])}
+          key={selected.item.id}
+          item={selected.item}
+          context={context}
+          // `initialLevel` is what claims ownership in the modal -- the "Your
+          // player level" line and the "Next upgrade" section hang off it. A
+          // locked entry opens at level 1 through `startLevel` instead, which
+          // shows what unlocking it costs without asserting you have one.
+          initialLevel={selected.state === 'owned' ? selected.level : undefined}
+          startLevel={selected.state === 'owned' ? undefined : 1}
           open
           onClose={() => setSelected(undefined)}
         />
       ) : null}
-
-      {selected && !book ? (
-        <Sheet open onClose={() => setSelected(undefined)} title={text(selected['name'])}>
-          <View style={s.plain}>
-            <Text style={s.plainCaption}>Live player collection</Text>
-            <Text style={s.plainHeading}>
-              Level {text(selected['level'])} / {text(selected['maxLevel'])}
-            </Text>
-            <Text style={s.plainBody}>
-              Detailed stats for this item are not available in the reference snapshot.
-            </Text>
-          </View>
-        </Sheet>
-      ) : null}
     </>
   );
+}
+
+const STATE_LABEL: Record<CollectionEntry['state'], string> = {
+  owned: '',
+  ready: 'Ready',
+  locked: 'Locked',
+};
+
+function describe(entry: GridEntry): string {
+  if (entry.state === 'owned') return `View ${entry.name} level ${entry.level}`;
+  if (entry.state === 'ready') return `View ${entry.name}, ready to unlock`;
+  return `View ${entry.name}, locked`;
 }
 
 const build = (t: Theme) =>
@@ -138,13 +208,22 @@ const build = (t: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: t.muted,
-      borderWidth: 1,
+      borderWidth: 2,
       borderColor: t.border,
       borderRadius: 8,
       padding: 2,
       overflow: 'hidden',
     },
+    // Two maxed states, deliberately different colours: green is "nothing more
+    // this Town Hall can do", gold is "finished for good". Gold is declared
+    // second so it wins when both hold.
+    tileHallMaxed: { borderColor: t.success },
+    tileGameMaxed: { borderColor: t.gold },
+    tileDim: { backgroundColor: t.background, borderStyle: 'dashed' },
     portrait: { width: '100%', height: '100%' },
+    // React Native has no grayscale filter, so an unowned tile is the same art
+    // at low opacity -- the same line Stars takes for unearned slots.
+    faded: { opacity: 0.3 },
     fallback: {
       fontFamily: t.fonts.display,
       fontSize: 10,
@@ -162,19 +241,29 @@ const build = (t: Theme) =>
       paddingVertical: 1,
     },
     levelText: { fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
+    levelMaxed: { color: t.success },
+    levelGameMaxed: { color: t.gold },
     meter: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, backgroundColor: t.border },
     meterFill: { height: '100%', backgroundColor: t.primary },
+    meterMaxed: { backgroundColor: t.success },
+    meterGameMaxed: { backgroundColor: t.gold },
+    state: {
+      marginTop: 4,
+      height: 12,
+      lineHeight: 12,
+      textAlign: 'center',
+      fontFamily: t.fonts.display,
+      fontSize: 9,
+      color: t.mutedForeground,
+    },
+    stateReady: { color: t.primary },
+    stateToGo: { color: t.cocHighlight },
     name: {
-      marginTop: 6,
+      marginTop: 2,
       fontFamily: t.fonts.display,
       fontSize: 10,
       lineHeight: 14,
       minHeight: 28,
       color: t.foreground,
     },
-
-    plain: { padding: 14 },
-    plainCaption: { fontSize: 13, color: t.mutedForeground, fontFamily: t.fonts.sans },
-    plainHeading: { marginVertical: 16, fontFamily: t.fonts.display, fontSize: 20, color: t.foreground },
-    plainBody: { fontSize: 13, lineHeight: 19, color: t.foreground, fontFamily: t.fonts.sans },
   });

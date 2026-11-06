@@ -4,7 +4,7 @@
 // There is no USB access to a device, so the browser is the test surface --
 // this is the harness that makes a change verifiable rather than assumed.
 //
-//   node scripts/check-web.mjs [path] [--shot name] [--wait ms]
+//   node scripts/check-web.mjs [path] [--shot name] [--wait ms] [--after ms]
 //
 // Examples:
 //   node scripts/check-web.mjs /coc
@@ -115,6 +115,72 @@ await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 }).catch((e) =>
 });
 await new Promise((r) => setTimeout(r, wait));
 
+/*
+ * `--village` pastes the village-export fixture, the way a player would.
+ *
+ * The Builder Plan is driven entirely by that export -- the player API has no
+ * upgrade timers, no building levels and no Builder Base troops -- so without
+ * this the screen can only ever be screenshotted in its empty state, which is
+ * exactly what happened the first time the plan timeline needed reviewing.
+ */
+if (argv.includes('--village')) {
+  const importFlow = async (label) => {
+    const handle = await page.evaluateHandle((l) => {
+      const el = [...document.querySelectorAll('[aria-label]')].find(
+        (n) => n.getAttribute('aria-label') === l && n.getClientRects().length > 0,
+      );
+      el?.scrollIntoView({ block: 'center' });
+      return el ?? null;
+    }, label);
+    const el = handle.asElement();
+    if (!el) {
+      errors.push(`[village] no visible element with aria-label "${label}"`);
+      return false;
+    }
+    await el.click();
+    await new Promise((r) => setTimeout(r, 1500));
+    return true;
+  };
+
+  if (await importFlow('Import village data now')) {
+    const { readFileSync } = await import('node:fs');
+    const raw = JSON.parse(
+      readFileSync(
+        resolve(dirname(fileURLToPath(import.meta.url)), 'fixtures/coc-village-export.json'),
+        'utf8',
+      ),
+    );
+    /*
+     * The capture time is moved to now before pasting.
+     *
+     * The fixture's own `timestamp` is fixed, and the parser turns each
+     * relative `timer` into `timestamp + timer` -- so a fixture a few days old
+     * has every in-progress upgrade already finished, and the Builder Plan can
+     * only ever be screenshotted with nothing running. The timers themselves
+     * are what is under review; when the export was taken is incidental.
+     *
+     * check-screens.mjs deliberately pastes it unshifted: its assertions are
+     * about parsing, and a frozen input is what makes them repeatable.
+     */
+    raw.timestamp = Math.floor(Date.now() / 1000);
+    const exported = JSON.stringify(raw);
+    await page.evaluate((json) => {
+      const field = [...document.querySelectorAll('[aria-label]')].find(
+        (n) => n.getAttribute('aria-label') === 'Village export JSON',
+      );
+      const setter = Object.getOwnPropertyDescriptor(
+        window.HTMLTextAreaElement.prototype,
+        'value',
+      )?.set;
+      setter?.call(field, json);
+      field?.dispatchEvent(new Event('input', { bubbles: true }));
+    }, exported);
+    await new Promise((r) => setTimeout(r, 600));
+    await importFlow('Import pasted data');
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+}
+
 for (const label of clicks) {
   const handle = await page.evaluateHandle((l) => {
     // Visible only, and scrolled into view before returning. The detail sheet
@@ -137,6 +203,18 @@ for (const label of clicks) {
   await element.click();
   await new Promise((r) => setTimeout(r, 1200));
 }
+
+/*
+ * `--after ms` -- settle *after* the clicks, before reading or shooting.
+ *
+ * `--wait` lands between `goto` and the first click, and each click gets a
+ * fixed 1.2s, so there was no way to let a slow interaction finish. The Clash
+ * Royale meta sample reads about a hundred battle logs on a press and takes
+ * minutes through the fixture server; without this the screenshot is always of
+ * a progress bar.
+ */
+const after = Number(flag('after', 0));
+if (after) await new Promise((r) => setTimeout(r, after));
 
 // document.body, not #root: react-native-web renders <Modal> into a portal
 // outside the app root, so reading #root alone silently misses every sheet.

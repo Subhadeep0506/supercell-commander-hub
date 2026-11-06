@@ -62,7 +62,12 @@ export function fixtureFor(url) {
   if (/rankings\/clans-builder-base/.test(url)) return 'coc-rank-clans-builder.json';
   if (/rankings\/clans/.test(url)) return 'coc-rank-clans-home.json';
   if (/rankings\/players-builder-base/.test(url)) return 'coc-rank-players-builder.json';
-  if (/rankings\/players/.test(url)) return 'coc-rank-players-home.json';
+  // The one paged ladder, so the cursor walk the boards now do is exercised.
+  // Page two has ranks 26-50, which is how a check tells a real second page
+  // from the first one served twice.
+  if (/rankings\/players/.test(url)) {
+    return /[?&]after=/.test(url) ? 'coc-rank-players-home-2.json' : 'coc-rank-players-home.json';
+  }
   if (/\/locations\?/.test(url)) return 'coc-locations.json';
   if (/\/clans\?name=/.test(url)) return 'coc-clans-search.json';
   if (/\/clans\//.test(url)) return 'coc-clan.json';
@@ -80,8 +85,33 @@ export function fixtureFor(url) {
  * `/upcomingchests` both sit under `/players/`, and `/clans/{tag}/...` under
  * `/clans/`.
  */
+/**
+ * Player tags that sit on the Path of Legend leaderboard fixture.
+ *
+ * Read once, so the meta sampler's hundred battle-log requests can be answered
+ * the way they would be live: a top-ladder tag returns a *ranked* log and
+ * everyone else returns the calibration account's Trophy Road one. Serving one
+ * log for every tag collapsed the whole sample into a single bracket, which
+ * made the bracket picker -- the thing most worth checking -- untestable.
+ */
+let topTags;
+function isTopLadderTag(url) {
+  if (!topTags) {
+    try {
+      const pol = JSON.parse(readFileSync(resolve(FIXTURES, 'cr-path-of-legend.json'), 'utf8'));
+      topTags = new Set((pol.items ?? []).map((p) => String(p.tag).replace('#', '').toUpperCase()));
+    } catch {
+      topTags = new Set();
+    }
+  }
+  const tag = /\/players\/([^/]+)\//.exec(url)?.[1] ?? '';
+  return topTags.has(decodeURIComponent(tag).replace('#', '').toUpperCase());
+}
+
 export function crFixtureFor(url) {
-  if (/\/players\/[^/]+\/battlelog/.test(url)) return 'cr-battlelog.json';
+  if (/\/players\/[^/]+\/battlelog/.test(url)) {
+    return isTopLadderTag(url) ? 'cr-ranked-battlelog.json' : 'cr-battlelog.json';
+  }
   if (/\/players\/[^/]+\/upcomingchests/.test(url)) return 'cr-chests.json';
   if (/\/players\//.test(url)) return 'cr-player.json';
   if (/\/currentriverrace/.test(url)) return 'cr-river-race.json';

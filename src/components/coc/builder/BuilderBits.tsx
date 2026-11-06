@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { bookArt, townHallArt } from '@/assets/art';
+import { bookArtAt, townHallArt } from '@/assets/art';
 import { formatDuration } from '@/lib/clan';
 import { GROUP_LABEL, type Group } from '@/lib/village-plan';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
@@ -63,10 +63,20 @@ export function clockLabel(at: number): string {
   return `${month} ${d.getDate()}, ${hh}:${mm}`;
 }
 
-/** Catalog artwork, falling back to the Town Hall render for the hall itself. */
+/**
+ * Catalog artwork at a level, falling back to the Town Hall render for the
+ * hall itself.
+ *
+ * The Town Hall case stays ahead of `bookArtAt` because `coc/main` carries the
+ * official fan-kit halls for 9-18, and those are the renders every roster row
+ * and ladder entry already shows -- the dataset's own set would give the same
+ * building two looks depending on which screen you were on.
+ */
 export function itemImage(catalogId: string, level?: number) {
-  if (catalogId === 'home/town-hall' && level) return townHallArt(level) ?? bookArt(catalogId)?.source;
-  return bookArt(catalogId)?.source;
+  if (catalogId === 'home/town-hall' && level) {
+    return townHallArt(level) ?? bookArtAt(catalogId, level)?.source;
+  }
+  return bookArtAt(catalogId, level)?.source;
 }
 
 /**
@@ -81,6 +91,7 @@ export function ItemTile({
   count,
   size = 44,
   maxed = false,
+  gameMaxed = false,
   progress,
   onPress,
   accessibilityLabel,
@@ -89,7 +100,10 @@ export function ItemTile({
   level?: number;
   count?: number;
   size?: number;
+  /** Maxed for this hall: green. */
   maxed?: boolean;
+  /** Maxed for the game: gold, and it wins over green. */
+  gameMaxed?: boolean;
   /** 0-1, drawn as a bar under the art. */
   progress?: number;
   onPress?: () => void;
@@ -100,7 +114,14 @@ export function ItemTile({
   const art = itemImage(catalogId, level);
 
   const body = (
-    <View style={[s.tile, { width: size, height: size }, maxed && s.tileMaxed]}>
+    <View
+      style={[
+        s.tile,
+        { width: size, height: size },
+        maxed && s.tileMaxed,
+        gameMaxed && s.tileGameMaxed,
+      ]}
+    >
       {art ? <Image source={art} style={s.tileArt} resizeMode="contain" /> : null}
       {count !== undefined && count > 1 ? (
         <Text style={s.tileCount} numberOfLines={1}>
@@ -108,7 +129,10 @@ export function ItemTile({
         </Text>
       ) : null}
       {level !== undefined ? (
-        <Text style={[s.tileLevel, maxed && s.tileLevelMaxed]} numberOfLines={1}>
+        <Text
+          style={[s.tileLevel, maxed && s.tileLevelMaxed, gameMaxed && s.tileLevelGameMaxed]}
+          numberOfLines={1}
+        >
           {level}
         </Text>
       ) : null}
@@ -119,6 +143,7 @@ export function ItemTile({
               s.tileBarFill,
               { width: `${Math.max(0, Math.min(1, progress)) * 100}%` },
               maxed && s.tileBarFillMaxed,
+              gameMaxed && s.tileBarFillGameMaxed,
             ]}
           />
         </View>
@@ -173,7 +198,10 @@ const build = (t: Theme) =>
       backgroundColor: t.muted,
       overflow: 'hidden',
     },
+    // Green is "this hall can do no more", gold is "finished for good".
+    // Declared in that order so gold wins when both hold.
     tileMaxed: { borderColor: t.success },
+    tileGameMaxed: { borderColor: t.gold },
     tileArt: { width: '100%', height: '100%' },
     tileCount: {
       position: 'absolute',
@@ -198,6 +226,7 @@ const build = (t: Theme) =>
       fontSize: 10,
     },
     tileLevelMaxed: { color: t.success },
+    tileLevelGameMaxed: { color: t.gold },
     tileBar: {
       position: 'absolute',
       left: 4,
@@ -210,6 +239,7 @@ const build = (t: Theme) =>
     },
     tileBarFill: { height: '100%', backgroundColor: t.primary },
     tileBarFillMaxed: { backgroundColor: t.success },
+    tileBarFillGameMaxed: { backgroundColor: t.gold },
 
     legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 12 },
     legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
