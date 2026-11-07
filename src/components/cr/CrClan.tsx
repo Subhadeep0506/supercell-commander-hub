@@ -32,7 +32,6 @@ import {
   CrIcon,
   CrList,
   CrLoading,
-  DerivedNote,
   Metric,
   MetricGrid,
   PlayerPortrait,
@@ -109,7 +108,7 @@ export function CrClanPanel({ clan, tag }: { clan: ApiRecord; tag: string }) {
       */}
       {description !== '—' && <Text style={s.description}>{description}</Text>}
 
-      <Tabs tabs={TABS} value={tab} onChange={setTab} />
+      <Tabs tone="cr" tabs={TABS} value={tab} onChange={setTab} />
 
       {tab === 'overview' && <Overview clan={clan} />}
       {tab === 'members' && <Members clan={clan} />}
@@ -390,10 +389,6 @@ function RiverRace({ tag, clan }: { tag: string; clan: ApiRecord }) {
             <Metric label="Decks used today" value={mine.decksUsedToday} icon="cards" />
             <Metric label="Decks remaining" value={decksRemaining(mine)} icon="cards" />
           </MetricGrid>
-          <DerivedNote>
-            Decks remaining assumes four per member per day — the game's rule, which the API does
-            not publish. Everything else is returned directly.
-          </DerivedNote>
           <ChipRow
             chips={PARTICIPANT_SORTS}
             value={sort}

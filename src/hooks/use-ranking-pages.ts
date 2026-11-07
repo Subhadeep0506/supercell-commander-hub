@@ -3,36 +3,19 @@ import { useQueries } from '@tanstack/react-query';
 import { gameQuery } from '@/api/queries';
 import { record, rows, type ApiRecord, type GameRequest, type GameResult } from '@/api/game-api';
 
-/**
- * Server-side paging for the ranking ladders.
- *
- * The boards used to stop at whatever one request returned -- 25 rows on
- * Clash of Clans, because the path hardcoded `limit=25`. Supercell pages these
- * with an opaque `paging.cursors.after`, so this walks the cursor a page at a
- * time, on demand: one network page per "Load more", not a burst of six when
- * the screen opens.
- *
- * Each page is its own `useQuery`, so they keep the shared 60s `staleTime` and
- * a page already fetched costs nothing when the board is revisited.
- *
- * **The real ceiling is the service's, not this cap.** Clash of Clans location
- * boards have historically run to a couple of hundred entries, and the only
- * honest signal that there are no more is the cursor going missing. `hasMore`
- * reflects that rather than promising a round number, and `CAP` only stops the
- * list growing without bound.
- */
+
 const CAP = 300;
 
 export type RankingPages = {
-  /** Every row fetched so far, in service order. */
+
   items: ApiRecord[];
-  /** The first page's result, for the "source / fetched at" footer and errors. */
+
   first?: GameResult;
-  /** True while any page is in flight. */
+
   isFetching: boolean;
-  /** True while a *later* page is in flight -- the first page shows a skeleton. */
+
   isFetchingMore: boolean;
-  /** The service offered another cursor and the cap has not been reached. */
+
   hasMore: boolean;
   loadMore: () => void;
   refetch: () => void;

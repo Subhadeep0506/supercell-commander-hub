@@ -1,27 +1,16 @@
 import { record, rows, text } from '@/api/game-api';
 
-/**
- * `/v1/leaderboards` is messier than its count suggests.
- *
- * It returns 34 entries, but they are not 34 ladders: six distinct names
- * repeated across seasons (Merge Tactics alone appears seven times), plus
- * nineteen with `name: null` that still return perfectly good rankings.
- *
- * Rendering all 34 flat puts six near-identical "Merge Tactics" rows next to
- * each other; dropping the nameless ones silently discards nineteen working
- * ladders. So: group by name, newest season first, and keep the rest together
- * under one heading.
- */
+
 
 export type Ladder = {
-  /** The id to request rankings for -- the newest season of this ladder. */
+
   id: string;
   name: string;
-  /** Every id sharing this name, newest first. One entry means one season. */
+
   seasons: string[];
 };
 
-/** Ids are numeric strings; newest sorts highest. */
+
 function newestFirst(ids: string[]): string[] {
   return [...ids].sort((a, b) => Number(b) - Number(a) || b.localeCompare(a));
 }
@@ -63,7 +52,7 @@ export function groupLadders(leaderboards: unknown): {
   return { named, unnamed };
 }
 
-/** A season id is a calendar month: "2026-10". */
+
 const SEASON_ID = /^\d{4}-\d{2}$/;
 
 /**
@@ -82,23 +71,7 @@ function derivedSeasons(now: Date, count: number): string[] {
   return out;
 }
 
-/**
- * Season ids for the Path of Legend picker.
- *
- * `/v1/locations/global/seasons` returns 145 entries with duplicates -- 129
- * unique -- and **intermittently returns all 145 with `id: null`**. Caught
- * live on 2026-11-07: every id was null for several minutes, and a re-capture
- * twenty minutes later had them all back. Not a shape change, a flake -- but
- * while it lasts the picker has nothing to offer and the Path of Legend tab is
- * dead, which is how it would be experienced on a phone.
- *
- * The *rankings* endpoint is unaffected throughout -- `/pathoflegend/2026-10/
- * rankings/players` answered 200 with real rows during the outage -- so when
- * the list comes back empty the months are derived from the clock instead.
- * Season ids are plain calendar months, so that is a reconstruction rather
- * than a guess, and the worst case is a 404 on a month that does not exist,
- * which the caller already has to handle.
- */
+
 export function seasonIds(seasons: unknown, now: Date = new Date()): string[] {
   const ids = rows(record(seasons)['items'])
     .map((s) => text(s['id']))

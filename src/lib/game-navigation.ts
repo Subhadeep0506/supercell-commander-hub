@@ -3,19 +3,7 @@ import type { RouteName } from '@/navigation/routes';
 
 export type NavItem = { label: string; route: RouteName };
 
-/**
- * Ported from frontend/src/lib/game-navigation.ts.
- *
- * The reference stores paths; these store route names, because the navigator
- * addresses screens by name and linking.ts owns the path mapping.
- *
- * Clash of Clans lists four rows beside a Home button that BottomNav draws
- * itself. Clash Royale lists all four, because its Home tab is a destination
- * in the row rather than a separate button.
- *
- * Brawl Stars arrives with its own screens, so its row is empty for now and
- * BottomNav renders nothing for it.
- */
+
 export const GAME_NAV: Record<Game, NavItem[]> = {
   coc: [
     { label: 'War', route: 'CocWar' },
@@ -29,10 +17,15 @@ export const GAME_NAV: Record<Game, NavItem[]> = {
     { label: 'Clan', route: 'CrClan' },
     { label: 'Leaderboard', route: 'CrLeaderboard' },
   ],
-  bs: [],
+  bs: [
+    { label: 'Home', route: 'BsHome' },
+    { label: 'Stats', route: 'BsStats' },
+    { label: 'Club', route: 'BsClub' },
+    { label: 'Leaderboard', route: 'BsLeaderboard' },
+  ],
 };
 
-/** Which game skin a route belongs to, falling back to the hub's current game. */
+
 export function gameFromRoute(route: string | undefined, fallback: Game): Game {
   if (route?.startsWith('Coc')) return 'coc';
   if (route?.startsWith('Cr')) return 'cr';

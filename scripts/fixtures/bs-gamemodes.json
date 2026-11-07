@@ -1,0 +1,295 @@
+{
+  "items": [
+    {
+      "id": 0,
+      "name": "GEM GRAB"
+    },
+    {
+      "id": 2,
+      "name": "HEIST"
+    },
+    {
+      "id": 3,
+      "name": "BOUNTY"
+    },
+    {
+      "id": 5,
+      "name": "BRAWL BALL"
+    },
+    {
+      "id": 6,
+      "name": "SOLO SHOWDOWN"
+    },
+    {
+      "id": 7,
+      "name": "BIG GAME"
+    },
+    {
+      "id": 8,
+      "name": "ROBO RUMBLE"
+    },
+    {
+      "id": 9,
+      "name": "DUO SHOWDOWN"
+    },
+    {
+      "id": 10,
+      "name": "BOSS FIGHT"
+    },
+    {
+      "id": 11,
+      "name": "SPIRIT WARS"
+    },
+    {
+      "id": 14,
+      "name": "TAKEDOWN"
+    },
+    {
+      "id": 16,
+      "name": "PRESENT PLUNDER"
+    },
+    {
+      "id": 17,
+      "name": "HOT ZONE"
+    },
+    {
+      "id": 20,
+      "name": "KNOCKOUT"
+    },
+    {
+      "id": 21,
+      "name": "CARRY THE GIFT"
+    },
+    {
+      "id": 22,
+      "name": "BASKET BRAWL"
+    },
+    {
+      "id": 23,
+      "name": "VOLLEY BRAWL"
+    },
+    {
+      "id": 24,
+      "name": "DUELS"
+    },
+    {
+      "id": 25,
+      "name": "WIPEOUT"
+    },
+    {
+      "id": 26,
+      "name": "PAYLOAD"
+    },
+    {
+      "id": 27,
+      "name": "BOT DROP"
+    },
+    {
+      "id": 28,
+      "name": "HUNTERS"
+    },
+    {
+      "id": 31,
+      "name": "WIPEOUT 5V5"
+    },
+    {
+      "id": 32,
+      "name": "BRAWL BALL 5V5"
+    },
+    {
+      "id": 33,
+      "name": "GEM GRAB 5V5"
+    },
+    {
+      "id": 34,
+      "name": "TROPHY ESCAPE"
+    },
+    {
+      "id": 35,
+      "name": "KNOCKOUT 5V5"
+    },
+    {
+      "id": 37,
+      "name": "PAINT BRAWL"
+    },
+    {
+      "id": 38,
+      "name": "TRIO SHOWDOWN"
+    },
+    {
+      "id": 39,
+      "name": "DRUM ROLL"
+    },
+    {
+      "id": 40,
+      "name": "SOUL COLLECTOR"
+    },
+    {
+      "id": 41,
+      "name": "CLEANING DUTY"
+    },
+    {
+      "id": 45,
+      "name": "BRAWL HOCKEY"
+    },
+    {
+      "id": 46,
+      "name": "GEM GRAB 2V2"
+    },
+    {
+      "id": 47,
+      "name": "SPECIAL DELIVERY"
+    },
+    {
+      "id": 48,
+      "name": "BRAWL ARENA"
+    },
+    {
+      "id": 49,
+      "name": "BRAWL BALL 2V2"
+    },
+    {
+      "id": 50,
+      "name": "KNOCKOUT 2V2"
+    },
+    {
+      "id": 51,
+      "name": "HOT ZONE 2V2"
+    },
+    {
+      "id": 52,
+      "name": "BASKET BRAWL 2V2"
+    },
+    {
+      "id": 53,
+      "name": "BRAWL HOCKEY 2V2"
+    },
+    {
+      "id": 54,
+      "name": "SPECIAL DELIVERY 2V2"
+    },
+    {
+      "id": 55,
+      "name": "TOKEN RUN"
+    },
+    {
+      "id": 56,
+      "name": "TREASURE HUNT"
+    },
+    {
+      "id": 57,
+      "name": "BRAWL HOCKEY"
+    },
+    {
+      "id": 60,
+      "name": "SAMURAI SMASH"
+    },
+    {
+      "id": 61,
+      "name": "BOSS FIGHT"
+    },
+    {
+      "id": 62,
+      "name": "SAMURAI SMASH"
+    },
+    {
+      "id": 63,
+      "name": "DODGEBRAWL"
+    },
+    {
+      "id": 64,
+      "name": "SUBWAY RUN"
+    },
+    {
+      "id": 65,
+      "name": "TRIO GEM GRAB"
+    },
+    {
+      "id": 66,
+      "name": "TRIO WIPEOUT"
+    },
+    {
+      "id": 67,
+      "name": "UPSIDE SHOWDOWN"
+    },
+    {
+      "id": 68,
+      "name": "LOVE BOMBING"
+    },
+    {
+      "id": 69,
+      "name": "DUO MEGA BOSS"
+    },
+    {
+      "id": 70,
+      "name": "SAFE BLAST"
+    },
+    {
+      "id": 71,
+      "name": null
+    },
+    {
+      "id": 72,
+      "name": "LOADED SHOWDOWN"
+    },
+    {
+      "id": 73,
+      "name": "SHADOW SMASH"
+    },
+    {
+      "id": 74,
+      "name": "SHADOW SMASH"
+    },
+    {
+      "id": 75,
+      "name": "MEGA SHOWDOWN"
+    },
+    {
+      "id": 76,
+      "name": "SUPER BALL"
+    },
+    {
+      "id": 77,
+      "name": "5 PLAYER VOID BOSS"
+    },
+    {
+      "id": 78,
+      "name": "LOADED DUO SHOWDOWN"
+    },
+    {
+      "id": 79,
+      "name": "SUPER HOCKEY"
+    },
+    {
+      "id": 80,
+      "name": "FOOD FIGHT"
+    },
+    {
+      "id": 81,
+      "name": "MECHA GUARD"
+    },
+    {
+      "id": 82,
+      "name": "COMBAT COOKING"
+    },
+    {
+      "id": 83,
+      "name": "HIDE & SEEK"
+    },
+    {
+      "id": 84,
+      "name": "MEGA BOSS DUO (20 PLAYER)"
+    },
+    {
+      "id": 85,
+      "name": "COUNTERLIGHT"
+    },
+    {
+      "id": 86,
+      "name": "MEGA DUO SHOWDOWN"
+    }
+  ],
+  "paging": {
+    "cursors": {}
+  }
+}

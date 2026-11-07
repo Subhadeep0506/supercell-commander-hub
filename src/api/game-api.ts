@@ -32,10 +32,13 @@ const CR_ONLY = [
   'tournamentSearch',
 ] as const;
 
-/** Clash of Clans resources, rejected for the other two games. */
+
 const COC_ONLY = ['war', 'capitalRaids', 'warLog', 'leagueGroup', 'leagueWar'] as const;
 
-/** Every resource addressed by a player, clan, war or tournament tag. */
+
+const BS_ONLY = ['brawler', 'brawlerRankings'] as const;
+
+
 const TAGGED = [
   'player',
   'clan',
@@ -69,21 +72,22 @@ export const gameRequestSchema = z
       'leagueGroup',
       'leagueWar',
       ...CR_ONLY,
+      ...BS_ONLY,
     ]),
     tag: z.string().optional(),
     name: z.string().optional(),
     /**
-     * Page size for the cursor-paged clan histories, and the ranking ladders.
+     * Brawl Stars only: a brawler id from the `catalog` resource (`16000017`).
      *
-     * Raised from 50 to 100 for the ladders: a board capped at 50 was the
-     * reason "show more players" had nowhere to go. 100 is the largest page
-     * the services are documented to accept; anything past the first page
-     * comes through `after`.
+     * Not a tag, and not interchangeable with one -- the brawler endpoints are
+     * the only ones in any of the three games addressed by a bare number.
      */
+    brawlerId: z.number().int().positive().optional(),
+
     limit: z.number().int().positive().max(100).optional(),
-    /** `paging.cursors.after` from the previous page of the same resource. */
+
     after: z.string().optional(),
-    /** Leaderboard only: which ladder to read. */
+
     board: z.enum(['players', 'clans']).optional(),
     /**
      * Leaderboard only. `capital` is a CoC clan ladder and has no player form;
@@ -112,15 +116,15 @@ export const gameRequestSchema = z
      */
     minMembers: z.number().int().min(1).max(50).optional(),
     maxMembers: z.number().int().min(1).max(50).optional(),
-    /** Clash of Clans only. */
+
     minClanPoints: z.number().int().nonnegative().optional(),
-    /** Clash of Clans only. */
+
     minClanLevel: z.number().int().min(1).max(30).optional(),
-    /** Clash of Clans only. */
+
     warFrequency: z
       .enum(['always', 'moreThanOncePerWeek', 'oncePerWeek', 'lessThanOncePerWeek', 'never'])
       .optional(),
-    /** Clash Royale only -- its equivalent of `minClanPoints`. */
+
     minScore: z.number().int().nonnegative().optional(),
     /**
      * `pathOfLegend` only: a season id from the `seasons` resource, like
@@ -128,7 +132,7 @@ export const gameRequestSchema = z
      * offer finished seasons only.
      */
     season: z.string().optional(),
-    /** `leaderboardRankings` only: an `id` from the `leaderboards` resource. */
+
     leaderboardId: z.union([z.string(), z.number()]).optional(),
   })
   .superRefine((value, ctx) => {
@@ -245,6 +249,43 @@ export const gameRequestSchema = z
     if (value.resource === 'locations' && value.game === 'bs') {
       ctx.addIssue({ code: 'custom', message: 'This data is not available for this game.' });
     }
+    // The brawler endpoints take a number, and a missing one builds
+    // `/v1/brawlers/undefined` -- a 404 that reads at the call site exactly
+    // like a brawler that does not exist.
+    if (
+      (BS_ONLY as readonly string[]).includes(value.resource) &&
+      !(typeof value.brawlerId === 'number' && value.brawlerId > 0)
+    ) {
+      ctx.addIssue({ code: 'custom', message: 'Choose a brawler.', path: ['brawlerId'] });
+    }
+    /*
+     * Brawl Stars ranks by country code on `/v1/rankings/{countryCode}/...`
+     * and has **no `/v1/locations` endpoint at all** to enumerate them, which
+     * is why `locations` is rejected for it just above. Without that list the
+     * app cannot offer a picker, so the boards stay global and a `locationId`
+     * arriving here is a call site that assumed otherwise.
+     */
+    if (
+      value.resource === 'leaderboard' &&
+      value.game === 'bs' &&
+      value.locationId !== undefined &&
+      value.locationId !== 'global'
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Brawl Stars rankings are global here: it has no locations endpoint to pick from.',
+        path: ['locationId'],
+      });
+    }
+    // `capital` and `builder` are Clash of Clans ladders; Brawl Stars has a
+    // player board, a club board and 111 per-brawler boards, and nothing else.
+    if (value.resource === 'leaderboard' && value.game === 'bs' && value.mode === 'builder') {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'This data is not available for this game.',
+        path: ['mode'],
+      });
+    }
     if (
       // Clash of Clans has no events endpoint of any kind. Clash Royale and
       // Brawl Stars each have one, but they are different endpoints returning
@@ -253,7 +294,8 @@ export const gameRequestSchema = z
       (value.resource === 'catalog' && value.game === 'coc') ||
       (value.resource === 'battles' && value.game === 'coc') ||
       ((COC_ONLY as readonly string[]).includes(value.resource) && value.game !== 'coc') ||
-      ((CR_ONLY as readonly string[]).includes(value.resource) && value.game !== 'cr')
+      ((CR_ONLY as readonly string[]).includes(value.resource) && value.game !== 'cr') ||
+      ((BS_ONLY as readonly string[]).includes(value.resource) && value.game !== 'bs')
     ) {
       ctx.addIssue({ code: 'custom', message: 'This data is not available for this game.' });
     }
@@ -284,14 +326,7 @@ export function text(value: unknown): string {
   return typeof value === 'string' || typeof value === 'number' ? String(value) : '—';
 }
 
-/**
- * `/v1/clans` with whichever filters the game actually supports.
- *
- * Each parameter is emitted only when set, because the services treat an empty
- * value as a malformed one rather than as "no filter" -- `&minMembers=` is a
- * 400, not a no-op. `locationId=global` is the app's own sentinel for "no
- * location filter" and is dropped here rather than sent.
- */
+
 function clanSearchPath(input: GameRequest): string {
   const params = new URLSearchParams();
   params.set('name', input.name?.trim() ?? '');
@@ -341,13 +376,11 @@ export function endpoint(input: GameRequest) {
     case 'capitalRaids':
       // `after` is Supercell's own opaque cursor from paging.cursors; it is
       // already base64 and must not be re-encoded.
-      return `/v1/clans/${tag}/capitalraidseasons?limit=${input.limit ?? 10}${
-        input.after ? `&after=${input.after}` : ''
-      }`;
+      return `/v1/clans/${tag}/capitalraidseasons?limit=${input.limit ?? 10}${input.after ? `&after=${input.after}` : ''
+        }`;
     case 'warLog':
-      return `/v1/clans/${tag}/warlog?limit=${input.limit ?? 10}${
-        input.after ? `&after=${input.after}` : ''
-      }`;
+      return `/v1/clans/${tag}/warlog?limit=${input.limit ?? 10}${input.after ? `&after=${input.after}` : ''
+        }`;
     case 'battles':
       return `/v1/players/${tag}/battlelog`;
     case 'catalog':
@@ -384,9 +417,8 @@ export function endpoint(input: GameRequest) {
     case 'riverRaceLog':
       // Replaces `warlog`, which answers 404 "temporarily disabled". Same
       // opaque-cursor paging as capitalRaids.
-      return `/v1/clans/${tag}/riverracelog?limit=${input.limit ?? 10}${
-        input.after ? `&after=${input.after}` : ''
-      }`;
+      return `/v1/clans/${tag}/riverracelog?limit=${input.limit ?? 10}${input.after ? `&after=${input.after}` : ''
+        }`;
     case 'pathOfLegend':
       // Global only. The per-country form 404s, as does the current season.
       return `/v1/locations/global/pathoflegend/${encodeURIComponent(
@@ -403,9 +435,8 @@ export function endpoint(input: GameRequest) {
     case 'leaderboardRankings':
       // Note the singular path segment: /v1/leaderboard/{id}, not /leaderboards/.
       // The plural 404s.
-      return `/v1/leaderboard/${encodeURIComponent(String(input.leaderboardId ?? ''))}?limit=${
-        input.limit ?? 25
-      }`;
+      return `/v1/leaderboard/${encodeURIComponent(String(input.leaderboardId ?? ''))}?limit=${input.limit ?? 25
+        }`;
     case 'globalTournaments':
       // 200 with an empty `items` whenever no global tournament is running,
       // which is most of the time. An empty list is the normal answer here.
@@ -415,10 +446,34 @@ export function endpoint(input: GameRequest) {
     case 'tournamentSearch':
       return `/v1/tournaments?name=${encodeURIComponent(input.name?.trim() ?? '')}&limit=25`;
 
+    // ---- Brawl Stars -----------------------------------------------------
+    case 'brawler':
+      // The catalog entry for one brawler. Identical in shape to the matching
+      // item inside `/v1/brawlers`, so this is only worth a call when a
+      // brawler id arrives from somewhere the catalog was never fetched --
+      // a battle log row, for instance.
+      return `/v1/brawlers/${input.brawlerId}`;
+    case 'brawlerRankings':
+      // One of 111 per-brawler ladders: "the best Shelly in the world". No
+      // equivalent exists in either other game.
+      return `/v1/rankings/global/brawlers/${input.brawlerId}?limit=${input.limit ?? 25}${input.after ? `&after=${input.after}` : ''
+        }`;
+
     case 'leaderboard': {
-      // Brawl Stars ranks by country code on a different path entirely and is
-      // left on its original endpoint.
-      if (input.game === 'bs') return '/v1/rankings/global/players?limit=25';
+      /*
+       * Brawl Stars ranks on `/v1/rankings/{countryCode}/{board}`, a different
+       * path from either other game, and is pinned to `global` -- it has no
+       * `/v1/locations` endpoint to populate a country picker with, and the
+       * schema rejects any other `locationId` above.
+       *
+       * This used to hardcode `limit=25` and ignore `limit` and `after`
+       * entirely, which meant `useRankingPages` could walk the cursor but
+       * every page it asked for came back as page one.
+       */
+      if (input.game === 'bs') {
+        return `/v1/rankings/global/${input.board === 'clans' ? 'clubs' : 'players'}?limit=${input.limit ?? 50
+          }${input.after ? `&after=${input.after}` : ''}`;
+      }
       const location = encodeURIComponent(String(input.locationId ?? 'global'));
       const board = input.board ?? 'players';
       const mode = input.mode ?? 'home';
@@ -429,9 +484,8 @@ export function endpoint(input: GameRequest) {
       if (input.game === 'cr') {
         // Clan ladders only -- the schema rejects `board: 'players'` above.
         // Both of these accept a country id as well as 'global'.
-        return `/v1/locations/${location}/rankings/${
-          mode === 'war' ? 'clanwars' : 'clans'
-        }?${page}`;
+        return `/v1/locations/${location}/rankings/${mode === 'war' ? 'clanwars' : 'clans'
+          }?${page}`;
       }
       const ladder =
         mode === 'capital'

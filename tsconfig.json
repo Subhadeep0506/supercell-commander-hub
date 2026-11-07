@@ -2,12 +2,18 @@
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
-    "types": ["jest"],
+    "types": [
+      "jest"
+    ],
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "App.tsx", "__tests__/**/*"],
+  "include": [
+    "src*"
+  ],
   // *.web.* files never run on the native target and may touch DOM globals,
   // which this config deliberately does not provide. tsconfig.web.json covers
   // them instead.

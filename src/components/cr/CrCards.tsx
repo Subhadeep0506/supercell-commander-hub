@@ -45,7 +45,7 @@ export function CopyBar({ card }: { card: ApiRecord }) {
   if (progress.kind === 'max') {
     return (
       <View style={[s.copyBar, s.copyBarMax]}>
-        <Text style={s.copyBarText}>Max</Text>
+        <Text style={[s.copyBarText, s.copyBarMaxText]}>Max</Text>
       </View>
     );
   }
@@ -352,10 +352,6 @@ export function CardDetail({ card }: { card: ApiRecord }) {
         </View>
       )}
 
-      <Text style={s.note}>
-        Hitpoints, damage, range and hit speed are not provided by the official API, so they are
-        not shown anywhere in this app.
-      </Text>
     </View>
   );
 }
@@ -457,7 +453,8 @@ const build = (t: Theme) =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.arena.panel,
+      // A Royale-blue ground behind every card, as the game itself has.
+      backgroundColor: t.royale.chip,
       borderWidth: 2,
       borderRadius: t.radius.lg,
       overflow: 'visible',
@@ -476,7 +473,7 @@ const build = (t: Theme) =>
       justifyContent: 'center',
       backgroundColor: t.secondary,
       borderWidth: 2,
-      borderColor: t.arena.edge,
+      borderColor: t.royale.edge,
       borderRadius: t.radius.lg,
     },
     elixirText: { fontFamily: t.fonts.display, fontSize: 13, color: t.secondaryForeground },
@@ -489,10 +486,12 @@ const build = (t: Theme) =>
       paddingVertical: 5,
       paddingHorizontal: 2,
       alignItems: 'center',
-      backgroundColor: t.arena.edge,
+      // `edge`, not `chip`: this badge sits on the tile art, whose ground is
+      // already `chip`, so it needs the darker Royale blue to separate.
+      backgroundColor: t.royale.edge,
       borderRadius: t.radius.sm,
     },
-    levelText: { fontFamily: t.fonts.display, fontSize: 10, color: t.arena.shine },
+    levelText: { fontFamily: t.fonts.display, fontSize: 10, color: t.royale.onChip },
     lock: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center' },
     // A pill rather than bare text: the tile art behind it is only dimmed, not
     // removed, so the word needs its own ground to stay legible on every card.
@@ -500,8 +499,8 @@ const build = (t: Theme) =>
       fontFamily: t.fonts.display,
       fontSize: 9,
       letterSpacing: 1,
-      color: t.arena.shine,
-      backgroundColor: t.arena.edge,
+      color: t.royale.onChip,
+      backgroundColor: t.royale.edge,
       borderWidth: 1,
       borderColor: t.border,
       borderRadius: t.radius.sm,
@@ -519,15 +518,25 @@ const build = (t: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
-      borderColor: t.arena.edge,
+      borderColor: t.royale.edge,
       borderRadius: t.radius.sm,
       backgroundColor: t.muted,
       overflow: 'hidden',
     },
-    copyBarMax: { backgroundColor: t.arena.edge },
-    copyFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: t.arena.heading },
+    /*
+     * Three states, three colours, in order of how much they matter: blue
+     * while the copies are accumulating, green once there are enough to
+     * upgrade, gold when the card is finished for good. Gold is reserved for
+     * the last of those -- it is the mark that should pop, and spending it on
+     * every partial bar would leave nothing to mark the maxed card with.
+     */
+    copyBarMax: { backgroundColor: t.royale.highlight },
+    copyFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: t.royale.chip },
     copyFillReady: { backgroundColor: t.success },
     copyBarText: { fontFamily: t.fonts.display, fontSize: 9, color: t.foreground },
+    // On dark, `foreground` is near-white and would sit at about 1.6:1 on
+    // gold. The maxed bar brings its own ink.
+    copyBarMaxText: { color: t.royale.onHighlight },
 
     empty: {
       fontFamily: t.fonts.sans,

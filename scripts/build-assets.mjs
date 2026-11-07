@@ -45,18 +45,7 @@ const CATALOG_EXTRA = resolve(root, 'src/data/clash-book/catalog-extra.json');
 
 const force = process.argv.includes('--force');
 
-/**
- * Each group maps one pack directory to one output directory and one registry.
- *
- * `max` is the longest edge after resize. Grid tiles never render above about
- * 96 px even at 3x, so 256 is generous; full-bleed artwork (Town Halls, the
- * book item stage, logos) can reach roughly 200 px, so 512 covers it.
- *
- * One registry per source group, mirroring the reference app's own split
- * between coc-art.ts and coc-detail-art.ts. Merging them would collide:
- * trophy.png exists in both coc/main and coc/icons, and the reference relies
- * on the detail copy winning.
- */
+
 const GROUPS = [
   { from: 'coc/main', to: 'coc', max: 512, registry: 'coc' },
   // Trimmed: these are small UI icons -- elixir, gold and clock fill only 4%
@@ -112,18 +101,64 @@ const GROUPS = [
   // older trophy-road art from cr-api-assets: `leagueNumber` on a player
   // refers to these.
   { from: 'cr/pol', to: 'cr-pol', max: 192, registry: 'crPol', trim: true },
+
+  /*
+   * ---- Brawl Stars ------------------------------------------------------
+   *
+   * From Brawlify/CDN via scripts/fetch-bs-assets.mjs. Every one of these is
+   * filed under the numeric id the API returns -- 16000017.png is Tara,
+   * 28000618.png is that player's icon -- so the registries below are keyed by
+   * id string rather than by slug. `src/assets/slug.ts` is not involved
+   * anywhere on the Brawl Stars side.
+   *
+   * None are trimmed. The sets are internally uniform (Brawlify normalises
+   * them) and trimming would rescale the handful of tighter crops so they read
+   * larger than their neighbours in the same grid -- the problem the player
+   * badges comment describes.
+   */
+  // Collection grid tiles, with the rarity border baked into the art.
+  { from: 'bs/brawler', to: 'bs-brawler', max: 192, registry: 'bsBrawler' },
+  // Wide portraits for the brawler detail header; the only full-bleed set here.
+  { from: 'bs/portrait', to: 'bs-portrait', max: 384, registry: 'bsPortrait' },
+  // Filed as 48000000 + modeId. The offset is applied on lookup in
+  // src/assets/brawl.ts, not here -- the filename stays what Brawlify called it.
+  { from: 'bs/mode', to: 'bs-mode', max: 128, registry: 'bsMode' },
+  { from: 'bs/badge', to: 'bs-badge', max: 128, registry: 'bsBadge' },
+  // Keyed by league family name (Gold.png), not by id -- see fetch-bs-assets.
+  { from: 'bs/rank', to: 'bs-rank', max: 128, registry: 'bsRank' },
+  // Gadgets, star powers and gears in one set: their id spaces are disjoint
+  // (23xxxxxx for the first two, 62xxxxxx for gears) and fetch-bs-assets fails
+  // the build if that ever stops being true.
+  //
+  // 96 rather than 128: 470 files that never render above 32px in the kit
+  // rows, and the step down is 1.7MB of APK for pixels nothing shows.
+  { from: 'bs/kit', to: 'bs-kit', max: 96, registry: 'bsKit', quality: 78 },
+  // Keyed 0-13, matching `prestigeLevel` directly.
+  { from: 'bs/prestige', to: 'bs-prestige', max: 128, registry: 'bsPrestige' },
+  // 1,405 player icons -- the largest set in the app after the Clash Book
+  // levels, and the one that decides whether a roster row looks finished.
+  //
+  // 112 at quality 72. Brawlify already ships these as pngquant'd 8-bit
+  // palette PNGs, so WebP has far less to win back than it does on the Royale
+  // badges; at the original 128/80 the set alone was 8.7MB. The largest any of
+  // them draws is the ~64px header avatar.
+  { from: 'bs/icon', to: 'bs-icon', max: 112, registry: 'bsIcon', quality: 72 },
+  // Map renders, keyed by `event.id`. 1,399 of them and the largest raw group
+  // in the repo at 58.7 MB, which is why they draw at 256: the battle sheet
+  // shows them as a 150pt-tall thumbnail and nothing else uses them.
+  //
+  // Not trimmed. These are full-bleed renders with no transparent margin to
+  // crop, and trimming would rescale each map differently against its
+  // neighbours in the same list.
+  { from: 'bs/map', to: 'bs-map', max: 256, registry: 'bsMap', quality: 78 },
+  // The four stat icons from the fan kit -- fame, xp, power points, prestige.
+  // Trimmed, because the kit frames them very unevenly (xp fills its 500px
+  // square, fame sits in a 1025x1200 canvas) and untrimmed they render at
+  // visibly different weights in the same metric row.
+  { from: 'bs/icons', to: 'bs-stat', max: 128, registry: 'bsStat', trim: true },
 ];
 
-/**
- * Bottom-nav icons.
- *
- * These are trimmed to their content before resizing. The source art has wildly
- * uneven transparent padding -- home_town-hall fills its canvas completely,
- * home_army-camp fills 25% -- so scaling the raw files to a uniform box makes
- * some icons look half the size of others. The reference stylesheet papered
- * over this with per-image transform hacks (war 2.2x, builder 3.2x); trimming
- * fixes the cause instead.
- */
+
 const NAV_ICONS = [
   { file: 'coc/clash-book/home_town-hall.png', name: 'home' },
   // A shield reads as "war" at 24px. The catalog has no war building, and
@@ -135,15 +170,7 @@ const NAV_ICONS = [
   { file: 'coc/clash-book/book-icon.png', name: 'book' },
 ];
 
-/**
- * Resource and currency icons, taken from clash-of-clans-data.
- *
- * The fan kit covers Gold, Elixir and Dark Elixir but nothing else, so four of
- * the seven upgrade-cost resources in the catalog -- Builder Gold, Builder
- * Elixir, "Builder Gold or Builder Elixir" and "Gold or Elixir" -- currently
- * render no icon at all. Keyed by the exact `upgradeCostResource` string the
- * catalog uses, so lookups need no normalisation.
- */
+
 const RESOURCE_ICONS = [
   { file: 'images/other/gold.png', name: 'Gold' },
   { file: 'images/other/elixir.png', name: 'Elixir' },
@@ -161,18 +188,7 @@ const RESOURCE_ICONS = [
   { file: 'images/other/ore/starry-ore.png', name: 'Starry Ore' },
 ];
 
-/**
- * Clan Capital, clan label and league artwork, all from clash-of-clans-data.
- *
- * The clan detail sheet needs district tiles, a capital league badge and the
- * clan's label icons. The fan kit has none of these; the upstream dataset has
- * all of them, keyed by level or by a kebab-case name that matches what the
- * API returns once slugified.
- *
- * `halls/capital-hall` covers Capital Peak, whose tile shows the *capital*
- * hall level; `halls/district-hall` covers the other eight districts, each
- * showing its own districtHallLevel.
- */
+
 const CAPITAL_DIRS = [
   { dir: 'images/clan-capital/halls/capital-hall/normal', prefix: 'capital-hall', max: 256 },
   { dir: 'images/clan-capital/halls/district-hall/normal', prefix: 'district-hall', max: 256 },
@@ -180,67 +196,26 @@ const CAPITAL_DIRS = [
   { dir: 'images/clan/labels', prefix: 'label', max: 128 },
 ];
 
-/**
- * Town Halls 1-8, which the fan kit does not ship.
- *
- * `coc/main` carries only 9-18, so every roster row, ladder entry and war
- * member below TH9 rendered as a hole. The war league screen made that
- * unmissable -- a league group spans the whole range, and its Town Hall
- * legend runs down to TH3. clash-of-clans-data has the full set.
- *
- * Emitted into the same directory and registry as the fan-kit halls, at the
- * same size and untrimmed, so the two sets are indistinguishable in a list.
- * 9-18 are skipped here rather than overwritten: the official art wins.
- */
+
 const LOW_TOWN_HALLS = { dir: 'images/home/town-hall/normal', max: 8 };
 
-/**
- * League badges for the player and clan ladders.
- *
- * Three separate league systems, and the two sources split cleanly between
- * them. clash-of-clans-data carries Builder Base and Ranked artwork already
- * named the way the API names the league once slugified -- "Wood League V"
- * slugifies to `wood-v`, which is the filename -- so those need no mapping.
- *
- * Builder Base art is per *tier* (42 badges), Ranked art is per *group* (one
- * badge shared by Barbarian 1-3), which is how each is drawn in game.
- *
- * Home Village trophy leagues are the gap: the dataset has no set at all, so
- * they come from the fan-kit drop-in below.
- */
+
 const LEAGUE_DIRS = [
   { dir: 'images/builder/leagues', prefix: 'bb-league', max: 128 },
   { dir: 'images/ranked-battles/leagues', prefix: 'ranked-league', max: 128 },
 ];
 
-/**
- * Home Village trophy league badges, kebab-named per league *family*
- * ("bronze.png", "legend.png") -- the fan kit has one badge per family rather
- * than one per roman-numeral tier, so the lookup drops the tier.
- *
- * Optional, like the war leagues: absent files leave the ladder falling back
- * to Town Hall art rather than failing the build.
- */
+
 const TROPHY_LEAGUE_DIR = 'coc/leagues';
 
-/**
- * Artwork with no source in either the fan kit or clash-of-clans-data, to be
- * dropped in by hand. Absent files are reported but do not fail the build --
- * every call site falls back to a text chip or a plain empty state, so the app
- * builds and runs without them.
- *
- *   assets/packs/coc/extra/raid-medal.png     Raid Medals currency icon
- *   assets/packs/coc/extra/empty-state.png    sad character for empty states
- *   assets/packs/coc/war-leagues/*.png        war league badges, kebab-named
- *                                             ("champion-i.png", "bronze-iii.png")
- */
+
 const CAPITAL_DROP_INS = [
   { file: 'coc/extra/raid-medal.png', name: 'raid-medal', max: 128 },
   { file: 'coc/extra/empty-state.png', name: 'empty-state', max: 512 },
 ];
 const WAR_LEAGUE_DIR = 'coc/war-leagues';
 
-/** Optional artwork that is merely absent, as opposed to a build failure. */
+
 const notes = [];
 
 const kebab = (s) =>
@@ -249,7 +224,7 @@ const kebab = (s) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
-/** Every png in the package, indexed for slug lookup. */
+
 function indexPackageImages() {
   const byDir = new Map();
   const byFile = new Map();
@@ -276,7 +251,7 @@ function indexPackageImages() {
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-/** Prefer an explicit icon, then the highest level artwork, then anything. */
+
 function bestOf(files) {
   const icon = files.find((f) => /\/icon\.png$/.test(f));
   if (icon) return icon;
@@ -288,14 +263,7 @@ function bestOf(files) {
   return files.find((f) => /\/normal\.png$/.test(f)) ?? files[0];
 }
 
-/**
- * Package artwork for a catalog item.
- *
- * `sourcePath` is exact -- it names the upstream data file this catalog entry
- * was generated from -- so it is tried first. Fifteen items have no `images`
- * field upstream even though their artwork exists, which is what the slug
- * fallback over the image tree is for.
- */
+
 function resolvePackageImage(item, index) {
   // Generated entries name their own artwork. This has to win over the
   // sourcePath probe: a nested sub-item shares its parent's source file, so
@@ -368,10 +336,10 @@ async function convert(source, targetDir, name, max, { trim = false, quality = 9
   }
 }
 
-/** Registry name -> [{ lookup, path }]. */
-const registries = { coc: [], cocDetail: [], cocCapital: [], cocLeague: [], book: [], bookExtra: [], bookLevel: [], arena: [], crArena: [], crLeague: [], crChest: [], crBadge: [], crPlayerBadge: [], crToken: [], crIcon: [], crPol: [], logo: [], nav: [], resource: [] };
 
-/** Guard against two packs contributing the same key to one registry. */
+const registries = { coc: [], cocDetail: [], cocCapital: [], cocLeague: [], book: [], bookExtra: [], bookLevel: [], arena: [], crArena: [], crLeague: [], crChest: [], crBadge: [], crPlayerBadge: [], crToken: [], crIcon: [], crPol: [], bsBrawler: [], bsPortrait: [], bsMode: [], bsBadge: [], bsRank: [], bsKit: [], bsPrestige: [], bsIcon: [], bsStat: [], bsMap: [], logo: [], nav: [], resource: [] };
+
+
 function add(registry, lookup, path) {
   const existing = registries[registry].find((e) => e.lookup === lookup);
   if (existing) {
@@ -559,29 +527,7 @@ if (pkgIndex.count > 0 && existsSync(CATALOG)) {
   }
 }
 
-/**
- * Per-level artwork.
- *
- * A level-1 and a level-14 Inferno Tower are different buildings to look at,
- * and the dataset renders every one of them -- 1,607 images across 241 items.
- * Until this pass existed the app showed one picture per catalog id, so the
- * Clash Book's level slider changed every number on the card except the
- * picture.
- *
- * The mapping is rebuilt from upstream rather than read off our own catalog:
- * `catalog.json` is copied verbatim from the reference app, which strips
- * `levels[].images` (checked -- zero rows carry it). `sourcePath` names the
- * upstream file exactly, which is the same handle resolvePackageImage uses.
- *
- * Not everything has a level set. Heroes, pets, spells, hero equipment,
- * guardians and Super Troops ship a single `icon.png` upstream, so they are
- * absent here by design and `bookArtAt` falls back to the one image. That is
- * not a gap to chase -- the art genuinely does not exist.
- *
- * Keys are `home_inferno-tower_l12`. `@` would be a nicer separator but React
- * Native strips every character outside [a-z0-9_] when it derives an Android
- * drawable name, so it would vanish from the identifier on the device only.
- */
+
 const LEVEL_KEY = (id, level) => `${id.replace(/\//g, '_')}_l${level}`;
 
 if (pkgIndex.count > 0 && existsSync(CATALOG)) {
@@ -664,18 +610,7 @@ for (const icon of NAV_ICONS) {
   if (ok) add('nav', icon.name, `./img/nav/${icon.name}.webp`);
 }
 
-/**
- * Fonts are copied, and renamed on the way.
- *
- * On Android React Native resolves `fontFamily` to a file in
- * `app/src/main/assets/fonts/`, so the filename *is* the family name. The
- * fan-kit files ship as `cr-Clash_Bold.otf`, which would mean writing
- * `fontFamily: 'cr-Clash_Bold'` everywhere; these names match the fonts' own
- * PostScript names instead (verified from each file's name table).
- *
- * Copying straight into the Android assets directory also removes the need for
- * a separate `npx react-native-asset` link step before every build.
- */
+
 const FONT_FILES = [
   { from: 'cr-Clash_Bold.otf', to: 'Clash-Bold.otf' },
   { from: 'cr-Clash_Regular.otf', to: 'Clash-Regular.otf' },

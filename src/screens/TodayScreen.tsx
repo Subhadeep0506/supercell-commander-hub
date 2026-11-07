@@ -56,7 +56,7 @@ export function TodayScreen() {
       */}
       {!empty && !loading && !loadingLive && events.length === 0 && live.length === 0 ? (
         <TodaySection title="Next up">
-          <Panel>
+          <Panel tone="plain">
             <Text style={s.quietTitle}>Nothing is running</Text>
             <Text style={s.quietBody}>
               No war, no Clan War League round and no raid weekend is live for your clan right
@@ -96,31 +96,20 @@ export function TodayScreen() {
         </TodaySection>
       ) : null}
 
-      {accounts.coc || accounts.cr ? (
+      {accounts.coc || accounts.cr || accounts.bs ? (
         <TodaySection title="Your accounts">
           {accounts.coc ? (
             <AccountRow game="coc" player={accounts.coc} route="CocHome" />
           ) : null}
           {accounts.cr ? <AccountRow game="cr" player={accounts.cr} route="CrHome" /> : null}
+          {accounts.bs ? <AccountRow game="bs" player={accounts.bs} route="BsHome" /> : null}
         </TodaySection>
       ) : null}
-
       {/*
-        Brawl Stars is stated rather than omitted. Its event rotation is the
-        one endpoint that would carry this screen best -- real start *and* end
-        times per slot -- so an empty space here would read as a bug rather
-        than as work not yet done.
+        There used to be a "Brawl Stars is arriving later" panel here. Its
+        rotation is now in the timeline above with the rest of the countdowns,
+        which is exactly where that note said it would land.
       */}
-      <TodaySection title="Brawl Stars">
-        <Panel>
-          <Text style={s.quietTitle}>Arriving in a later update</Text>
-          <Text style={s.quietBody}>
-            Brawl Stars has no screens yet. Its event rotation is the richest source this board
-            could have — it publishes a real start and end time for every slot — so it lands here
-            first when those screens arrive.
-          </Text>
-        </Panel>
-      </TodaySection>
     </ScrollView>
   );
 }
@@ -130,7 +119,7 @@ function NoAccounts() {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
   return (
-    <Panel style={s.empty}>
+    <Panel tone="plain" style={s.empty}>
       <Text style={s.emptyTitle}>No accounts yet</Text>
       <Text style={s.emptyBody}>
         Save a player tag and this board shows your war, Clan War League round and raid weekend

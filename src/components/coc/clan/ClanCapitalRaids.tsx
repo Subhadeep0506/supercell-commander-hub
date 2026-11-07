@@ -120,7 +120,7 @@ export function ClanCapitalRaids({ tag }: { tag: string }) {
     ) : (
       <EmptyState
         title="No raid weekends yet"
-        body="This clan has not finished a Capital raid weekend. Once it does, every weekend shows up here."
+        body="This clan has not finished a Capital raid weekend."
       />
     );
   }

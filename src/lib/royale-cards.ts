@@ -1,19 +1,9 @@
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { gameLevel } from './royale-upgrades';
 
-/**
- * The card collection: what the player owns, and what is still locked.
- *
- * `/v1/cards` answers with `items` (123 cards) **and** `supportItems` (4 tower
- * troops) -- reading only `items` silently drops the tower troops, which is
- * easy to do because every other Supercell list endpoint has one array.
- *
- * The player object carries only the cards they have found, so "locked" is the
- * catalog minus the collection. On the calibration account that is 78 unlocked
- * and 45 locked, plus 1 of 4 tower troops.
- */
 
-/** Weakest to strongest, the order the game lists them in. */
+
+
 export const RARITY_ORDER = ['common', 'rare', 'epic', 'legendary', 'champion'] as const;
 
 export type Rarity = (typeof RARITY_ORDER)[number];
@@ -37,12 +27,12 @@ export function cardLevel(card: ApiRecord): number | null {
   return typeof level === 'number' ? gameLevel(level, rarityOf(card)) : null;
 }
 
-/** The card has an evolution in the game, whether or not the player unlocked it. */
+
 export function canEvolve(card: ApiRecord): boolean {
   return typeof card['maxEvolutionLevel'] === 'number' && card['maxEvolutionLevel'] > 0;
 }
 
-/** The player has unlocked this card's evolution. */
+
 export function isEvolved(card: ApiRecord): boolean {
   return typeof card['evolutionLevel'] === 'number' && card['evolutionLevel'] > 0;
 }
@@ -133,7 +123,7 @@ export function sortCards(cards: ApiRecord[], by: CardSort): ApiRecord[] {
   });
 }
 
-/** Counts per rarity, for the filter chips. Always covers all five. */
+
 export function rarityCounts(cards: ApiRecord[]): Record<Rarity, number> {
   const counts = { common: 0, rare: 0, epic: 0, legendary: 0, champion: 0 };
   for (const card of cards) counts[rarityOf(card)] += 1;

@@ -33,7 +33,7 @@ export const ARCHETYPES = [
   },
 ] as const;
 
-/** Order-independent identity for a deck. */
+
 export const deckKey = (cards: ApiRecord[]) =>
   cards
     .map((c) => text(c['id']))
@@ -114,7 +114,7 @@ export function generateDeck(owned: ApiRecord[], coreId: string, style: string, 
   return selected;
 }
 
-/** Every distinct eight-card deck seen in the log, from either side. */
+
 export function observedDecks(battles: ApiRecord[]) {
   const found = new Map<string, { name: string; cards: ApiRecord[]; tag: string }>();
   for (const battle of battles) {
@@ -145,16 +145,7 @@ export type PlayedDeck = {
   isCurrent: boolean;
 };
 
-/**
- * The decks *this* player actually played, mined from their battle log.
- *
- * The API has no deck-slot endpoint -- `/v1/players/{tag}` returns exactly one
- * deck, `currentDeck` -- so this is the only way to show more than one. On the
- * calibration account a 26-battle log yields four distinct decks.
- *
- * `currentDeck` is pinned first and merged with its log record if it appears
- * there, so Deck 1 is always the deck the player is actually running.
- */
+
 export function myDecks(
   battles: ApiRecord[],
   tag: string,

@@ -3,15 +3,7 @@ import ReactTestRenderer from 'react-test-renderer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HubProvider, useHub, type Passport } from '@/state/HubProvider';
 
-/**
- * The passport list: storage shape, migration, and the four operations.
- *
- * The migration case is the one that has to be covered here and nowhere else.
- * Every browser check now seeds the *new* `{ passports, activeId }` shape, so
- * nothing else in the suite exercises the single-`passport` key that every
- * build before this one wrote -- and getting it wrong silently empties the
- * passport of anyone upgrading.
- */
+
 const KEY = 'sch';
 
 let hub: ReturnType<typeof useHub>;
@@ -20,7 +12,7 @@ function Probe() {
   return null;
 }
 
-/** Mounts the provider and waits for the async read-back to land. */
+
 async function mount() {
   let tree: ReactTestRenderer.ReactTestRenderer;
   await ReactTestRenderer.act(async () => {

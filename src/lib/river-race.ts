@@ -1,14 +1,7 @@
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { parseApiDate } from './royale-battles';
 
-/**
- * River Race -- the only living clan-war surface on this API.
- *
- * `/v1/clans/{tag}/currentwar` answers 410 Gone and `/warlog` answers 404
- * "temporarily disabled"; both were the pre-Clan-Wars-2 endpoints. So this is
- * the Clash Royale analogue of CoC's Current War *and* Capital Raids *and*
- * War History, all from two endpoints.
- */
+
 
 /**
  * `training` is the first half of the week, `warDay` the second.
@@ -66,10 +59,10 @@ export type RaceClan = {
   repairPoints: number;
   periodPoints: number;
   clanScore: number;
-  /** Present on log entries only; the clan's finishing time that week. */
+
   finishTime: Date | null;
   participants: Participant[];
-  /** Participants who have used at least one deck. */
+
   active: number;
   decksUsed: number;
   decksUsedToday: number;
@@ -100,14 +93,7 @@ function raceClan(row: ApiRecord, myTag: string, rank: number): RaceClan {
   };
 }
 
-/**
- * The five clans in the race, ranked.
- *
- * The API returns `clans` in no particular order and supplies no rank for the
- * current race, so it is derived: fame descending, then clan score. During
- * training everyone sits on zero fame, which is why the tie-break matters --
- * without it the table reshuffles on every refetch.
- */
+
 export function raceStandings(race: unknown, myTag = ''): RaceClan[] {
   const r = record(race);
   return rows(r['clans'])
@@ -120,7 +106,7 @@ export function raceStandings(race: unknown, myTag = ''): RaceClan[] {
     .map((row, i) => raceClan(row, myTag, i + 1));
 }
 
-/** The requesting clan's own entry, which the API also returns separately. */
+
 export function myRaceClan(race: unknown, myTag = ''): RaceClan | null {
   const r = record(race);
   const own = record(r['clan']);
@@ -154,7 +140,7 @@ export type LogSeason = {
   sectionIndex: number | null;
   created: Date | null;
   standings: { rank: number; trophyChange: number; clan: RaceClan }[];
-  /** The requesting clan's own row, when it is in the standings. */
+
   mine: { rank: number; trophyChange: number; clan: RaceClan } | null;
 };
 
@@ -181,7 +167,7 @@ export function logSeasons(log: unknown, myTag = ''): LogSeason[] {
   });
 }
 
-/** `paging.cursors.after`, or null on the last page. */
+
 export function logCursor(log: unknown): string | null {
   const after = record(record(record(log)['paging'])['cursors'])['after'];
   return typeof after === 'string' && after.length ? after : null;
@@ -200,15 +186,7 @@ export type PeriodDay = {
   }[];
 };
 
-/**
- * Per-day logs within the current race.
- *
- * **Unverified against a live war day.** `periodLogs` is an empty array for
- * the whole of a training week, which is the only state the calibration clan
- * has been in, so the field names below come from the documented schema rather
- * than from a capture. Every field is read defensively for that reason, and
- * the UI must render an empty state rather than assuming rows exist.
- */
+
 export function periodDays(race: unknown): PeriodDay[] {
   return rows(record(race)['periodLogs']).map((day) => ({
     periodIndex: typeof day['periodIndex'] === 'number' ? day['periodIndex'] : null,

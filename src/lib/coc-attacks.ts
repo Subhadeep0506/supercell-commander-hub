@@ -1,38 +1,22 @@
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { memberTh } from './cwl';
 
-/**
- * One player's war attacks and defences, pulled out of a war board.
- *
- * Clash of Clans has **no battle log**. There is no endpoint for a player's
- * multiplayer raids, and the clan war log (`/clans/{tag}/warlog`) carries only
- * clan-level totals -- `attacks`, `stars`, `destructionPercentage`, `result`
- * -- with no `members` array at all, so past wars cannot be broken down by
- * player either.
- *
- * What *does* exist per player is the current war board
- * (`/clans/{tag}/currentwar`) and each Clan War League war
- * (`/clanwarleagues/wars/{warTag}`): both list every member with the attacks
- * they made, each naming its defender by tag. Defences are the mirror image --
- * the opposing roster's attacks whose `defenderTag` is this player. That pair
- * is the whole of what the API can say about a Clash of Clans player's
- * battles, and it is what this builds.
- */
+
 
 export type WarRole = 'attack' | 'defence';
 
 export type WarBattle = {
   role: WarRole;
-  /** Which war this came from, for the row's subtitle. */
+
   warLabel: string;
-  /** Sort key: newest war first, then by attack order within it. */
+
   warRank: number;
   order: number;
   stars: number;
   destruction: number;
-  /** Seconds. 0 when the API omitted it. */
+
   duration: number;
-  /** The other player: whoever was hit, or whoever attacked. */
+
   otherName: string;
   otherTag: string;
   otherPosition: string;
@@ -40,14 +24,14 @@ export type WarBattle = {
   otherClanName: string;
   myPosition: string;
   myTownHall: number;
-  /** `inWar` / `warEnded` / `preparation`, straight off the war. */
+
   warState: string;
   warEndTime: string;
 };
 
 type Found = { side: ApiRecord; other: ApiRecord; member: ApiRecord };
 
-/** Which roster the tag is on, with the opposing one beside it. */
+
 function locate(war: ApiRecord, tag: string): Found | null {
   const want = tag.toUpperCase();
   for (const [key, otherKey] of [
@@ -145,17 +129,7 @@ export function warBattlesFor(
   return out;
 }
 
-/**
- * Whether the tag is on any league-group roster.
- *
- * Worth asking before the wars are fetched. A league season is up to 28 war
- * requests, and a clan member who did not sign up for Clan War League appears
- * in none of them -- which is the common case, since the roster is capped and
- * opting in is per-player. The group lists every participant up front, so one
- * cheap read decides whether the 28 are worth making at all.
- *
- * `members` here is the clan-roster spelling, the same one `memberTh` reads.
- */
+
 export function inLeagueGroup(group: ApiRecord | undefined, tag: string): boolean {
   if (!group) return false;
   const want = tag.toUpperCase();
@@ -164,7 +138,7 @@ export function inLeagueGroup(group: ApiRecord | undefined, tag: string): boolea
   );
 }
 
-/** Newest war first, and within a war the most recent attack first. */
+
 export function sortWarBattles(battles: WarBattle[]): WarBattle[] {
   return [...battles].sort((a, b) => b.warRank - a.warRank || b.order - a.order);
 }
@@ -174,11 +148,11 @@ export type WarBattleSummary = {
   defences: number;
   starsFor: number;
   starsAgainst: number;
-  /** Mean destruction across attacks made, or null when none were made. */
+
   destructionFor: number | null;
   destructionAgainst: number | null;
   threeStars: number;
-  /** Attacks that took no stars at all. */
+
   failed: number;
 };
 

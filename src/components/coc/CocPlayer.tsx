@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { ART_SCALE, NAV_ART, townHallArt } from '@/assets/art';
+import { ART_SCALE, NAV_ART, resourceArt, townHallArt } from '@/assets/art';
 import { playerCollection } from '@/lib/player-collection';
 import { playerContext } from '@/lib/player-progress';
 import { playerLeague } from '@/lib/league-tier';
@@ -26,6 +26,7 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
 
   const clan = record(player['clan']);
   const hall = townHallArt(player['townHallLevel']);
+  const xpArt = resourceArt('XP');
 
   /*
    * The whole army book for this village, not just what the service returned.
@@ -108,9 +109,27 @@ export function CocPlayer({ player }: { player: ApiRecord }) {
               <Text style={s.name} numberOfLines={2}>
                 {text(player['name'])}
               </Text>
-              <View style={s.xp}>
-                <Text style={s.xpText}>{text(player['expLevel'])}</Text>
-              </View>
+              {/*
+                The game's own XP badge with the level drawn over it, which is
+                how Clash of Clans itself shows it. This was a plain filled
+                rectangle -- the one number on the screen with no art behind
+                it. The icon has been bundled all along via RESOURCE_ICONS in
+                build-assets.mjs and nothing had used it.
+
+                Falls back to the bare rectangle if the art is missing, the way
+                every other art call site here does: resourceArt returns
+                undefined rather than a stand-in.
+              */}
+              {xpArt ? (
+                <View style={s.xp}>
+                  <Image source={xpArt} style={s.xpIcon} resizeMode="contain" />
+                  <Text style={s.xpOnIcon}>{text(player['expLevel'])}</Text>
+                </View>
+              ) : (
+                <View style={[s.xp, s.xpPlain]}>
+                  <Text style={s.xpText}>{text(player['expLevel'])}</Text>
+                </View>
+              )}
             </View>
             <Text style={s.tag}>{text(player['tag'])}</Text>
             <Text style={s.townHall}>Town Hall {text(player['townHallLevel'])}</Text>
@@ -275,7 +294,28 @@ const build = (t: Theme) =>
     heroText: { flex: 1, minWidth: 0 },
     heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
     name: { flexShrink: 1, minWidth: 0, fontFamily: t.fonts.display, fontSize: 22, color: t.foreground },
-    xp: { flexShrink: 0, backgroundColor: t.primary, borderRadius: 6, padding: 6 },
+    xp: { flexShrink: 0, alignItems: 'center', justifyContent: 'center' },
+    // The rectangle is the fallback now, not the badge.
+    xpPlain: { backgroundColor: t.primary, borderRadius: 6, padding: 6 },
+    xpIcon: { width: 34, height: 34 },
+    /*
+      Absolutely positioned over the icon rather than laid out beside it.
+      The XP badge is a shape with a hollow centre meant to hold its own
+      number, so the level sits in it; `xp` centres both children on the
+      same point.
+
+      The dark outline is what keeps two and three digit levels legible
+      against the badge's lighter middle.
+    */
+    xpOnIcon: {
+      position: 'absolute',
+      fontFamily: t.fonts.display,
+      fontSize: 12,
+      color: '#ffffff',
+      textShadowColor: 'rgba(0,0,0,0.85)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 2,
+    },
     xpText: { fontFamily: t.fonts.display, fontSize: 12, color: t.primaryForeground },
     tag: { marginTop: 4, fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
     townHall: { marginTop: 8, fontFamily: t.fonts.display, fontSize: 12, color: t.primary },

@@ -1,17 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-/**
- * Thin wrapper over AsyncStorage, replacing the reference app's direct
- * localStorage calls in lib/hub.tsx.
- *
- * The key ("sch") and the stored shape are unchanged, so a browser profile
- * that already used the TanStack app keeps its passport: AsyncStorage's web
- * build is localStorage-backed, so both targets behave identically.
- *
- * Every read swallows its errors and reports a miss. Storage being unavailable
- * or holding malformed JSON should degrade to "no saved data", never crash a
- * screen -- which is also what the original try/catch did.
- */
+
 export async function readJson<T>(key: string): Promise<T | undefined> {
   try {
     const raw = await AsyncStorage.getItem(key);

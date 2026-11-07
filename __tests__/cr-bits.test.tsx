@@ -12,22 +12,15 @@ import {
   RankRow,
   modeIcon,
 } from '@/components/cr/CrBits';
+import { CopyBar } from '@/components/cr/CrCards';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 
+
 /**
- * Render tests for the shared Royale pieces.
- *
- * These exist for one failure mode the browser checks cannot see: React Native
- * throws on a raw string rendered as a child of a View, where react-native-web
- * only logs a warning. A component that puts a conditional figure next to an
- * icon -- which is every crown component below -- is exactly the shape that
- * slips through a browser-only pass and crashes on a phone.
- *
- * So the assertion is mostly "it renders at all", with the surrounding `act`
- * surfacing the invariant. The numbers are checked too, because a crown
- * component that renders an empty box would otherwise pass.
+ * HubProvider is here for the click sound in Tabs/Collapsible/Button, not for
+ * the theme. ThemeProvider used to read the active game off the hub; it no
+ * longer does, which is what the theme suite below pins down.
  */
-/** ThemeProvider reads the active game off the hub, so both are needed. */
 const wrap = (node: React.ReactElement) => (
   <HubProvider>
     <ThemeProvider>{node}</ThemeProvider>
@@ -42,7 +35,7 @@ const render = async (node: React.ReactElement) => {
   return tree!;
 };
 
-/** Every string the tree renders, flattened. */
+
 const texts = (tree: ReactTestRenderer.ReactTestRenderer): string[] =>
   tree.root.findAllByType('Text' as never).flatMap((n) => {
     const kids = Array.isArray(n.props.children) ? n.props.children : [n.props.children];
@@ -219,5 +212,26 @@ describe('modeIcon', () => {
     for (const name of ['Ladder', 'Merge Tactics', '2v2', 'Retro Royale', 'Nonsense Mode']) {
       expect(modeIcon(name)).toBeDefined();
     }
+  });
+});
+
+/*
+ * The copy bar's three states.
+ *
+ * The maxed one is gold, and **no card in the captured fixture is maxed**, so
+ * the browser checks can never reach that branch -- this is the only place it
+ * is exercised at all. Its ink is `royale.onHighlight` rather than
+ * `foreground`, because on the dark scheme `foreground` is near-white and
+ * would sit at roughly 1.6:1 on gold.
+ */
+describe('CopyBar', () => {
+  it('says Max for a card at its ceiling', async () => {
+    const tree = await render(<CopyBar card={{ level: 14, maxLevel: 14, count: 0 }} />);
+    expect(texts(tree).join(' ')).toContain('Max');
+  });
+
+  it('counts copies towards the next level otherwise', async () => {
+    const tree = await render(<CopyBar card={{ level: 3, maxLevel: 14, count: 7 }} />);
+    expect(texts(tree).join(' ')).toContain('7');
   });
 });

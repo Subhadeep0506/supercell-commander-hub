@@ -63,6 +63,7 @@ export function PlayerProgress({
         was off the top of the screen.
       */}
       <Tabs
+        tone="coc"
         value={village}
         onChange={onVillage}
         tabs={[
@@ -107,26 +108,18 @@ export function PlayerProgress({
         <Row key={row.id} row={row} hallLabel={progress.hallLabel} context={context} />
       ))}
 
-      {/* The list is built from the rows actually on screen: the Builder Base
-          has no spells and no siege machines, and naming them there would be
-          describing a measurement that never happened. */}
-      <Text style={s.note}>
-        Measured over {list(headline.map((r) => r.name.toLowerCase()))} against what this hall
-        allows. The game service publishes no building levels, so defenses and buildings are not
-        counted.
-        {progress.rushed
-          ? ' "Rushed" is how far short of the previous hall the army still is.'
-          : ''}
-      </Text>
+      {/*
+        Two words, where there used to be a paragraph.
+
+        The qualifier cannot go entirely: the player endpoint publishes no
+        building levels, so these percentages cover the army and nothing else,
+        and an unqualified "48%" against a screen that also shows walls and
+        defenses elsewhere would simply be wrong. Naming the measurement is
+        the minimum; explaining the API's gaps was the part that had to go.
+      */}
+      <Text style={s.note}>Army only · against {progress.hallLabel}</Text>
     </Panel>
   );
-}
-
-/** "heroes, troops and spells" -- an Oxford-free list for the footnote. */
-function list(names: string[]): string {
-  if (names.length === 0) return 'nothing';
-  if (names.length === 1) return names[0]!;
-  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
 
 /** One category: a bar, a warning count, and what is left behind a chevron. */

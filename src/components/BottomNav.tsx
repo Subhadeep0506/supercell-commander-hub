@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NAV_ART } from '@/assets/art';
+import { arenaImages } from '@/assets/registry.arena';
+import { clubBadgeArt } from '@/assets/brawl';
 import { CR_ICONS } from '@/assets/royale';
 import { GAME_NAV, gameFromRoute } from '@/lib/game-navigation';
 import { useHub } from '@/state/HubProvider';
@@ -19,8 +21,9 @@ import { useTheme, type Theme } from '@/theme/ThemeProvider';
  * item to `flex: 2.6` and hid every other label, which left four unexplained
  * pictures and made the bar reflow on each tap.
  *
- * Both games share this layout and differ only in palette, because the fill
- * is `theme.primary` -- gold under Royale, teal under Clash of Clans.
+ * All three games share this layout and differ only in which icons they hang
+ * on it: the fill is `theme.primary` throughout, so the bar itself does not
+ * change colour between games.
  *
  * Icons come from NAV_ART -- one consistent Clash Book render style, trimmed
  * to their content by the asset pipeline. The reference instead mixed
@@ -37,13 +40,60 @@ export function BottomNav() {
 
   const active = gameFromRoute(current, game);
   const items = GAME_NAV[active];
-  // Brawl Stars keeps its own bar, which lands with its screens.
-  if (active === 'bs' || !items.length) return null;
+  if (!items.length) return null;
 
   const go = (route: RouteName) => {
     click();
     navigate(route);
   };
+
+  if (active === 'bs') {
+    /*
+     * Same four-in-a-row layout as Royale: Home is a destination in the bar
+     * rather than a separate button, and there is no Clash Book shortcut
+     * beside it.
+     *
+     * Index-aligned with GAME_NAV.bs: Home, Stats, Club, Leaderboard. Three
+     * icons come from the bundled `bs/main` fan kit via the shared `arena`
+     * registry; the fourth is a Brawlify club badge, because the fan kit has
+     * no club icon of any kind and `clubBadgeArt` is already loading that set
+     * for the Club tab.
+     */
+    const bsIcons = [
+      arenaImages.bsicon,
+      arenaImages.brawlstats,
+      clubBadgeArt(8000000),
+      arenaImages.trophy,
+    ];
+    return (
+      <View
+        style={[s.wrap, { paddingBottom: Math.max(12, insets.bottom) }]}
+        pointerEvents="box-none"
+      >
+        <View style={s.row}>
+          <View style={s.bar}>
+            {items.map((item, i) => (
+              <NavLink
+                key={item.route}
+                label={item.label === 'Leaderboard' ? 'Rankings' : item.label}
+                source={bsIcons[i]}
+                /*
+                 * Home only. `bsicon` is the app icon -- a full-bleed square
+                 * with the artwork running to the edge -- so it was the one
+                 * tab with hard corners in a bar of rounded panels. The other
+                 * three are transparent renders with nothing to clip.
+                 */
+                rounded={i === 0}
+                active={current === item.route}
+                onPress={() => go(item.route)}
+                theme={theme}
+              />
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   if (active === 'cr') {
     // Royale's Home is a row in the bar rather than a separate button, and
@@ -125,12 +175,15 @@ function NavLink({
   active,
   onPress,
   theme,
+  rounded,
 }: {
   label: string;
   source: unknown;
   active: boolean;
   onPress: () => void;
   theme: Theme;
+  /** For full-bleed square art, which would otherwise show hard corners. */
+  rounded?: boolean;
 }) {
   const s = useMemo(() => build(theme), [theme]);
   return (
@@ -143,7 +196,11 @@ function NavLink({
     >
       <View style={s.iconBox}>
         {source ? (
-          <Image source={source as never} style={s.icon} resizeMode="contain" />
+          <Image
+            source={source as never}
+            style={[s.icon, rounded && s.iconRounded]}
+            resizeMode="contain"
+          />
         ) : null}
       </View>
       {/*
@@ -202,6 +259,7 @@ const build = (t: Theme) =>
     itemOn: { backgroundColor: t.primary },
     iconBox: { width: 26, height: 26, alignItems: 'center', justifyContent: 'center' },
     icon: { width: 26, height: 26 },
+    iconRounded: { borderRadius: 8 },
     itemLabel: { fontFamily: t.fonts.display, fontSize: 10, color: t.foreground },
     itemLabelOn: { color: t.primaryForeground },
     // Matches the bar's corner radius and height so the two read as one

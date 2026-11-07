@@ -1,15 +1,7 @@
 import { BOOK_ITEMS, bookLevels, type BookItem, type BookRecord } from './clash-book';
 import type { Owned, Upgrade, VillageSide } from './village-export';
 
-/**
- * Turns an imported village into the numbers the Builder Plan screen shows.
- *
- * Everything here is derived from the Clash Book catalog, which already
- * carries per-level `buildTime`/`upgradeTime`, `buildCost`, the hall level each
- * level requires, and how many of each building a hall level allows. Nothing
- * is estimated -- an item the catalog does not cover is left out of the totals
- * rather than guessed at, which is why the percentages can be trusted.
- */
+
 
 export type Strategy = 'balanced' | 'offence' | 'defence' | 'hero';
 
@@ -20,7 +12,7 @@ export const STRATEGIES: { id: Strategy; label: string }[] = [
   { id: 'hero', label: 'Hero first' },
 ];
 
-/** Colour groups, matching the plan legend. */
+
 export type Group = 'heroes' | 'offense' | 'defense' | 'economy' | 'other';
 
 export const GROUP_LABEL: Record<Group, string> = {
@@ -57,7 +49,7 @@ export function laneOf(category: string): Lane {
   return 'builder';
 }
 
-/** Section headings in "Your village", in display order. */
+
 export const SECTIONS = [
   { id: 'defenses', label: 'Defenses', categories: ['defense', 'crafted-defense'] },
   { id: 'traps', label: 'Traps', categories: ['trap'] },
@@ -73,7 +65,7 @@ export type SectionId = (typeof SECTIONS)[number]['id'];
 
 const SECONDS: Record<string, number> = { days: 86400, hours: 3600, minutes: 60, seconds: 1 };
 
-/** `{days:4,hours:0,...}` -> seconds. Walls report all zeroes, which is correct. */
+
 function duration(value: unknown): number {
   if (!value || typeof value !== 'object') return 0;
   let total = 0;
@@ -95,7 +87,7 @@ export function levelTime(row: BookRecord): number {
   return duration(row['buildTime']) || duration(row['upgradeTime']) || duration(row['researchTime']);
 }
 
-/** Cost of a single level, across the same three naming conventions. */
+
 export function levelCost(row: BookRecord): { cost?: number; resource?: string } {
   const cost = Number(row['buildCost'] ?? row['upgradeCost'] ?? row['researchCost']);
   const resource = row['buildCostResource'] ?? row['upgradeCostResource'] ?? row['researchCostResource'];
@@ -105,14 +97,7 @@ export function levelCost(row: BookRecord): { cost?: number; resource?: string }
   };
 }
 
-/**
- * The buildings that gate other upgrades, read off the village itself.
- *
- * Not every requirement is a hall level. A troop names `laboratoryRequired`
- * and a hero `heroHallLevelRequired`, and those are levels of *other
- * buildings* -- comparing them against the Town Hall overstates what is
- * reachable. The import knows all of them, so they are looked up for real.
- */
+
 export type Gates = {
   hall: number;
   laboratory: number;
@@ -134,16 +119,7 @@ export function gatesFor(side: VillageSide): Gates {
   };
 }
 
-/**
- * The highest level a hall allows of a building, counting whether it allows
- * one at all.
- *
- * The count check is not redundant with the level check. A Pet House's first
- * level declares `townHallRequired: 14`, but the hall also has to *permit* the
- * building -- and reading only the level rows of something like the Hero Hall,
- * which exists from Town Hall 7, would be right by accident rather than by
- * construction.
- */
+
 function buildingMaxAt(id: string, hallLevel: number, base: 'home' | 'builder'): number {
   const item = BOOK_ITEMS.find((i) => i.id === id);
   if (!item || maxCountAt(item, hallLevel, base) === 0) return 0;
@@ -155,22 +131,7 @@ function buildingMaxAt(id: string, hallLevel: number, base: 'home' | 'builder'):
   return max;
 }
 
-/**
- * Gates for a player we know only the hall level of -- which is every player
- * read from the API, because the CoC player endpoint returns no building
- * levels at all.
- *
- * **Each gating building is itself hall-gated, so this is derived, not
- * assumed.** The catalog states that a Hero Hall reaches level 7 at Town Hall
- * 13, a Laboratory level 11, and that a Pet House cannot be placed below Town
- * Hall 14 -- so a Town Hall 13 account's Barbarian King caps at 75, its
- * Barbarian at 9, and its pets are genuinely locked. Those are the real
- * in-game numbers.
- *
- * This replaces mapping every gate onto the hall level directly, which claimed
- * a Hero Hall 13 for a Town Hall 13 and so reported every hero's cap as the
- * game maximum.
- */
+
 export function hallOnly(hallLevel: number, base: 'home' | 'builder' = 'home'): Gates {
   // `hallLevel` is a Town Hall or a Builder Hall, never both, so the other
   // village's gates are reported as zero rather than resolved against the
@@ -225,7 +186,7 @@ export function maxLevelAt(item: BookItem, gates: Gates | number): number {
   return max;
 }
 
-/** How many of `item` a hall level allows, or 1 for things that are not placed. */
+
 export function maxCountAt(item: BookItem, hallLevel: number, base: 'home' | 'builder'): number {
   const key = base === 'home' ? 'availablePerTownHall' : 'availablePerBuilderHall';
   const rows = item[key];
@@ -238,7 +199,7 @@ export function maxCountAt(item: BookItem, hallLevel: number, base: 'home' | 'bu
   return count;
 }
 
-/** Catalog entries this village could own right now. */
+
 function reachable(side: VillageSide, gates = gatesFor(side)): BookItem[] {
   return BOOK_ITEMS.filter(
     (item) =>
@@ -252,14 +213,7 @@ function ratio(have: number, total: number): Progress {
   return { have, total, pct: total > 0 ? Math.min(100, (have / total) * 100) : 0 };
 }
 
-/**
- * Completion, weighted by levels rather than item count.
- *
- * `sum(owned level x count) / sum(max level x max count)`. A level-weighted
- * measure is used everywhere -- the headline figure and every section bar --
- * so the parts can never disagree with the whole. Counting items instead would
- * call a level-1 Inferno Tower "done".
- */
+
 export function completion(side: VillageSide, categories?: readonly string[]): Progress {
   const gates = gatesFor(side);
   const ownedBy = new Map(side.owned.map((o) => [o.catalogId, o]));
@@ -292,7 +246,7 @@ export type Remaining = {
   lane: Lane;
   fromLevel: number;
   toLevel: number;
-  /** Seconds for this single level. */
+
   seconds: number;
   cost?: number;
   costResource?: string;
@@ -356,12 +310,12 @@ export function remainingUpgrades(side: VillageSide): Remaining[] {
   return out;
 }
 
-/** Total seconds of work left in a lane. */
+
 export function laneTime(remaining: Remaining[], lane: Lane): number {
   return remaining.filter((r) => r.lane === lane).reduce((n, r) => n + r.seconds, 0);
 }
 
-/** Walls are counted, not timed -- their build time is zero by design. */
+
 export function wallsLeft(side: VillageSide): Progress {
   const wall = BOOK_ITEMS.find((i) => i.base === side.base && i.category === 'wall');
   if (!wall) return ratio(0, 0);
@@ -372,22 +326,7 @@ export function wallsLeft(side: VillageSide): Progress {
   return ratio(at, maxCount);
 }
 
-/**
- * Share of the previous hall level left undone before this one was started.
- *
- * Not a strict 100%: practically every village carries a few stragglers up a
- * hall level, and flagging those as rushed would mark almost everyone. The
- * threshold is calibrated against a real village whose Home Village sits at
- * 91.8% of its previous hall and whose Builder Base sits at 73.5% -- only the
- * second of which reads as rushed.
- *
- * Exported because the player screen's own rushed figure
- * (lib/player-progress.ts) has to use the same calibrated number. The two
- * measure different things -- this one weighs the whole village, that one can
- * only weigh the army, because the player endpoint publishes no building
- * levels -- so they will disagree on the same account. One threshold at least
- * means they disagree only about the evidence.
- */
+
 export const RUSHED_BELOW = 85;
 
 export function isRushed(side: VillageSide): boolean {
@@ -397,7 +336,7 @@ export function isRushed(side: VillageSide): boolean {
 
 export type Scheduled = Remaining & { startsAt: number; endsAt: number; lane: Lane; laneIndex: number };
 
-/** An upgrade the village was already part-way through when it was exported. */
+
 export type RunningJob = {
   catalogId: string;
   name: string;
@@ -407,7 +346,7 @@ export type RunningJob = {
   laneIndex: number;
   fromLevel: number;
   toLevel: number;
-  /** Seconds for the whole step, from the catalog -- the export only knows what is left. */
+
   seconds: number;
   startsAt: number;
   endsAt: number;
@@ -425,14 +364,7 @@ function laneSlots(side: VillageSide, now: number): LaneSlot[] {
   return lanes;
 }
 
-/**
- * Places the in-progress upgrades onto lanes, reserving each until it ends.
- *
- * Mutates `lanes`, and returns what it placed. `schedule` has always done the
- * reservation half; returning the placement as well is what lets the timeline
- * draw the job that is actually running -- before this it showed only future
- * work, so the one bar a player most wants to see was the one missing.
- */
+
 function placeRunning(side: VillageSide, lanes: LaneSlot[]): RunningJob[] {
   const out: RunningJob[] = [];
   for (const active of side.inProgress) {
@@ -462,7 +394,7 @@ function placeRunning(side: VillageSide, lanes: LaneSlot[]): RunningJob[] {
   return out;
 }
 
-/** The in-progress upgrades, on the lanes `schedule` reserves for them. */
+
 export function runningJobs(side: VillageSide, now: number): RunningJob[] {
   return placeRunning(side, laneSlots(side, now));
 }
@@ -474,14 +406,7 @@ const ORDER: Record<Strategy, Group[]> = {
   hero: ['heroes', 'offense', 'defense', 'economy', 'other'],
 };
 
-/**
- * Orders the queue for a strategy.
- *
- * Balanced round-robins the groups so none falls behind; the others drain
- * their favoured group first and then fall back to the balanced order. Within
- * a group the shortest level goes first, which keeps builders turning over
- * instead of parking one on a fortnight-long hero.
- */
+
 function order(remaining: Remaining[], strategy: Strategy): Remaining[] {
   const groups = ORDER[strategy];
   const buckets = new Map<Group, Remaining[]>();
@@ -569,12 +494,12 @@ export function upgradeDuration(catalogId: string, toLevel: number): number {
   return row ? levelTime(row) : 0;
 }
 
-/** Owned entry for a catalog id, for the village grid. */
+
 export function ownedOf(side: VillageSide, catalogId: string): Owned | undefined {
   return side.owned.find((o) => o.catalogId === catalogId);
 }
 
-/** Items for one "Your village" section, in the order the game lists them. */
+
 export function sectionItems(side: VillageSide, categories: readonly string[]) {
   const gates = gatesFor(side);
   const rows = reachable(side, gates)

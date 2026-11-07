@@ -29,7 +29,6 @@ import {
   CrLoading,
   CrownPair,
   CrownRecord,
-  DerivedNote,
   Metric,
   MetricGrid,
   PlayerPortrait,
@@ -116,7 +115,7 @@ export function CrBattles({
       <Section title="Battles">
         <CrEmpty
           title="No battles yet"
-          body="The battle log came back empty. It only ever holds the most recent battles, so an account that has not played for a while has none."
+          body="The battle log came back empty."
         />
       </Section>
     );
@@ -226,12 +225,6 @@ export function CrBattles({
         </>
       )}
 
-      <DerivedNote>
-        The battle log returns only the most recent battles — about 25 — with no paging and no
-        older history. Everything in this section is therefore computed from those battles:
-        recent results, not lifetime totals. The API publishes no win rate, no crown totals and
-        no per-mode breakdown of its own.
-      </DerivedNote>
       {cardSheet}
     </Section>
   );

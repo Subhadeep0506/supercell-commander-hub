@@ -193,9 +193,8 @@ const build = (t: Theme) =>
       gap: 12,
       backgroundColor: t.card,
       borderWidth: 2,
-      borderColor: t.border,
+      borderColor: t.chrome.cr.rim,
       borderRadius: t.radius.md,
-      ...t.shadow.panel,
     },
     connectHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     connectText: { flex: 1, minWidth: 0 },
@@ -204,5 +203,5 @@ const build = (t: Theme) =>
     stack: { gap: 16 },
     form: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
     formField: { flex: 1, minWidth: 0 },
-    // The stack gap handles separation now.
+    // The stack gap handles separation now.
   });

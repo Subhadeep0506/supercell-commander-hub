@@ -6,6 +6,7 @@ import { record, text } from '@/api/game-api';
 import { num } from '@/components/cr/CrBits';
 import { townHallArt } from '@/assets/art';
 import { arenaBadgeArt } from '@/assets/royale';
+import { playerIconArt } from '@/assets/brawl';
 import { Button } from '@/components/ui/Button';
 import { useHub, type Passport } from '@/state/HubProvider';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
@@ -19,9 +20,14 @@ import { useTheme, type Theme } from '@/theme/ThemeProvider';
  * react-query dedupes the active one against whatever the game screens have
  * already fetched.
  *
- * Brawl Stars is listed as a tag and nothing more: it has no screens yet, and
- * bsproxy is blocked on this network, so a request for it would fail on every
- * render of this screen and tell the user nothing.
+ * All three games resolve the same way. Brawl Stars used to be the exception
+ * -- printed as a bare tag with the words "no Brawl screens yet" -- which was
+ * true when it had none and stopped being true the moment its tabs shipped.
+ *
+ * It resolves like the others now. On this development network bsproxy is
+ * blocked and the row shows GameLine's `failed` state, which is exactly what
+ * the Clash of Clans row already does here; that is a network telling the
+ * truth rather than a reason to special-case the game.
  */
 export function PassportList({
   onEdit,
@@ -87,8 +93,14 @@ function PassportRow({
     enabled: Boolean(entry.cr),
   });
 
+  const bs = useQuery({
+    ...gameQuery({ game: 'bs', resource: 'player', tag: entry.bs }),
+    enabled: Boolean(entry.bs),
+  });
+
   const cocPlayer = coc.data?.ok ? record(JSON.parse(coc.data.data)) : null;
   const crPlayer = cr.data?.ok ? record(JSON.parse(cr.data.data)) : null;
+  const bsPlayer = bs.data?.ok ? record(JSON.parse(bs.data.data)) : null;
 
   return (
     <View style={[s.row, active && s.rowActive]}>
@@ -162,18 +174,19 @@ function PassportRow({
               : ''
           }
         />
-        {/* No live line: no Brawl Stars screens, and its proxy is blocked. */}
-        {entry.bs ? (
-          <View style={s.game}>
-            <View style={s.gameArt} />
-            <View style={s.gameText}>
-              <Text style={s.gameLabel}>Brawl Stars</Text>
-              <Text style={s.gameDetail} numberOfLines={1}>
-                {entry.bs} · saved, no Brawl screens yet
-              </Text>
-            </View>
-          </View>
-        ) : null}
+        <GameLine
+          label="Brawl Stars"
+          tag={entry.bs}
+          loading={bs.isFetching}
+          failed={Boolean(bs.data && !bs.data.ok)}
+          art={bsPlayer ? playerIconArt(record(bsPlayer['icon'])['id']) : undefined}
+          title={bsPlayer ? text(bsPlayer['name']) : ''}
+          detail={
+            bsPlayer
+              ? `Level ${text(bsPlayer['expLevel'])} · ${num(bsPlayer['trophies'])} trophies`
+              : ''
+          }
+        />
 
         {!entry.coc && !entry.cr && !entry.bs ? (
           <Text style={s.noTags}>No tags on this passport.</Text>

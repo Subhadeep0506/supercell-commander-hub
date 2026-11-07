@@ -1,0 +1,827 @@
+{
+  "version": "70.648",
+  "brawlers": {
+    "16000000": {
+      "name": "SHELLY",
+      "code": "ShotgunGirl",
+      "class": "damage_dealer",
+      "rarity": "common"
+    },
+    "16000001": {
+      "name": "COLT",
+      "code": "Gunslinger",
+      "class": "damage_dealer",
+      "rarity": "rare"
+    },
+    "16000002": {
+      "name": "BULL",
+      "code": "BullDude",
+      "class": "tank",
+      "rarity": "rare"
+    },
+    "16000003": {
+      "name": "BROCK",
+      "code": "RocketGirl",
+      "class": "marksman",
+      "rarity": "rare"
+    },
+    "16000004": {
+      "name": "RICO",
+      "code": "TrickshotDude",
+      "class": "damage_dealer",
+      "rarity": "super_rare"
+    },
+    "16000005": {
+      "name": "SPIKE",
+      "code": "Cactus",
+      "class": "damage_dealer",
+      "rarity": "legendary"
+    },
+    "16000006": {
+      "name": "BARLEY",
+      "code": "Barkeep",
+      "class": "artillery",
+      "rarity": "rare"
+    },
+    "16000007": {
+      "name": "JESSIE",
+      "code": "Mechanic",
+      "class": "controller",
+      "rarity": "super_rare"
+    },
+    "16000008": {
+      "name": "NITA",
+      "code": "Shaman",
+      "class": "damage_dealer",
+      "rarity": "rare"
+    },
+    "16000009": {
+      "name": "DYNAMIKE",
+      "code": "TntDude",
+      "class": "artillery",
+      "rarity": "super_rare"
+    },
+    "16000010": {
+      "name": "EL PRIMO",
+      "code": "Luchador",
+      "class": "tank",
+      "rarity": "rare"
+    },
+    "16000011": {
+      "name": "MORTIS",
+      "code": "Undertaker",
+      "class": "assassin",
+      "rarity": "mega_epic"
+    },
+    "16000012": {
+      "name": "CROW",
+      "code": "Crow",
+      "class": "assassin",
+      "rarity": "legendary"
+    },
+    "16000013": {
+      "name": "POCO",
+      "code": "DeadMariachi",
+      "class": "support",
+      "rarity": "rare"
+    },
+    "16000014": {
+      "name": "BO",
+      "code": "BowDude",
+      "class": "controller",
+      "rarity": "epic"
+    },
+    "16000015": {
+      "name": "PIPER",
+      "code": "Sniper",
+      "class": "marksman",
+      "rarity": "epic"
+    },
+    "16000016": {
+      "name": "PAM",
+      "code": "MinigunDude",
+      "class": "support",
+      "rarity": "epic"
+    },
+    "16000017": {
+      "name": "TARA",
+      "code": "BlackHole",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000018": {
+      "name": "DARRYL",
+      "code": "BarrelBot",
+      "class": "tank",
+      "rarity": "super_rare"
+    },
+    "16000019": {
+      "name": "PENNY",
+      "code": "ArtilleryDude",
+      "class": "controller",
+      "rarity": "super_rare"
+    },
+    "16000020": {
+      "name": "FRANK",
+      "code": "HammerDude",
+      "class": "tank",
+      "rarity": "epic"
+    },
+    "16000021": {
+      "name": "GENE",
+      "code": "HookDude",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000022": {
+      "name": "TICK",
+      "code": "ClusterBombDude",
+      "class": "artillery",
+      "rarity": "super_rare"
+    },
+    "16000023": {
+      "name": "LEON",
+      "code": "Ninja",
+      "class": "assassin",
+      "rarity": "legendary"
+    },
+    "16000024": {
+      "name": "ROSA",
+      "code": "Rosa",
+      "class": "tank",
+      "rarity": "rare"
+    },
+    "16000025": {
+      "name": "CARL",
+      "code": "Whirlwind",
+      "class": "damage_dealer",
+      "rarity": "super_rare"
+    },
+    "16000026": {
+      "name": "BIBI",
+      "code": "Baseball",
+      "class": "tank",
+      "rarity": "epic"
+    },
+    "16000027": {
+      "name": "8-BIT",
+      "code": "Arcade",
+      "class": "damage_dealer",
+      "rarity": "super_rare"
+    },
+    "16000028": {
+      "name": "SANDY",
+      "code": "Sandstorm",
+      "class": "controller",
+      "rarity": "legendary"
+    },
+    "16000029": {
+      "name": "BEA",
+      "code": "BeeSniper",
+      "class": "marksman",
+      "rarity": "epic"
+    },
+    "16000030": {
+      "name": "EMZ",
+      "code": "Mummy",
+      "class": "controller",
+      "rarity": "epic"
+    },
+    "16000031": {
+      "name": "MR. P",
+      "code": "SpawnerDude",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000032": {
+      "name": "MAX",
+      "code": "Speedy",
+      "class": "support",
+      "rarity": "mega_epic"
+    },
+    "16000034": {
+      "name": "JACKY",
+      "code": "Driller",
+      "class": "tank",
+      "rarity": "super_rare"
+    },
+    "16000035": {
+      "name": "GALE",
+      "code": "Blower",
+      "class": "controller",
+      "rarity": "epic"
+    },
+    "16000036": {
+      "name": "NANI",
+      "code": "Controller",
+      "class": "marksman",
+      "rarity": "epic"
+    },
+    "16000037": {
+      "name": "SPROUT",
+      "code": "Wally",
+      "class": "artillery",
+      "rarity": "mega_epic"
+    },
+    "16000038": {
+      "name": "SURGE",
+      "code": "PowerLeveler",
+      "class": "damage_dealer",
+      "rarity": "legendary"
+    },
+    "16000039": {
+      "name": "COLETTE",
+      "code": "Percenter",
+      "class": "damage_dealer",
+      "rarity": "epic"
+    },
+    "16000040": {
+      "name": "AMBER",
+      "code": "FireDude",
+      "class": "controller",
+      "rarity": "legendary"
+    },
+    "16000041": {
+      "name": "LOU",
+      "code": "IceDude",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000042": {
+      "name": "BYRON",
+      "code": "SnakeOil",
+      "class": "support",
+      "rarity": "mega_epic"
+    },
+    "16000043": {
+      "name": "EDGAR",
+      "code": "Enrager",
+      "class": "assassin",
+      "rarity": "epic"
+    },
+    "16000044": {
+      "name": "RUFFS",
+      "code": "Ruffs",
+      "class": "support",
+      "rarity": "mega_epic"
+    },
+    "16000045": {
+      "name": "STU",
+      "code": "Roller",
+      "class": "assassin",
+      "rarity": "epic"
+    },
+    "16000046": {
+      "name": "BELLE",
+      "code": "ElectroSniper",
+      "class": "marksman",
+      "rarity": "epic"
+    },
+    "16000047": {
+      "name": "SQUEAK",
+      "code": "StickyBomb",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000048": {
+      "name": "GROM",
+      "code": "CrossBomber",
+      "class": "artillery",
+      "rarity": "epic"
+    },
+    "16000049": {
+      "name": "BUZZ",
+      "code": "RopeDude",
+      "class": "assassin",
+      "rarity": "mega_epic"
+    },
+    "16000050": {
+      "name": "GRIFF",
+      "code": "AssaultShotgun",
+      "class": "controller",
+      "rarity": "epic"
+    },
+    "16000051": {
+      "name": "ASH",
+      "code": "Knight",
+      "class": "tank",
+      "rarity": "epic"
+    },
+    "16000052": {
+      "name": "MEG",
+      "code": "MechaDude",
+      "class": "tank",
+      "rarity": "legendary"
+    },
+    "16000053": {
+      "name": "LOLA",
+      "code": "Duplicator",
+      "class": "damage_dealer",
+      "rarity": "epic"
+    },
+    "16000054": {
+      "name": "FANG",
+      "code": "KickerDude",
+      "class": "assassin",
+      "rarity": "mega_epic"
+    },
+    "16000056": {
+      "name": "EVE",
+      "code": "Flea",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000057": {
+      "name": "JANET",
+      "code": "JetpackGirl",
+      "class": "marksman",
+      "rarity": "mega_epic"
+    },
+    "16000058": {
+      "name": "BONNIE",
+      "code": "CannonGirl",
+      "class": "marksman",
+      "rarity": "epic"
+    },
+    "16000059": {
+      "name": "OTIS",
+      "code": "Silencer",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000060": {
+      "name": "SAM",
+      "code": "WeaponThrower",
+      "class": "assassin",
+      "rarity": "epic"
+    },
+    "16000061": {
+      "name": "GUS",
+      "code": "SoulCollector",
+      "class": "support",
+      "rarity": "super_rare"
+    },
+    "16000062": {
+      "name": "BUSTER",
+      "code": "ShieldTank",
+      "class": "tank",
+      "rarity": "mega_epic"
+    },
+    "16000063": {
+      "name": "CHESTER",
+      "code": "Jester",
+      "class": "damage_dealer",
+      "rarity": "legendary"
+    },
+    "16000064": {
+      "name": "GRAY",
+      "code": "DoorMan",
+      "class": "support",
+      "rarity": "mega_epic"
+    },
+    "16000065": {
+      "name": "MANDY",
+      "code": "Beamer",
+      "class": "marksman",
+      "rarity": "epic"
+    },
+    "16000066": {
+      "name": "R-T",
+      "code": "Splitter",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000067": {
+      "name": "WILLOW",
+      "code": "Puppeteer",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000068": {
+      "name": "MAISIE",
+      "code": "Maisie",
+      "class": "marksman",
+      "rarity": "epic"
+    },
+    "16000069": {
+      "name": "HANK",
+      "code": "FishTank",
+      "class": "tank",
+      "rarity": "epic"
+    },
+    "16000070": {
+      "name": "CORDELIUS",
+      "code": "Duelist",
+      "class": "assassin",
+      "rarity": "legendary"
+    },
+    "16000071": {
+      "name": "DOUG",
+      "code": "Reviver",
+      "class": "support",
+      "rarity": "mega_epic"
+    },
+    "16000072": {
+      "name": "PEARL",
+      "code": "Cooker",
+      "class": "damage_dealer",
+      "rarity": "epic"
+    },
+    "16000073": {
+      "name": "CHUCK",
+      "code": "Conductor",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000074": {
+      "name": "CHARLIE",
+      "code": "Cocooner",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000075": {
+      "name": "MICO",
+      "code": "Leaper",
+      "class": "assassin",
+      "rarity": "mega_epic"
+    },
+    "16000076": {
+      "name": "KIT",
+      "code": "Attacher",
+      "class": "support",
+      "rarity": "legendary"
+    },
+    "16000077": {
+      "name": "LARRY & LAWRIE",
+      "code": "Twins",
+      "class": "artillery",
+      "rarity": "epic"
+    },
+    "16000078": {
+      "name": "MELODIE",
+      "code": "AxeJuggler",
+      "class": "assassin",
+      "rarity": "mega_epic"
+    },
+    "16000079": {
+      "name": "ANGELO",
+      "code": "InsectMan",
+      "class": "marksman",
+      "rarity": "epic"
+    },
+    "16000080": {
+      "name": "DRACO",
+      "code": "DragonRider",
+      "class": "tank",
+      "rarity": "legendary"
+    },
+    "16000081": {
+      "name": "LILY",
+      "code": "Ambusher",
+      "class": "assassin",
+      "rarity": "mega_epic"
+    },
+    "16000082": {
+      "name": "BERRY",
+      "code": "Painter",
+      "class": "support",
+      "rarity": "epic"
+    },
+    "16000083": {
+      "name": "CLANCY",
+      "code": "Crab",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000084": {
+      "name": "MOE",
+      "code": "Digger",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000085": {
+      "name": "KENJI",
+      "code": "Samurai",
+      "class": "assassin",
+      "rarity": "legendary"
+    },
+    "16000086": {
+      "name": "SHADE",
+      "code": "Ghost",
+      "class": "assassin",
+      "rarity": "epic"
+    },
+    "16000087": {
+      "name": "JUJU",
+      "code": "Voodoo",
+      "class": "artillery",
+      "rarity": "mega_epic"
+    },
+    "16000089": {
+      "name": "MEEPLE",
+      "code": "Skater",
+      "class": "tank",
+      "rarity": "mega_epic"
+    },
+    "16000090": {
+      "name": "OLLIE",
+      "code": "Morningstar",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000091": {
+      "name": "LUMI",
+      "code": "Chronomancer",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000092": {
+      "name": "FINX",
+      "code": "Alternator",
+      "class": "support",
+      "rarity": "mega_epic"
+    },
+    "16000093": {
+      "name": "JAE-YONG",
+      "code": "Geisha",
+      "class": "assassin",
+      "rarity": "ultra_legendary"
+    },
+    "16000094": {
+      "name": "KAZE",
+      "code": "Stalker",
+      "class": "assassin",
+      "rarity": "mega_epic"
+    },
+    "16000095": {
+      "name": "ALLI",
+      "code": "Domain",
+      "class": "tank",
+      "rarity": "epic"
+    },
+    "16000096": {
+      "name": "TRUNK",
+      "code": "Dancer",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000097": {
+      "name": "MINA",
+      "code": "Fury",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000098": {
+      "name": "ZIGGY",
+      "code": "Bulletstorm",
+      "class": "marksman",
+      "rarity": "legendary"
+    },
+    "16000099": {
+      "name": "PIERCE",
+      "code": "Daredevil",
+      "class": "assassin",
+      "rarity": "mega_epic"
+    },
+    "16000100": {
+      "name": "GIGI",
+      "code": "Mender",
+      "class": "support",
+      "rarity": "mega_epic"
+    },
+    "16000101": {
+      "name": "GLOWY",
+      "code": "Shadowdemon",
+      "class": "controller",
+      "rarity": "ultra_legendary"
+    },
+    "16000102": {
+      "name": "SIRIUS",
+      "code": "Redirecter",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000103": {
+      "name": "NAJIA",
+      "code": "Gladiator",
+      "class": "tank",
+      "rarity": "mega_epic"
+    },
+    "16000104": {
+      "name": "DAMIAN",
+      "code": "MagicalGirl",
+      "class": "assassin",
+      "rarity": "mega_epic"
+    },
+    "16000105": {
+      "name": "STARR NOVA",
+      "code": "Rock",
+      "class": "tank",
+      "rarity": "epic"
+    },
+    "16000106": {
+      "name": "BOLT",
+      "code": "KatanaKid",
+      "class": "assassin",
+      "rarity": "legendary"
+    },
+    "16000107": {
+      "name": "NORI",
+      "code": "FutureGirl",
+      "class": "support",
+      "rarity": "mega_epic"
+    },
+    "16000108": {
+      "name": "WENDY",
+      "code": "Attractor",
+      "class": "controller",
+      "rarity": "mega_epic"
+    },
+    "16000109": {
+      "name": "COSMO",
+      "code": "Stacker",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000110": {
+      "name": "VINCE",
+      "code": "FrogWizard",
+      "class": "artillery",
+      "rarity": "legendary"
+    },
+    "16000111": {
+      "name": "THUNDER FROGS",
+      "code": "Tracker",
+      "class": "marksman",
+      "rarity": "mega_epic"
+    },
+    "16000112": {
+      "name": "REY",
+      "code": "CardDealer",
+      "class": "damage_dealer",
+      "rarity": "mega_epic"
+    },
+    "16000113": {
+      "name": "RUBY",
+      "code": "d94ddea8e9e91f8f6bd0ab6cb2dc5fe0667e47c8",
+      "class": "damage_dealer",
+      "rarity": "common"
+    }
+  },
+  "rankedRanks": [
+    {
+      "name": "Bronze I",
+      "rank": 1,
+      "minElo": 0,
+      "maxElo": 249,
+      "hex": "#FF9900"
+    },
+    {
+      "name": "Bronze II",
+      "rank": 2,
+      "minElo": 250,
+      "maxElo": 499,
+      "hex": "#FF9900"
+    },
+    {
+      "name": "Bronze III",
+      "rank": 3,
+      "minElo": 500,
+      "maxElo": 749,
+      "hex": "#FF9900"
+    },
+    {
+      "name": "Silver I",
+      "rank": 4,
+      "minElo": 750,
+      "maxElo": 999,
+      "hex": "#C9C6F1"
+    },
+    {
+      "name": "Silver II",
+      "rank": 5,
+      "minElo": 1000,
+      "maxElo": 1249,
+      "hex": "#C9C6F1"
+    },
+    {
+      "name": "Silver III",
+      "rank": 6,
+      "minElo": 1250,
+      "maxElo": 1499,
+      "hex": "#C9C6F1"
+    },
+    {
+      "name": "Gold I",
+      "rank": 7,
+      "minElo": 1500,
+      "maxElo": 1999,
+      "hex": "#FFEF49"
+    },
+    {
+      "name": "Gold II",
+      "rank": 8,
+      "minElo": 2000,
+      "maxElo": 2499,
+      "hex": "#FFEF49"
+    },
+    {
+      "name": "Gold III",
+      "rank": 9,
+      "minElo": 2500,
+      "maxElo": 2999,
+      "hex": "#FFEF49"
+    },
+    {
+      "name": "Diamond I",
+      "rank": 10,
+      "minElo": 3000,
+      "maxElo": 3499,
+      "hex": "#33FFFF"
+    },
+    {
+      "name": "Diamond II",
+      "rank": 11,
+      "minElo": 3500,
+      "maxElo": 3999,
+      "hex": "#33FFFF"
+    },
+    {
+      "name": "Diamond III",
+      "rank": 12,
+      "minElo": 4000,
+      "maxElo": 4499,
+      "hex": "#33FFFF"
+    },
+    {
+      "name": "Mythic I",
+      "rank": 13,
+      "minElo": 4500,
+      "maxElo": 4999,
+      "hex": "#FF00FF"
+    },
+    {
+      "name": "Mythic II",
+      "rank": 14,
+      "minElo": 5000,
+      "maxElo": 5499,
+      "hex": "#FF00FF"
+    },
+    {
+      "name": "Mythic III",
+      "rank": 15,
+      "minElo": 5500,
+      "maxElo": 5999,
+      "hex": "#FF00FF"
+    },
+    {
+      "name": "Legendary I",
+      "rank": 16,
+      "minElo": 6000,
+      "maxElo": 6749,
+      "hex": "#F75363"
+    },
+    {
+      "name": "Legendary II",
+      "rank": 17,
+      "minElo": 6750,
+      "maxElo": 7499,
+      "hex": "#F75363"
+    },
+    {
+      "name": "Legendary III",
+      "rank": 18,
+      "minElo": 7500,
+      "maxElo": 8249,
+      "hex": "#F75363"
+    },
+    {
+      "name": "Masters I",
+      "rank": 19,
+      "minElo": 8250,
+      "maxElo": 9249,
+      "hex": "#4BFB1C"
+    },
+    {
+      "name": "Masters II",
+      "rank": 20,
+      "minElo": 9250,
+      "maxElo": 10249,
+      "hex": "#4BFB1C"
+    },
+    {
+      "name": "Masters III",
+      "rank": 21,
+      "minElo": 10250,
+      "maxElo": 11249,
+      "hex": "#4BFB1C"
+    },
+    {
+      "name": "Pro",
+      "rank": 22,
+      "minElo": 11250,
+      "maxElo": 0,
+      "hex": "#FFFFFF"
+    }
+  ]
+}

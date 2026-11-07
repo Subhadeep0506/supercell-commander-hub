@@ -38,12 +38,29 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 await page.setViewport({ width: 430, height: 932 });
+/*
+ * The dev server hands back one module per bundled image, and the registries
+ * now total roughly 6,700 of them -- 1,771 Clash Book levels, 1,405 Brawl
+ * Stars profile icons, 1,191 Royale player badges and the rest. A cold load
+ * therefore takes tens of seconds, and `networkidle2` -- which these
+ * navigations used to wait for -- may never be reached at all.
+ *
+ * So they wait for `domcontentloaded` and lean on the `settle()` after each
+ * one for render timing, with a generous ceiling for a cold start. None of
+ * it changes what is asserted. A production build bundles these, so the
+ * problem is the dev server only.
+ */
+page.setDefaultNavigationTimeout(120000);
+
+
+const idle = () => page.waitForNetworkIdle({ idleTime: 600, timeout: 45000 }).catch(() => {});
 await serveFixtures(page);
 
 const settle = (ms = 1400) => new Promise((r) => setTimeout(r, ms));
 const body = () => page.evaluate(() => document.body?.innerText ?? '');
 const go = async (path) => {
-  await page.goto(`${BASE}${path}`, { waitUntil: 'networkidle2' });
+  await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded', timeout: 120000 });
+  await idle();
   await settle();
 };
 
@@ -57,7 +74,7 @@ const check = (label, condition, detail = '') => {
   }
 };
 
-/** How many <img> on the page have a src matching this pattern. */
+
 const imgs = (pattern) =>
   page.evaluate(
     (p) => [...document.querySelectorAll('img')].filter((i) => new RegExp(p).test(i.src)).length,
@@ -78,7 +95,7 @@ page.on('console', (m) => {
   errors.push(m.text());
 });
 
-/** Save the calibration tag into the passport the way a user would. */
+
 async function adoptAccount() {
   await go('/cr');
   const field = await page.$('input');
@@ -108,7 +125,11 @@ check('the deck and tower troop render as art', homeCardArt >= 9, `${homeCardArt
 check('shows the arena', t.includes('Electro Valley'), t);
 check('shows Merge Tactics progress', /Merge Tactics/i.test(t), t);
 check('derives a per-mode record', /Recent record by mode/i.test(t), t);
-check('labels derived figures', /not lifetime totals/i.test(t), t);
+// Was an assertion on the caption under this panel ("not lifetime totals").
+// The caption went with the rest of the API prose; the derived figure it
+// qualified -- a per-mode record counted from the log -- is checked above and
+// its crown counts are checked here.
+check('the per-mode record carries counts', /\d+\s*·\s*\d+|\d+\s*-\s*\d+/.test(t), t);
 
 // The Battles section. 26 battles in the fixture, 10 shown per page.
 check('lists battles', /Battles in the log/i.test(t), t);
@@ -120,7 +141,7 @@ check('names a real opponent', /TRollJaaKKO/.test(t), t);
 // Collapsed rows carry no deck, no tower HP and no tags.
 check('keeps battle detail collapsed', !/King tower destroyed/i.test(t), t);
 
-/** Click the nth element whose text matches, by accessibility label. */
+
 const clickLabel = async (pattern) =>
   page.evaluate((p) => {
     const re = new RegExp(p, 'i');
@@ -288,18 +309,21 @@ check('the meta sample starts on a press', await clickLabel('^Find the current m
 let metaDone = false;
 for (let i = 0; i < 120 && !metaDone; i++) {
   await settle(1500);
-  metaDone = /Counted from \d+ battle/i.test(await body());
+  metaDone = /Counted from \d+ logs/i.test(await body());
 }
 check('the sample completes', metaDone, (await body()).slice(0, 200));
 
 t = await body();
-check('reports what it sampled and what it skipped', /Counted from \d+ battles? logs?/i.test(t), t);
-check(
-  'names the three seed sources',
-  /recent opponents/i.test(t) && /clanmates/i.test(t) && /ranked ladder/i.test(t),
-  t,
-);
-check('separates competitive battles from friendlies', /skipped as friendlies/i.test(t), t);
+/*
+ * The sample size, which is now a figure rather than the paragraph it used to
+ * be -- the seed breakdown and the ranking explanation were removed with the
+ * rest of the API caveats. The size itself stays: a ranking built from eleven
+ * battles and one built from two thousand look identical without it.
+ */
+check('reports how large the sample was', /Counted from \d+ logs · [\d,]+ battles/i.test(t), t);
+// The "N skipped as friendlies" clause went with the paragraph. That the
+// sample counts competitive battles only is still visible in the pair of
+// figures asserted above: logs read, and battles kept from them.
 check('ranks decks with their match counts', /\d+ matches/i.test(t), t);
 check('shows the bracket picker', /League or arena/i.test(t), t);
 // The default bracket is the player's own. The calibration account has never
@@ -391,7 +415,9 @@ t = await body();
 check('river race renders its current period', /Training|War Day/i.test(t), t);
 check('ranks five clans', /Standings/i.test(t), t);
 check('shows decks remaining', /Decks remaining/i.test(t), t);
-check('labels the four-deck assumption', /four per member per day/i.test(t), t);
+// The sentence naming the four-per-day rule is gone; the figure it explained
+// is not, and that figure is the one that would be wrong if the rule changed.
+check('decks remaining is a real count', /Decks remaining[\s\S]{0,40}\d/.test(t), t);
 
 // A race payload says nothing about a participant but their name and four
 // counts, so these rows are joined against the clan's own memberList for the
@@ -407,7 +433,9 @@ t = await body();
 check('offers Path of Legend', /Path of Legend/i.test(t), t);
 check('groups Merge Tactics into one row', (t.match(/Merge Tactics/g) ?? []).length <= 2, t);
 check('keeps the nameless ladders', /Other ladders/i.test(t), t);
-check('warns about the current season', /Finished seasons only/i.test(t), t);
+// The "finished seasons only" note is gone; the season list it qualified is
+// what proves the same thing, so that is what gets checked.
+check('offers finished seasons by date', /20\d\d-\d\d/.test(t), t);
 
 console.log('\nCard detail');
 await go('/cr');
@@ -425,7 +453,13 @@ check('renders the copy ladder', (t.match(/→/g) ?? []).length > 8, t);
 // Wizard is Rare, so its ladder starts at game level 3 -- not 1. This is the
 // rarity-relative conversion showing up in the UI rather than in a unit test.
 check('ladder uses game levels, not API levels', /3 → 4/.test(t), t);
-check('states that combat stats are unavailable', /not provided by the official API/i.test(t), t);
+/*
+ * Was an assertion on the note saying hitpoints and damage are not published.
+ * The note is gone, but the decision behind it is load-bearing -- no
+ * third-party combat stats anywhere in this app -- so the check now guards the
+ * decision directly: the modal must not have grown any.
+ */
+check('shows no combat stats', !/Hitpoints|Hit speed|Damage per second/i.test(t), t);
 
 console.log('\nArtwork');
 

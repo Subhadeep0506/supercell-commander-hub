@@ -1,6 +1,8 @@
 import { useMemo, type ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GAME_LOGOS, townHallArt } from '@/assets/art';
+import { playerIconArt } from '@/assets/brawl';
+import { arenaImages } from '@/assets/registry.arena';
 import { record, text, type ApiRecord, type Game } from '@/api/game-api';
 import { groupedNumber, formatDuration } from '@/lib/clan';
 import type { LiveEvent, TodayEvent, TodayNote } from '@/lib/today';
@@ -63,7 +65,7 @@ export function EventCard({ event }: { event: TodayEvent }) {
       onPress={() => navigate(event.route)}
       style={({ pressed }) => [pressed && s.pressed]}
     >
-      <Panel style={s.card}>
+      <Panel tone="plain" style={s.card}>
         <GameBadge game={event.game} />
         <View style={s.body}>
           <Text style={s.title} numberOfLines={1}>
@@ -102,7 +104,7 @@ export function NoteCard({ note }: { note: TodayNote }) {
   const s = useMemo(() => build(theme), [theme]);
 
   const inner = (
-    <Panel style={s.noteCard}>
+    <Panel tone="plain" style={s.noteCard}>
       <View style={s.noteHead}>
         <GameBadge game={note.game} />
         <Text style={s.noteTitle} numberOfLines={1}>
@@ -137,7 +139,7 @@ export function LiveEventCard({ event }: { event: LiveEvent }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
   return (
-    <Panel style={s.card}>
+    <Panel tone="plain" style={s.card}>
       <GameBadge game={event.game} />
       <View style={s.body}>
         <Text style={s.title} numberOfLines={2}>
@@ -178,12 +180,16 @@ export function AccountRow({
 
   const name = text(player['name']);
   const tag = text(player['tag']);
-  const clan = text(record(player['clan'])['name']);
+  // Brawl Stars calls it a club and files it under `club`; the other two use
+  // `clan`. Reading only `clan` left every Brawl row without its club name.
+  const clan = text(record(player[game === 'bs' ? 'club' : 'clan'])['name']);
 
   const headline =
     game === 'coc'
       ? `Town Hall ${text(player['townHallLevel'])} · ${groupedNumber(player['trophies'])} League trophies`
-      : `${groupedNumber(player['trophies'])} trophies`;
+      : game === 'bs'
+        ? `Level ${text(player['expLevel'])} · ${groupedNumber(player['trophies'])} trophies`
+        : `${groupedNumber(player['trophies'])} trophies`;
 
   return (
     <Pressable
@@ -192,9 +198,17 @@ export function AccountRow({
       onPress={() => navigate(route)}
       style={({ pressed }) => [pressed && s.pressed]}
     >
-      <Panel style={s.card}>
+      <Panel tone="plain" style={s.card}>
         {game === 'coc' ? (
           <TownHall level={player['townHallLevel']} />
+        ) : game === 'bs' ? (
+          // PlayerPortrait is Royale's: it resolves an arena badge and falls
+          // back to the king. A Brawl account has an icon id instead.
+          <Image
+            source={playerIconArt(record(player['icon'])['id']) ?? arenaImages.bsicon}
+            style={s.bsIcon}
+            resizeMode="contain"
+          />
         ) : (
           <PlayerPortrait player={player} size={44} />
         )}
@@ -260,6 +274,8 @@ const build = (t: Theme) =>
     card: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     badge: { width: 44, height: 24, flexShrink: 0 },
     hall: { width: 44, height: 44, flexShrink: 0 },
+    // Rounded, matching how the Brawl screens draw the same icon.
+    bsIcon: { width: 44, height: 44, flexShrink: 0, borderRadius: t.radius.lg },
     body: { flex: 1, minWidth: 0 },
     title: { fontFamily: t.fonts.display, fontSize: 14, color: t.foreground },
     meta: { marginTop: 3, fontFamily: t.fonts.sans, fontSize: 11, color: t.mutedForeground },

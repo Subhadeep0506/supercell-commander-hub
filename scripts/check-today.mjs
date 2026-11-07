@@ -43,6 +43,22 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 await page.setViewport({ width: 430, height: 932 });
+/*
+ * The dev server hands back one module per bundled image, and the registries
+ * now total roughly 6,700 of them -- 1,771 Clash Book levels, 1,405 Brawl
+ * Stars profile icons, 1,191 Royale player badges and the rest. A cold load
+ * therefore takes tens of seconds, and `networkidle2` -- which these
+ * navigations used to wait for -- may never be reached at all.
+ *
+ * So they wait for `domcontentloaded` and lean on the `settle()` after each
+ * one for render timing, with a generous ceiling for a cold start. None of
+ * it changes what is asserted. A production build bundles these, so the
+ * problem is the dev server only.
+ */
+page.setDefaultNavigationTimeout(120000);
+
+
+const idle = () => page.waitForNetworkIdle({ idleTime: 600, timeout: 45000 }).catch(() => {});
 await serveFixtures(page);
 
 const settle = (ms = 1600) => new Promise((r) => setTimeout(r, ms));
@@ -89,11 +105,12 @@ async function seed({ coc = COC_TAG, cr = CR_TAG } = {}) {
     coc,
     cr,
   );
-  await page.goto(BASE, { waitUntil: 'networkidle2' });
+  await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 120000 });
+  await idle();
   await settle(2600);
 }
 
-/** A "3d 10h" / "40m 12s" clock, which is what proves a card is live. */
+
 const CLOCK = /\b\d+[dhms]\b/;
 
 /**
@@ -190,10 +207,19 @@ await settle(1800);
 check('an account row opens its game', accountOpens && !/Next up/.test(await body()), '');
 
 // --- Brawl Stars ----------------------------------------------------------
+//
+// This used to assert a "still to come" panel. The rotation is now in the
+// timeline above with the other countdowns, which is exactly what that panel
+// said would happen -- so the assertion inverts rather than disappears.
 console.log('\nBrawl Stars');
 await seed();
 t = await body();
-check('states that Brawl Stars is still to come', /Arriving in a later update/i.test(t), t);
+check('no longer promises Brawl Stars later', !/Arriving in a later update/i.test(t), t);
+check('counts down the event rotation', /In rotation/i.test(t), t);
+// Every slot carries a real startTime and endTime, so unlike the Royale
+// events these legitimately get a clock rather than a sentence.
+check('the rotation carries a live clock', CLOCK.test(t), t);
+check('names the map in rotation', /In rotation · \S/.test(t), t);
 
 // --- Clash Royale, live tournament ----------------------------------------
 // Unreachable without the flag: the real capture is an empty list, so this
@@ -214,13 +240,29 @@ await seed({ coc: '', cr: '' });
 t = await body();
 check('explains what to do with no account saved', /No accounts yet/i.test(t), t);
 check('points at the passport', /Saved accounts/i.test(t), t);
-// With no account there is no clan, so none of the Clash of Clans timers can
-// resolve. A global tournament is the exception and legitimately still shows:
-// it is global, not tied to an account -- so this only holds without the flag.
-if (!LIVE_TOURNAMENT) {
-  check('invents no countdown without an account', !CLOCK.test(t.split('Brawl Stars')[0] ?? t), t);
-} else {
+/*
+ * With no account there is no clan, so none of the Clash of Clans timers can
+ * resolve. Two things legitimately still show, because neither is tied to an
+ * account: a global tournament, and the Brawl Stars rotation.
+ *
+ * This used to assert that *nothing* counted down here. That stopped being
+ * the right rule when the rotation arrived -- it is global and its clocks are
+ * real, so suppressing them would be the bug. The rule it is replaced with is
+ * the one actually worth holding: none of the account-derived cards appear.
+ */
+// Asserted on the cards' own phase labels rather than on their titles: the
+// empty-state sentence above names the war and the raid weekend in prose
+// ("...shows your war, Clan War League round and raid weekend..."), so
+// matching titles finds the explanation rather than a card.
+check(
+  'resolves no account-derived countdown',
+  !/Battle day|Preparation|Underway|Opens/i.test((t.split('Next up')[1] ?? '')),
+  t,
+);
+if (LIVE_TOURNAMENT) {
   check('a global tournament shows without an account', /Mega Draft/i.test(t), t);
+} else {
+  check('still counts down the global rotation', /In rotation/i.test(t) && CLOCK.test(t), t);
 }
 
 // --- runtime --------------------------------------------------------------

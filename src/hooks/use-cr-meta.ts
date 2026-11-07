@@ -4,33 +4,19 @@ import { aggregate, type MetaSnapshot } from '@/lib/royale-meta';
 import { DEFAULT_BUDGET, sampleMeta } from '@/lib/royale-meta-sample';
 import { readJson, writeJson } from '@/state/storage';
 
-/**
- * The sampled meta, cached on the device for a week.
- *
- * There is no react-query persister in this app (App.tsx builds a bare
- * QueryClient), so `staleTime` cannot survive a restart -- and a hundred
- * downloads is far too expensive to repeat on every mount. The snapshot
- * therefore goes to AsyncStorage by hand, the way the village import does.
- */
 
-/**
- * Its own key, not a field inside the settings blob.
- *
- * Same reasoning the village import already carries: `patchJson` re-reads and
- * rewrites the whole blob on every settings change, so folding a few hundred
- * KB in would mean serialising the entire meta every time the sound toggle
- * moved.
- */
+
+
 const KEY = 'sch:cr-meta';
 
-/** A week, as the user chose. The button overrides it at any time. */
+
 const MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
-/** Decks kept per bracket when storing. The tail is noise at this sample size. */
+
 const KEEP_PER_BRACKET = 20;
 
 type Entry = {
-  /** Who it was sampled around -- the seeds differ per player. */
+
   tag: string;
   fetchedAt: string;
   sampled: number;
@@ -46,11 +32,11 @@ export type MetaState = {
   failed: number;
   seeds?: Entry['seeds'];
   running: boolean;
-  /** 0-1 while running. */
+
   progress: number;
-  /** Older than a week, or sampled around a different account. */
+
   stale: boolean;
-  /** True until the cache has been read back. */
+
   loading: boolean;
   error?: string;
   run: () => void;

@@ -17,7 +17,6 @@ import {
   CrEmpty,
   CrLoading,
   CrownRecord,
-  DerivedNote,
   Metric,
   MetricGrid,
   Section,
@@ -56,7 +55,7 @@ export function CrDecks({ player, tag }: { player: ApiRecord; tag: string }) {
 
   return (
     <View>
-      <Tabs tabs={TABS} value={tab} onChange={setTab} />
+      <Tabs tone="cr" tabs={TABS} value={tab} onChange={setTab} />
       {tab === 'played' && (
         <PlayedDecks player={player} tag={tag} battles={log} loading={battles.isFetching} />
       )}
@@ -151,11 +150,6 @@ function PlayedDecks({
         {deck.winRate !== null && (
           <Text style={s.winRate}>{deck.winRate.toFixed(0)}% win rate over these battles</Text>
         )}
-        <DerivedNote>
-          Mined from the battle log, which returns only the most recent battles — a recent record,
-          not a lifetime one. The API exposes no deck slots and no older history.
-        </DerivedNote>
-
         {link && (
           <Button variant="outline" size="sm" style={s.copy} onPress={() => void Linking.openURL(link)}>
             Copy to game
@@ -417,12 +411,6 @@ function Builder({
             icon="target"
           />
         </MetricGrid>
-        <DerivedNote>
-          Archetype-based suggestions, not measured matchup predictions. The record counts only
-          battles in the returned log played with this exact eight-card deck — {stats.matches} of
-          them. Missing archetype cards are replaced with owned cards, so synergy is not
-          guaranteed.
-        </DerivedNote>
 
         <View style={s.builderActions}>
           <Button size="sm" disabled={deck.length !== 8} onPress={() => void save()}>

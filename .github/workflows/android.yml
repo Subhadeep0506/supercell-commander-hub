@@ -78,7 +78,31 @@ jobs:
           test -f src/assets/registry.coc.ts || { echo "::error::missing image registries; run 'bun run build:assets' and commit src/assets"; exit 1; }
           test -f android/app/src/main/assets/fonts/Clash-Bold.otf || { echo "::error::missing Android fonts; run 'bun run build:assets' and commit them"; exit 1; }
           test -s src/data/clash-book/data-ids.json || { echo "::error::missing src/data/clash-book/data-ids.json; run 'bun run build:data-ids' and commit it"; exit 1; }
+
+          # Brawl Stars, which arrived after the three checks above and is not
+          # covered by any of them. Its art is nine registries and 2,276 WebP
+          # under src/assets/img/bs-*; miss them and every screen in that game
+          # renders without a single picture, while this job still goes green.
+          test -f src/assets/registry.bsIcon.ts || { echo "::error::missing Brawl Stars image registries; run 'bun run build:assets' and commit src/assets"; exit 1; }
+          # A DIFFERENT script writes this one. Someone re-running the asset
+          # build to fix the line above will not regenerate it, so it names its
+          # own remedy rather than inheriting the wrong one.
+          test -s src/data/bs/brawler-meta.json || { echo "::error::missing src/data/bs/brawler-meta.json; run 'bun run build:bs-data' and commit it"; exit 1; }
+
+          # A registry can be committed while the images it imports are not,
+          # which fails much later and far less legibly -- inside Gradle, as a
+          # Metro resolution error. build-assets.mjs writes the count into the
+          # generated header ("// 1405 images."), so this compares the registry
+          # against its own directory and keeps working as brawlers are added.
+          bs_declared=$(sed -n 's|^// \([0-9]*\) images\..*|\1|p' src/assets/registry.bsIcon.ts)
+          bs_actual=$(find src/assets/img/bs-icon -name '*.webp' | wc -l)
+          test "$bs_declared" = "$bs_actual" || { echo "::error::src/assets/img/bs-icon has $bs_actual files but registry.bsIcon.ts declares $bs_declared; run 'bun run build:assets' and commit all of src/assets/img"; exit 1; }
+
+          # Anchored on the bs-* directories, not a '*bs-*' path glob: the loose
+          # form also matches coc-book-extra/home_bobs-hut.webp and would report
+          # two files that are not Brawl Stars art.
           echo "images: $(find src/assets/img -name '*.webp' | wc -l), fonts: $(ls android/app/src/main/assets/fonts | wc -l), data ids: $(grep -c ':' src/data/clash-book/data-ids.json)"
+          echo "brawl: $(find src/assets/img/bs-* -name '*.webp' | wc -l) images, icons $bs_actual/$bs_declared, $(grep -o '"[0-9]*":' src/data/bs/brawler-meta.json | wc -l) brawlers"
 
       - name: Type-check and lint
         run: |

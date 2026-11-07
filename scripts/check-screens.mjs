@@ -27,6 +27,22 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 await page.setViewport({ width: 430, height: 932 });
+/*
+ * The dev server hands back one module per bundled image, and the registries
+ * now total roughly 6,700 of them -- 1,771 Clash Book levels, 1,405 Brawl
+ * Stars profile icons, 1,191 Royale player badges and the rest. A cold load
+ * therefore takes tens of seconds, and `networkidle2` -- which these
+ * navigations used to wait for -- may never be reached at all.
+ *
+ * So they wait for `domcontentloaded` and lean on the `settle()` after each
+ * one for render timing, with a generous ceiling for a cold start. None of
+ * it changes what is asserted. A production build bundles these, so the
+ * problem is the dev server only.
+ */
+page.setDefaultNavigationTimeout(120000);
+
+
+const idle = () => page.waitForNetworkIdle({ idleTime: 600, timeout: 45000 }).catch(() => {});
 
 await serveFixtures(page);
 
@@ -36,18 +52,12 @@ const BASE = process.env.CHECK_BASE ?? 'http://localhost:5173';
 
 const settle = (ms = 1200) => new Promise((r) => setTimeout(r, ms));
 const body = () => page.evaluate(() => document.body?.innerText ?? '');
-const go = (path) => page.goto(`${BASE}${path}`, { waitUntil: 'networkidle2' });
+const go = async (path) => {
+  await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded', timeout: 120000 });
+  await idle();
+};
 
-/**
- * Clicks the *visible* element carrying an exact aria-label, scrolling it into
- * view first.
- *
- * Both qualifications matter. The detail sheet keeps every layer of its
- * back-stack mounted (hidden with display:none), so a plain querySelector
- * finds the copy on a buried layer first -- which Puppeteer cannot click, and
- * which is not what a user would be touching either. And the clan sheet runs
- * to several thousand pixels, so a target below the fold has no click point.
- */
+
 const findVisible = (label) =>
   page.evaluateHandle((l) => {
     const el = [...document.querySelectorAll('[aria-label]')].find(
@@ -65,7 +75,7 @@ const clickLabel = async (label, wait = 1200) => {
   await settle(wait);
 };
 
-/** Whether a visible element with that label exists at all. */
+
 const hasLabel = async (label) => Boolean((await findVisible(label)).asElement());
 
 /**
@@ -164,7 +174,9 @@ check(
 // Hero equipment is bought with ore rather than levelled against a hall, so it
 // is reported below the divider and never contributes a warning.
 check('hero equipment is listed but never called behind', /Hero Equipment\s+\d+%\s*\n/.test(card), '');
-check('the card says what it did and did not measure', /publishes no building levels/.test(card), '');
+// The paragraph about which endpoint publishes what is gone; the part that
+// changes how the percentages read -- that they cover the army only -- is not.
+check('the card says what it measured', /Army only · against TH\d+/.test(card), card.slice(-120));
 
 await clickLabel('Spells, 38 percent');
 const opened = await body();
@@ -190,10 +202,17 @@ check('the army panel is named for what it holds', /\bArmy\b/.test(noBuildings),
 await clickLabel('Builder Base');
 const builderCard = await body();
 check('the card follows the village tabs', /Builder Hall 9 progress/.test(builderCard), '');
+/*
+ * Was an assertion on the footnote's own word list ("Measured over heroes and
+ * troops"), which went with the rest of the API prose. The fact it guarded --
+ * that the Builder Base has no spells and no siege machines, so the card must
+ * not claim to have measured them -- is now checked against the rows
+ * themselves and the hall the label names.
+ */
 check(
   'and measures only what the Builder Base has',
-  /Measured over heroes and troops/.test(builderCard),
-  builderCard.match(/Measured over [^.]*/)?.[0] ?? '',
+  /Army only · against BH9/.test(builderCard) && !/Siege Machines/.test(builderCard),
+  builderCard.match(/Army only[^\n]*/)?.[0] ?? '',
 );
 await clickLabel('Home Village');
 

@@ -1,0 +1,159 @@
+[
+  {
+    "startTime": "20261106T080000.000Z",
+    "endTime": "20261107T080000.000Z",
+    "slotId": 1,
+    "event": {
+      "id": 15001270,
+      "mode": "brawlBall",
+      "modeId": 5,
+      "map": "Bustling Business"
+    }
+  },
+  {
+    "startTime": "20261106T200000.000Z",
+    "endTime": "20261107T200000.000Z",
+    "slotId": 2,
+    "event": {
+      "id": 15000950,
+      "mode": "soloShowdown",
+      "modeId": 6,
+      "map": "Feast or Famine"
+    }
+  },
+  {
+    "startTime": "20261107T000000.000Z",
+    "endTime": "20261108T000000.000Z",
+    "slotId": 3,
+    "event": {
+      "id": 15000007,
+      "mode": "gemGrab",
+      "modeId": 0,
+      "map": "Hard Rock Mine"
+    }
+  },
+  {
+    "startTime": "20261106T180000.000Z",
+    "endTime": "20261107T180000.000Z",
+    "slotId": 4,
+    "event": {
+      "id": 15000053,
+      "mode": "heist",
+      "modeId": 2,
+      "map": "Hot Potato"
+    }
+  },
+  {
+    "startTime": "20261106T200000.000Z",
+    "endTime": "20261107T200000.000Z",
+    "slotId": 5,
+    "event": {
+      "id": 15000951,
+      "mode": "duoShowdown",
+      "modeId": 9,
+      "map": "Feast or Famine"
+    }
+  },
+  {
+    "startTime": "20261107T020000.000Z",
+    "endTime": "20261108T020000.000Z",
+    "slotId": 6,
+    "event": {
+      "id": 15000548,
+      "mode": "knockout",
+      "modeId": 20,
+      "map": "Out in the Open"
+    }
+  },
+  {
+    "startTime": "20261106T080000.000Z",
+    "endTime": "20261107T080000.000Z",
+    "slotId": 8,
+    "event": {
+      "id": 15001229,
+      "mode": "megaShowdown",
+      "modeId": 75,
+      "map": "Patchwork Peril",
+      "modifiers": [
+        "fastBrawlers"
+      ]
+    }
+  },
+  {
+    "startTime": "20261106T160000.000Z",
+    "endTime": "20261107T160000.000Z",
+    "slotId": 15,
+    "event": {
+      "id": 15000463,
+      "mode": "tagTeam",
+      "modeId": 24,
+      "map": "Warrior's Way"
+    }
+  },
+  {
+    "startTime": "20261106T100000.000Z",
+    "endTime": "20261107T100000.000Z",
+    "slotId": 33,
+    "event": {
+      "id": 15001338,
+      "mode": "airHockey",
+      "modeId": 45,
+      "map": "Net Presence"
+    }
+  },
+  {
+    "startTime": "20261106T200000.000Z",
+    "endTime": "20261107T200000.000Z",
+    "slotId": 39,
+    "event": {
+      "id": 15000952,
+      "mode": "trioShowdown",
+      "modeId": 38,
+      "map": "Feast or Famine"
+    }
+  },
+  {
+    "startTime": "20261106T140000.000Z",
+    "endTime": "20261107T140000.000Z",
+    "slotId": 41,
+    "event": {
+      "id": 15001242,
+      "mode": "brawlArena",
+      "modeId": 48,
+      "map": "Silver Highlands"
+    }
+  },
+  {
+    "startTime": "20261106T120000.000Z",
+    "endTime": "20261107T120000.000Z",
+    "slotId": 43,
+    "event": {
+      "id": 15001047,
+      "mode": "knockout5V5",
+      "modeId": 35,
+      "map": "Brawlerverse"
+    }
+  },
+  {
+    "startTime": "20261107T040000.000Z",
+    "endTime": "20261108T040000.000Z",
+    "slotId": 42,
+    "event": {
+      "id": 15000390,
+      "mode": "basketBrawl",
+      "modeId": 22,
+      "map": "Triple-Double"
+    }
+  },
+  {
+    "startTime": "20261107T060000.000Z",
+    "endTime": "20261107T080000.000Z",
+    "slotId": 55,
+    "event": {
+      "id": 15000306,
+      "mode": "hotZone",
+      "modeId": 17,
+      "map": "Dueling Beetles"
+    }
+  }
+]

@@ -37,7 +37,7 @@ function block(source, selector, from = 0) {
   return { body: source.slice(open + 1, i), end: i };
 }
 
-/** `--name: value;` pairs, ignoring any nested block. */
+
 function declarations(body) {
   const flat = body.replace(/[^{}]*\{[^}]*\}/g, '');
   const out = {};
@@ -47,19 +47,19 @@ function declarations(body) {
   return out;
 }
 
-/** oklch(L C H) or oklch(L C H / P%) -> #rrggbb or rgba(...). */
+
 function convertColor(fn) {
   const colour = parse(fn.replace(/\s*\/\s*([\d.]+)%/, (_, p) => ` / ${Number(p) / 100}`));
   if (!colour) throw new Error(`could not parse colour: ${fn}`);
   return colour.alpha !== undefined && colour.alpha < 1 ? formatRgb(colour) : formatHex(colour);
 }
 
-/** Convert every oklch() in a value, leaving any surrounding syntax intact. */
+
 function convertValue(value) {
   return value.replace(/oklch\([^()]*\)/g, convertColor);
 }
 
-/** Resolve var(--x) against the token set, preferring `scope` then `base`. */
+
 function resolve_(value, scope, base, seen = new Set()) {
   return value.replace(/var\(--([\w-]+)\)/g, (match, name) => {
     if (seen.has(name)) throw new Error(`circular var: --${name}`);
@@ -75,17 +75,7 @@ const darkPatch = declarations(
 );
 const dark = { ...light, ...darkPatch };
 
-/**
- * Clash Royale is declared in *two* blocks with the same selector and the same
- * specificity -- a base palette, then an "arena" override that re-darkens the
- * background, swaps the accent to cyan and adds the --arena-* tokens. CSS
- * resolves that per property, last one winning, so they are merged in source
- * order over the light root.
- *
- * Reading only the first block gets a plausible-looking palette with the wrong
- * accent and no arena tokens at all, which is exactly the kind of wrong that
- * does not throw.
- */
+
 const crBase = block(css, '[data-game="cr"]');
 const crArena = block(css, '[data-game="cr"]', crBase.end);
 const cr = { ...light, ...declarations(crBase.body), ...declarations(crArena.body) };
@@ -105,15 +95,7 @@ const lightOut = build(light, light);
 const darkOut = build(dark, dark);
 const crOut = build(cr, cr);
 
-/**
- * Flat stand-ins for the gradient tokens.
- *
- * React Native has no CSS gradients, and the app's only react-native-svg use
- * is inline icons -- an absolutely positioned gradient behind content is
- * exactly the class of layout that can only be checked on a device. These are
- * the oklch midpoint of each gradient's own stops, computed here so they
- * follow styles.css instead of being hand-copied and quietly going stale.
- */
+
 function flatten(value) {
   const stops = value.match(/#[0-9a-f]{6}\b/gi);
   if (!stops || stops.length === 0) return null;

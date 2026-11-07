@@ -1,0 +1,67 @@
+{
+  "id": 16000004,
+  "name": "RICO",
+  "starPowers": [
+    {
+      "id": 23000080,
+      "name": "SUPER BOUNCY"
+    },
+    {
+      "id": 23000156,
+      "name": "ROBO RETREAT"
+    }
+  ],
+  "hyperCharges": [
+    {
+      "id": 23000776,
+      "name": "TRICK SHOT KING"
+    }
+  ],
+  "gears": [
+    {
+      "id": 62000000,
+      "name": "SPEED",
+      "level": 3
+    },
+    {
+      "id": 62000001,
+      "name": "HEALTH",
+      "level": 3
+    },
+    {
+      "id": 62000002,
+      "name": "DAMAGE",
+      "level": 3
+    },
+    {
+      "id": 62000003,
+      "name": "VISION",
+      "level": 3
+    },
+    {
+      "id": 62000004,
+      "name": "SHIELD",
+      "level": 3
+    },
+    {
+      "id": 62000005,
+      "name": "RELOAD SPEED",
+      "level": 3
+    },
+    {
+      "id": 62000017,
+      "name": "GADGET COOLDOWN",
+      "level": 3
+    }
+  ],
+  "gadgets": [
+    {
+      "id": 23000246,
+      "name": "MULTIBALL LAUNCHER"
+    },
+    {
+      "id": 23000409,
+      "name": "MULTIBALL"
+    }
+  ]
+}

@@ -7,14 +7,21 @@ import { useTheme, type Theme } from '@/theme/ThemeProvider';
  *
  * Guards the same way the original did: a zero or missing max yields 0% rather
  * than NaN, which the achievement rows rely on.
+ *
+ * `fill` overrides the default `theme.primary`. The Brawl Stars screens pass
+ * `theme.brawl.highlight`: everything else on those screens is purple and
+ * yellow, and a Clash of Clans teal bar in the middle of the Ranked panel read
+ * as a component someone had forgotten to restyle.
  */
 export function Meter({
   value,
   max = 100,
+  fill,
   style,
 }: {
   value: number;
   max?: number;
+  fill?: string;
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
@@ -22,7 +29,7 @@ export function Meter({
   const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0;
   return (
     <View style={[s.track, style]}>
-      <View style={[s.fill, { width: `${pct}%` }]} />
+      <View style={[s.fill, { width: `${pct}%` }, fill ? { backgroundColor: fill } : null]} />
     </View>
   );
 }

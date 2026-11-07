@@ -1,0 +1,287 @@
+{
+  "_synthetic": "Never captured. Rows follow the PlayerRanking schema; see make-bs-fixtures.mjs.",
+  "items": [
+    {
+      "tag": "#2R8LU8RGLY",
+      "name": "3AЛУ№ЕНЬ",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000000
+      },
+      "trophies": 92000,
+      "rank": 1,
+      "club": {
+        "name": "Club 1"
+      }
+    },
+    {
+      "tag": "#2UCCP922JJ",
+      "name": "✰P꙰ I꙰ P꙰ S꙰✰",
+      "nameColor": "0xff1ba5f5",
+      "icon": {
+        "id": 28000294
+      },
+      "trophies": 90850,
+      "rank": 2
+    },
+    {
+      "tag": "#2UGGGJ0RJP",
+      "name": "あげんと",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000452
+      },
+      "trophies": 89700,
+      "rank": 3
+    },
+    {
+      "tag": "#2222P",
+      "name": "Brawler 4",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000000
+      },
+      "trophies": 88550,
+      "rank": 4,
+      "club": {
+        "name": "Club 4"
+      }
+    },
+    {
+      "tag": "#2222Y",
+      "name": "Brawler 5",
+      "nameColor": "0xff1ba5f5",
+      "icon": {
+        "id": 28000294
+      },
+      "trophies": 87400,
+      "rank": 5
+    },
+    {
+      "tag": "#2222L",
+      "name": "Brawler 6",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000452
+      },
+      "trophies": 86250,
+      "rank": 6
+    },
+    {
+      "tag": "#2222Q",
+      "name": "Brawler 7",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000000
+      },
+      "trophies": 85100,
+      "rank": 7,
+      "club": {
+        "name": "Club 7"
+      }
+    },
+    {
+      "tag": "#2222G",
+      "name": "Brawler 8",
+      "nameColor": "0xff1ba5f5",
+      "icon": {
+        "id": 28000294
+      },
+      "trophies": 83950,
+      "rank": 8
+    },
+    {
+      "tag": "#2222R",
+      "name": "Brawler 9",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000452
+      },
+      "trophies": 82800,
+      "rank": 9
+    },
+    {
+      "tag": "#2222J",
+      "name": "Brawler 10",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000000
+      },
+      "trophies": 81650,
+      "rank": 10,
+      "club": {
+        "name": "Club 10"
+      }
+    },
+    {
+      "tag": "#2222C",
+      "name": "Brawler 11",
+      "nameColor": "0xff1ba5f5",
+      "icon": {
+        "id": 28000294
+      },
+      "trophies": 80500,
+      "rank": 11
+    },
+    {
+      "tag": "#2222U",
+      "name": "Brawler 12",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000452
+      },
+      "trophies": 79350,
+      "rank": 12
+    },
+    {
+      "tag": "#2222V",
+      "name": "Brawler 13",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000000
+      },
+      "trophies": 78200,
+      "rank": 13,
+      "club": {
+        "name": "Club 13"
+      }
+    },
+    {
+      "tag": "#22220",
+      "name": "Brawler 14",
+      "nameColor": "0xff1ba5f5",
+      "icon": {
+        "id": 28000294
+      },
+      "trophies": 77050,
+      "rank": 14
+    },
+    {
+      "tag": "#22222",
+      "name": "Brawler 15",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000452
+      },
+      "trophies": 75900,
+      "rank": 15
+    },
+    {
+      "tag": "#22228",
+      "name": "Brawler 16",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000000
+      },
+      "trophies": 74750,
+      "rank": 16,
+      "club": {
+        "name": "Club 16"
+      }
+    },
+    {
+      "tag": "#22229",
+      "name": "Brawler 17",
+      "nameColor": "0xff1ba5f5",
+      "icon": {
+        "id": 28000294
+      },
+      "trophies": 73600,
+      "rank": 17
+    },
+    {
+      "tag": "#2222P",
+      "name": "Brawler 18",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000452
+      },
+      "trophies": 72450,
+      "rank": 18
+    },
+    {
+      "tag": "#2222Y",
+      "name": "Brawler 19",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000000
+      },
+      "trophies": 71300,
+      "rank": 19,
+      "club": {
+        "name": "Club 19"
+      }
+    },
+    {
+      "tag": "#2222L",
+      "name": "Brawler 20",
+      "nameColor": "0xff1ba5f5",
+      "icon": {
+        "id": 28000294
+      },
+      "trophies": 70150,
+      "rank": 20
+    },
+    {
+      "tag": "#2222Q",
+      "name": "Brawler 21",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000452
+      },
+      "trophies": 69000,
+      "rank": 21
+    },
+    {
+      "tag": "#2222G",
+      "name": "Brawler 22",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000000
+      },
+      "trophies": 67850,
+      "rank": 22,
+      "club": {
+        "name": "Club 22"
+      }
+    },
+    {
+      "tag": "#2222R",
+      "name": "Brawler 23",
+      "nameColor": "0xff1ba5f5",
+      "icon": {
+        "id": 28000294
+      },
+      "trophies": 66700,
+      "rank": 23
+    },
+    {
+      "tag": "#2222J",
+      "name": "Brawler 24",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000452
+      },
+      "trophies": 65550,
+      "rank": 24
+    },
+    {
+      "tag": "#2222C",
+      "name": "Brawler 25",
+      "nameColor": "0xffffffff",
+      "icon": {
+        "id": 28000000
+      },
+      "trophies": 64400,
+      "rank": 25,
+      "club": {
+        "name": "Club 25"
+      }
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "after": "eyJwb3MiOjI1fQ=="
+    }
+  }
+}

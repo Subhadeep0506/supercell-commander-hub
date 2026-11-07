@@ -24,6 +24,13 @@ import { DetailSheet } from './DetailSheet';
  * `capital`, `warLog` and `cwlWar` are Clash of Clans only. Clash Royale's
  * equivalents are tabs inside its clan layer rather than layers of their own,
  * because River Race is one view of a clan rather than a separate history.
+ *
+ * `brawler` is Brawl Stars only, and is the one kind that is not addressed by
+ * its tag alone: the tag names the *player* whose collection is being read --
+ * which is what decides whether the global ladder can say "that is you" -- and
+ * `brawlerId` picks one entry out of it. It lives in this stack rather than in
+ * its own Modal because React Native will not stack a second Modal over the
+ * sheet, which is why a brawler tile used to be inert on anyone else's profile.
  */
 export type SheetEntry =
   | { game: Game; kind: 'clan'; tag: string }
@@ -31,13 +38,23 @@ export type SheetEntry =
   | { game: Game; kind: 'capital'; tag: string }
   | { game: Game; kind: 'warLog'; tag: string }
   /** `tag` is a *war* tag. `clanTag` orients the board, when it is known. */
-  | { game: Game; kind: 'cwlWar'; tag: string; clanTag?: string };
+  | { game: Game; kind: 'cwlWar'; tag: string; clanTag?: string }
+  /** `tag` is the *player* whose collection this brawler is read from. */
+  | { game: Game; kind: 'brawler'; tag: string; brawlerId: number };
 
 /** What a caller passes. Identical to the entry: there is nothing to infer. */
 export type SheetRequest = SheetEntry;
 
+/*
+ * The identity of a view, for the double-tap guard below.
+ *
+ * `brawlerId` has to be part of it. Without it, opening Shelly and then Colt
+ * from the same profile would read as the same view and the second tap would
+ * do nothing -- the tag is identical in both cases because it names the player.
+ */
 function entryKey(entry: SheetEntry): string {
-  return `${entry.game}:${entry.kind}:${entry.tag}`;
+  const extra = entry.kind === 'brawler' ? `:${entry.brawlerId}` : '';
+  return `${entry.game}:${entry.kind}:${entry.tag}${extra}`;
 }
 
 type Ctx = {

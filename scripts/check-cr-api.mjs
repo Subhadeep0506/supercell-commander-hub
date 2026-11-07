@@ -31,7 +31,7 @@ if (!KEY) {
   process.exit(1);
 }
 
-/** The calibration account and its clan. See the plan. */
+
 const TAG = process.env.CR_TAG ?? '#L8YV8P2CL';
 const CLAN = process.env.CR_CLAN ?? '#QC8LCPUU';
 
@@ -82,7 +82,7 @@ async function probe(label, request, shape) {
   return json;
 }
 
-/** A request the schema must refuse to build. */
+
 function guard(label, request, expected) {
   const parsed = gameRequestSchema.safeParse(request);
   if (parsed.success) {

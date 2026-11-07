@@ -1,0 +1,122 @@
+{
+  "tag": "#80UP98LY8",
+  "name": "LA GANG DI KUS",
+  "description": "(G.2026) fare mega pig almeno (3/4 biglietti) aiutamo a pushare per prestigi e tornei con tutto il club ",
+  "type": "inviteOnly",
+  "badgeId": 8000021,
+  "requiredTrophies": 25000,
+  "trophies": 527385,
+  "members": [
+    {
+      "tag": "#PQVPRUGRG",
+      "name": "Alex2610",
+      "nameColor": "0xff1ba5f5",
+      "role": "member",
+      "trophies": 83700,
+      "icon": {
+        "id": 28000727
+      }
+    },
+    {
+      "tag": "#8CCYYG2CG",
+      "name": "愛BiKO",
+      "nameColor": "0xffff8afb",
+      "role": "vicePresident",
+      "trophies": 81704,
+      "icon": {
+        "id": 28001135
+      }
+    },
+    {
+      "tag": "#Q8R0UP09R",
+      "name": "ERROR 404",
+      "nameColor": "0xff1ba5f5",
+      "role": "vicePresident",
+      "trophies": 79407,
+      "icon": {
+        "id": 28000618
+      }
+    },
+    {
+      "tag": "#LQ80YR0Y8",
+      "name": "LL|ṭȏṡıċ_ 👿",
+      "nameColor": "0xffff9727",
+      "role": "senior",
+      "trophies": 67024,
+      "icon": {
+        "id": 28000401
+      }
+    },
+    {
+      "tag": "#PV9J28829",
+      "name": "Robert",
+      "nameColor": "0xffcb5aff",
+      "role": "senior",
+      "trophies": 52804,
+      "icon": {
+        "id": 28001149
+      }
+    },
+    {
+      "tag": "#9Q2Y980Y2",
+      "name": "MATTIA099",
+      "nameColor": "0xff1ba5f5",
+      "role": "vicePresident",
+      "trophies": 37995,
+      "icon": {
+        "id": 28000585
+      }
+    },
+    {
+      "tag": "#LYU2CPCU8",
+      "name": "~○GC|OSTER○~",
+      "nameColor": "0xff1ba5f5",
+      "role": "president",
+      "trophies": 30860,
+      "icon": {
+        "id": 28001062
+      }
+    },
+    {
+      "tag": "#Q2P9UYQ99",
+      "name": "𝔾ℍℝ𝔸𝕃𝔼",
+      "nameColor": "0xffa2e3fe",
+      "role": "member",
+      "trophies": 29963,
+      "icon": {
+        "id": 28001173
+      }
+    },
+    {
+      "tag": "#YYLYGPG8V",
+      "name": "Voidメ",
+      "nameColor": "0xffff9727",
+      "role": "vicePresident",
+      "trophies": 25611,
+      "icon": {
+        "id": 28000104
+      }
+    },
+    {
+      "tag": "#JRC28RG9C",
+      "name": "sofiaa___99",
+      "nameColor": "0xffa2e3fe",
+      "role": "senior",
+      "trophies": 21950,
+      "icon": {
+        "id": 28000754
+      }
+    },
+    {
+      "tag": "#P29C8GG8P",
+      "name": "ig: ale04100___",
+      "nameColor": "0xffffffff",
+      "role": "vicePresident",
+      "trophies": 16367,
+      "icon": {
+        "id": 28000170
+      }
+    }
+  ],
+  "isFamilyFriendly": true
+}

@@ -2,22 +2,11 @@ import { buildToday, tournamentItems, type TodayInput } from '@/lib/today';
 import { sampleWarTags, allWarTags, buildRounds, currentRound } from '@/lib/cwl';
 import type { ApiRecord } from '@/api/game-api';
 
-/**
- * The Today board's rules, tested without a browser.
- *
- * `now` is injected throughout: the ordering, the grace window and the "is it
- * past" checks are all relative to it, and a test that waited for real time to
- * pass would be both slow and flaky.
- *
- * The screen's one invariant is **real timestamps only**, so the cases that
- * matter most are the ones where a field looks like a time but is not: the
- * 1969 epoch sentinel, a `notInWar` state, and a river race that publishes no
- * end time at all.
- */
+
 
 const NOW = new Date('2026-11-06T12:00:00.000Z');
 
-/** Supercell's compact stamp, offset from NOW. */
+
 const at = (ms: number): string => {
   const d = new Date(NOW.getTime() + ms);
   const p = (n: number, w = 2) => String(n).padStart(w, '0');
@@ -89,7 +78,7 @@ describe('raid weekend', () => {
 });
 
 describe('clan war league', () => {
-  /** Two drawn rounds: the first ended, the second being fought. */
+
   const group = {
     state: 'inWar',
     rounds: [

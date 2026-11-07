@@ -3,37 +3,27 @@ import { cardLevel, rarityOf } from './royale-cards';
 import { gameLevel } from './royale-upgrades';
 import type { MetaDeck } from './royale-meta';
 
-/**
- * How well a player can actually field a meta deck.
- *
- * A top-ladder deck is not advice if three of its cards are locked, and it is
- * barely advice if the win condition is four levels under the bracket's.
- *
- * **Card levels are rarity-relative** and must go through `gameLevel` --
- * confirmed again in the live probe, where a level-16 Common and a level-11
- * Epic sat in the same deck and are both game level 16. Comparing the raw
- * numbers would call that deck wildly uneven.
- */
+
 
 export type CardFit = {
   card: ApiRecord;
   owned: boolean;
-  /** Game level the player has, or null if they do not own the card. */
+
   yours: number | null;
-  /** Game level the sampled players ran it at. */
+
   theirs: number | null;
 };
 
 export type DeckFit = {
   cards: CardFit[];
   missing: number;
-  /** Mean game levels behind the sampled players, over the cards you own. */
+
   levelGap: number | null;
-  /** Nothing locked. */
+
   playable: boolean;
 };
 
-/** Game level of a card as it appeared in a battle log. */
+
 function levelInBattle(card: ApiRecord): number | null {
   const level = card['level'];
   if (typeof level !== 'number') return null;
@@ -69,14 +59,7 @@ export function deckFit(deck: MetaDeck, owned: ApiRecord[]): DeckFit {
   };
 }
 
-/**
- * Meta score adjusted for what this player can field.
- *
- * A locked card is a hard stop rather than a penalty -- the deck simply cannot
- * be played -- so unplayable decks keep their meta score and are flagged, and
- * only the level gap scales it. Four game levels down is roughly a lost
- * matchup, so the penalty reaches zero there rather than going negative.
- */
+
 export function fitScore(deck: MetaDeck, fit: DeckFit): number {
   if (!fit.playable) return deck.score * 0.25;
   if (fit.levelGap === null) return deck.score;

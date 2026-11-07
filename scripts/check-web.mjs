@@ -110,7 +110,7 @@ if (seedTag) {
 
 const url = `${base}${path}`;
 console.log(`→ ${url}`);
-await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 }).catch((e) => {
+await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 }).catch((e) => {
   errors.push(`[navigation] ${e.message}`);
 });
 await new Promise((r) => setTimeout(r, wait));

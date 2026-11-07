@@ -39,20 +39,13 @@ type Ctx = {
    * object however many are saved -- switching passports is what changes it.
    */
   passport: Passport;
-  /** Updates the active passport in place. */
+  
   setPassport: (p: Passport) => void;
-  /** All saved passports, in the order they were added. */
+  
   passports: Passport[];
-  /**
-   * Adds a passport, or overwrites the one with the same display name.
-   *
-   * Saving the same name twice is nearly always a correction rather than an
-   * intent to keep two "Main" entries, and a list of indistinguishable rows is
-   * worse than losing the older tags. Returns the saved record so the caller
-   * can report which happened. A new passport becomes active.
-   */
+  
   savePassport: (p: Omit<Passport, 'id'>) => { passport: Passport; replaced: boolean };
-  /** Edits an existing passport by id, leaving the active pointer alone. */
+  
   updatePassport: (id: string, p: Omit<Passport, 'id'>) => void;
   /**
    * Removes a passport.
@@ -62,10 +55,10 @@ type Ctx = {
    */
   deletePassport: (id: string) => void;
   activatePassport: (id: string) => void;
-  /** The imported village export, or undefined until one is pasted in. */
+  
   village?: VillageImport;
   setVillage: (v: VillageImport | undefined) => void;
-  /** False until the stored settings have been read back. */
+  
   ready: boolean;
 };
 
@@ -100,20 +93,13 @@ const VILLAGE_KEY = 'sch:village';
 type Stored = {
   game?: Game;
   sound?: boolean;
-  /** Written by every version before passports became a list. */
+  
   passport?: Omit<Passport, 'id'> & { id?: string };
   passports?: Passport[];
   activeId?: string;
 };
 
-/**
- * Reads whichever shape is on disk.
- *
- * The single-passport key is still honoured and promoted to the first entry of
- * the list: a user who has already typed three tags by hand should not open the
- * app to an empty form. The old key is left in place rather than deleted, so
- * rolling back does not lose it either.
- */
+
 function restore(stored: Stored | undefined): { list: Passport[]; activeId: string } {
   const list = (stored?.passports ?? []).filter((p) => p && typeof p.id === 'string');
   if (list.length) {
@@ -130,18 +116,7 @@ function restore(stored: Stored | undefined): { list: Passport[]; activeId: stri
   return { list: [], activeId: '' };
 }
 
-/**
- * Ported from frontend/src/lib/hub.tsx.
- *
- * Two changes from the original:
- *
- *  - localStorage became AsyncStorage behind state/storage.ts. Reads are now
- *    asynchronous, so `ready` tells screens whether a blank passport means
- *    "none saved" or "not loaded yet" -- without it, useLiveAccount fires a
- *    request for an empty tag on first render.
- *  - Setting `document.documentElement.dataset.game` is gone. The game skin is
- *    a React context now (theme/ThemeProvider), not a CSS attribute selector.
- */
+
 export function HubProvider({ children }: { children: ReactNode }) {
   const [game, setGameS] = useState<Game>('coc');
   const [sound, setSoundS] = useState(false);
@@ -196,16 +171,7 @@ export function HubProvider({ children }: { children: ReactNode }) {
     void patchJson(KEY, { sound: v });
   }, []);
 
-  /**
-   * Updates the active passport in place.
-   *
-   * This is what the lookup screens call when a searched tag is adopted. It
-   * must not create a second entry: searching a tag on Home is "this is my
-   * account", not "here is another passport".
-   *
-   * With nothing saved at all it creates the first one, so a user who types a
-   * tag before ever opening Passport still ends up with a record.
-   */
+  
   const setPassport = useCallback(
     (p: Passport) => {
       setPassportsS((list) => {

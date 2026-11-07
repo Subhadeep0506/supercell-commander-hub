@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TopBar } from '@/components/TopBar';
 import { BottomNav } from '@/components/BottomNav';
@@ -18,6 +18,10 @@ import { CrHomeScreen } from '@/screens/cr/CrHomeScreen';
 import { CrDecksScreen } from '@/screens/cr/CrDecksScreen';
 import { CrClanScreen } from '@/screens/cr/CrClanScreen';
 import { CrLeaderboardScreen } from '@/screens/cr/CrLeaderboardScreen';
+import { BsHomeScreen } from '@/screens/bs/BsHomeScreen';
+import { BsStatsScreen } from '@/screens/bs/BsStatsScreen';
+import { BsClubScreen } from '@/screens/bs/BsClubScreen';
+import { BsLeaderboardScreen } from '@/screens/bs/BsLeaderboardScreen';
 import { PassportScreen } from '@/screens/PassportScreen';
 import { TodayScreen } from '@/screens/TodayScreen';
 
@@ -50,12 +54,15 @@ export function RootNavigator() {
       <Stack.Screen name="CrDecks" component={CrDecksScreen} />
       <Stack.Screen name="CrClan" component={CrClanScreen} />
       <Stack.Screen name="CrLeaderboard" component={CrLeaderboardScreen} />
-      <Stack.Screen name="BsHome" component={BsPlaceholder} />
+      <Stack.Screen name="BsHome" component={BsHomeScreen} />
+      <Stack.Screen name="BsStats" component={BsStatsScreen} />
+      <Stack.Screen name="BsClub" component={BsClubScreen} />
+      <Stack.Screen name="BsLeaderboard" component={BsLeaderboardScreen} />
     </Stack.Navigator>
   );
 }
 
-/** Chrome shared by every screen, matching the reference's root layout. */
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
@@ -71,24 +78,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </DetailSheetProvider>
   );
 }
-
-function Placeholder({ title, detail }: { title: string; detail: string }) {
-  const theme = useTheme();
-  const s = useMemo(() => build(theme), [theme]);
-  return (
-    <ScrollView contentContainerStyle={s.placeholder}>
-      <Text style={s.placeholderTitle}>{title}</Text>
-      <Text style={s.placeholderBody}>{detail}</Text>
-    </ScrollView>
-  );
-}
-
-const BsPlaceholder = () => (
-  <Placeholder
-    title="Brawl Stars"
-    detail="Brawl screens are a later phase: brawlers, stats, clubs, maps, events and upgrades."
-  />
-);
 
 const build = (t: Theme) =>
   StyleSheet.create({

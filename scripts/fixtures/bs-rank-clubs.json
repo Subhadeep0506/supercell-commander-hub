@@ -1,0 +1,210 @@
+{
+  "_synthetic": "Never captured. Rows follow the ClubRanking schema; see make-bs-fixtures.mjs.",
+  "items": [
+    {
+      "tag": "#222Q9",
+      "name": "Top Club 1",
+      "trophies": 2400000,
+      "rank": 1,
+      "memberCount": 30,
+      "badgeId": 8000000
+    },
+    {
+      "tag": "#222QP",
+      "name": "Top Club 2",
+      "trophies": 2369000,
+      "rank": 2,
+      "memberCount": 29,
+      "badgeId": 8000001
+    },
+    {
+      "tag": "#222QY",
+      "name": "Top Club 3",
+      "trophies": 2338000,
+      "rank": 3,
+      "memberCount": 28,
+      "badgeId": 8000002
+    },
+    {
+      "tag": "#222QL",
+      "name": "Top Club 4",
+      "trophies": 2307000,
+      "rank": 4,
+      "memberCount": 27,
+      "badgeId": 8000003
+    },
+    {
+      "tag": "#222QQ",
+      "name": "Top Club 5",
+      "trophies": 2276000,
+      "rank": 5,
+      "memberCount": 30,
+      "badgeId": 8000004
+    },
+    {
+      "tag": "#222QG",
+      "name": "Top Club 6",
+      "trophies": 2245000,
+      "rank": 6,
+      "memberCount": 29,
+      "badgeId": 8000005
+    },
+    {
+      "tag": "#222QR",
+      "name": "Top Club 7",
+      "trophies": 2214000,
+      "rank": 7,
+      "memberCount": 28,
+      "badgeId": 8000006
+    },
+    {
+      "tag": "#222QJ",
+      "name": "Top Club 8",
+      "trophies": 2183000,
+      "rank": 8,
+      "memberCount": 27,
+      "badgeId": 8000007
+    },
+    {
+      "tag": "#222QC",
+      "name": "Top Club 9",
+      "trophies": 2152000,
+      "rank": 9,
+      "memberCount": 30,
+      "badgeId": 8000008
+    },
+    {
+      "tag": "#222QU",
+      "name": "Top Club 10",
+      "trophies": 2121000,
+      "rank": 10,
+      "memberCount": 29,
+      "badgeId": 8000009
+    },
+    {
+      "tag": "#222QV",
+      "name": "Top Club 11",
+      "trophies": 2090000,
+      "rank": 11,
+      "memberCount": 28,
+      "badgeId": 8000010
+    },
+    {
+      "tag": "#222G0",
+      "name": "Top Club 12",
+      "trophies": 2059000,
+      "rank": 12,
+      "memberCount": 27,
+      "badgeId": 8000011
+    },
+    {
+      "tag": "#222G2",
+      "name": "Top Club 13",
+      "trophies": 2028000,
+      "rank": 13,
+      "memberCount": 30,
+      "badgeId": 8000012
+    },
+    {
+      "tag": "#222G8",
+      "name": "Top Club 14",
+      "trophies": 1997000,
+      "rank": 14,
+      "memberCount": 29,
+      "badgeId": 8000013
+    },
+    {
+      "tag": "#222G9",
+      "name": "Top Club 15",
+      "trophies": 1966000,
+      "rank": 15,
+      "memberCount": 28,
+      "badgeId": 8000014
+    },
+    {
+      "tag": "#222GP",
+      "name": "Top Club 16",
+      "trophies": 1935000,
+      "rank": 16,
+      "memberCount": 27,
+      "badgeId": 8000015
+    },
+    {
+      "tag": "#222GY",
+      "name": "Top Club 17",
+      "trophies": 1904000,
+      "rank": 17,
+      "memberCount": 30,
+      "badgeId": 8000016
+    },
+    {
+      "tag": "#222GL",
+      "name": "Top Club 18",
+      "trophies": 1873000,
+      "rank": 18,
+      "memberCount": 29,
+      "badgeId": 8000017
+    },
+    {
+      "tag": "#222GQ",
+      "name": "Top Club 19",
+      "trophies": 1842000,
+      "rank": 19,
+      "memberCount": 28,
+      "badgeId": 8000018
+    },
+    {
+      "tag": "#222GG",
+      "name": "Top Club 20",
+      "trophies": 1811000,
+      "rank": 20,
+      "memberCount": 27,
+      "badgeId": 8000019
+    },
+    {
+      "tag": "#222GR",
+      "name": "Top Club 21",
+      "trophies": 1780000,
+      "rank": 21,
+      "memberCount": 30,
+      "badgeId": 8000020
+    },
+    {
+      "tag": "#222GJ",
+      "name": "Top Club 22",
+      "trophies": 1749000,
+      "rank": 22,
+      "memberCount": 29,
+      "badgeId": 8000021
+    },
+    {
+      "tag": "#222GC",
+      "name": "Top Club 23",
+      "trophies": 1718000,
+      "rank": 23,
+      "memberCount": 28,
+      "badgeId": 8000022
+    },
+    {
+      "tag": "#222GU",
+      "name": "Top Club 24",
+      "trophies": 1687000,
+      "rank": 24,
+      "memberCount": 27,
+      "badgeId": 8000023
+    },
+    {
+      "tag": "#222GV",
+      "name": "Top Club 25",
+      "trophies": 1656000,
+      "rank": 25,
+      "memberCount": 30,
+      "badgeId": 8000024
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "after": "eyJwb3MiOjI1fQ=="
+    }
+  }
+}

@@ -24,6 +24,22 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 await page.setViewport({ width: 430, height: 932 });
+/*
+ * The dev server hands back one module per bundled image, and the registries
+ * now total roughly 6,700 of them -- 1,771 Clash Book levels, 1,405 Brawl
+ * Stars profile icons, 1,191 Royale player badges and the rest. A cold load
+ * therefore takes tens of seconds, and `networkidle2` -- which these
+ * navigations used to wait for -- may never be reached at all.
+ *
+ * So they wait for `domcontentloaded` and lean on the `settle()` after each
+ * one for render timing, with a generous ceiling for a cold start. None of
+ * it changes what is asserted. A production build bundles these, so the
+ * problem is the dev server only.
+ */
+page.setDefaultNavigationTimeout(120000);
+
+
+const idle = () => page.waitForNetworkIdle({ idleTime: 600, timeout: 45000 }).catch(() => {});
 
 const pageErrors = [];
 page.on('pageerror', (e) => pageErrors.push(e.message));
@@ -41,7 +57,7 @@ const path = () => new URL(page.url()).pathname;
 // root, so reading #root alone cannot see a sheet at all.
 const body = () => page.evaluate(() => document.body?.innerText ?? '');
 
-/** Clicks the first element whose aria-label matches exactly. */
+
 async function clickLabel(label) {
   const handle = await page.evaluateHandle((l) => {
     const nodes = [...document.querySelectorAll('[aria-label]')];
@@ -53,7 +69,8 @@ async function clickLabel(label) {
   await settle();
 }
 
-await page.goto(`${BASE}/coc`, { waitUntil: 'networkidle2' });
+await page.goto(`${BASE}/coc`, { waitUntil: 'domcontentloaded', timeout: 120000 });
+await idle();
 await settle(2000);
 check('/coc loads', path() === '/coc', path());
 
@@ -73,7 +90,8 @@ await settle();
 check('back button returns to /coc', path() === '/coc', path());
 
 // Clash Book sheet: open, interact, close.
-await page.goto(`${BASE}/coc/book`, { waitUntil: 'networkidle2' });
+await page.goto(`${BASE}/coc/book`, { waitUntil: 'domcontentloaded', timeout: 120000 });
+await idle();
 await settle(2000);
 await clickLabel('View Laboratory');
 const sheetBody = await body();
@@ -127,20 +145,13 @@ const capitalBody = await body();
 check('clan capital tab renders', capitalBody.includes('Super Barbarian') && capitalBody.includes('Troops'), capitalBody.slice(0, 90).replace(/\n/g, ' '));
 check('capital tab excludes magic items', !/Magic Items/.test(capitalBody));
 
-/**
- * Passport round-trip.
- *
- * Passport holds a *list* now -- a player routinely has more than one Clash
- * account -- so this adds two, switches between them, and reloads. The old
- * check typed a tag and read the same field back after a refresh; that cannot
- * work any more, because the form clears on save and what persists is the row
- * below it.
- */
-await page.goto(`${BASE}/passport`, { waitUntil: 'networkidle2' });
+
+await page.goto(`${BASE}/passport`, { waitUntil: 'domcontentloaded', timeout: 120000 });
+await idle();
 await settle(1500);
 check('/passport loads', path() === '/passport', path());
 
-/** Types into the field carrying this exact label. */
+
 async function fill(label, value) {
   const handle = await page.evaluateHandle(
     (l) => [...document.querySelectorAll('[aria-label]')].find((n) => n.getAttribute('aria-label') === l) ?? null,
@@ -152,7 +163,7 @@ async function fill(label, value) {
   await page.keyboard.type(value);
 }
 
-/** Presses by aria-label, falling back to the button's own text. */
+
 async function press(label) {
   const ok = await page.evaluate((l) => {
     const el = [...document.querySelectorAll('[role="button"]')].find(
@@ -178,7 +189,8 @@ await fill('Clash of Clans tag', '#2PP');
 await press('Save Passport');
 check('a passport without a name is refused', (await body()).includes('display name'));
 
-await page.reload({ waitUntil: 'networkidle2' });
+await page.reload({ waitUntil: 'domcontentloaded', timeout: 120000 });
+await idle();
 await settle(2000);
 check('the list survives a reload', (await body()).includes('Primary'));
 check('the saved tag survives with it', (await body()).includes('#2PP'));

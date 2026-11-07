@@ -12,8 +12,11 @@
     "build:data-ids": "node scripts/build-data-ids.mjs",
     "build:fixtures": "node scripts/make-fixtures.mjs",
     "build:cr-fixtures": "node --use-system-ca --no-warnings scripts/make-cr-fixtures.mjs",
+    "build:bs-fixtures": "node scripts/make-bs-fixtures.mjs",
+    "build:bs-data": "node --use-system-ca --no-warnings scripts/fetch-bs-data.mjs",
     "fetch:cr-assets": "node --use-system-ca --no-warnings scripts/fetch-cr-assets.mjs",
     "fetch:fankit": "node --use-system-ca --no-warnings scripts/fetch-fankit.mjs",
+    "fetch:bs-assets": "node --use-system-ca --no-warnings scripts/fetch-bs-assets.mjs",
     "build:theme": "node scripts/oklch-to-hex.mjs",
     "android": "bun run keys && react-native run-android",
     "ios": "bun run keys && react-native run-ios",
@@ -25,6 +28,7 @@
     "check:screens": "node scripts/check-screens.mjs",
     "check:today": "node scripts/check-today.mjs",
     "check:cr-screens": "node scripts/check-cr-screens.mjs",
+    "check:bs-screens": "node scripts/check-bs-screens.mjs",
     "check:cr-api": "node --use-system-ca --no-warnings scripts/check-cr-api.mjs"
   },
   "dependencies": {

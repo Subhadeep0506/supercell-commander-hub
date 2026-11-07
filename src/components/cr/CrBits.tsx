@@ -28,8 +28,12 @@ import { useTheme, type Theme } from '@/theme/ThemeProvider';
  * in frontend/src/styles.css.
  *
  * The Clash of Clans equivalent is CocBits. Kept separate rather than merged
- * because the two designs genuinely differ -- Royale's is a dark blue panel
- * stack with hard offset shadows, Clash's is a light card with a soft one.
+ * because the two designs still differ in shape -- Royale stacks hard-edged
+ * plates, Clash uses a soft card -- but they no longer differ in palette.
+ * Royale used to repaint the whole app blue; it now takes the same background,
+ * cards and text as everything else and carries its identity in
+ * `theme.royale`: blue plinths and headings, gold for what must pop, and the
+ * `0 4px 0` plate shadow that is the actual Royale shape.
  */
 
 /** `12345` -> `12,345`; anything non-numeric falls through to `text()`. */
@@ -634,19 +638,15 @@ export function Source({ result }: { result: GameResult }) {
   );
 }
 
-/**
- * A derived figure, marked as such.
- *
- * Several Royale numbers are computed from the battle log rather than returned
- * by the API -- per-mode records, deck win rates. They have to read as derived,
- * because a 26-battle window is not a lifetime stat and presenting it as one
- * would be a quiet lie.
+/*
+ * `DerivedNote` lived here -- a paragraph under every computed figure saying
+ * which endpoint had not provided it. Removed 2026-11-07: the app was carrying
+ * roughly a screenful of API caveats across the three games, and a reader who
+ * wants to know where a number came from is better served by the figure being
+ * labelled ("Counted from 94 logs") than by a paragraph about what Supercell
+ * does not publish. Where a qualifier genuinely changes the reading of a
+ * number it is now a chip or a short line beside it.
  */
-export function DerivedNote({ children }: { children: ReactNode }) {
-  const theme = useTheme();
-  const s = useMemo(() => build(theme), [theme]);
-  return <Text style={s.source}>{children}</Text>;
-}
 
 export const build = (t: Theme) =>
   StyleSheet.create({
@@ -671,12 +671,15 @@ export const build = (t: Theme) =>
       padding: 14,
       backgroundColor: t.card,
       borderWidth: 2,
-      borderColor: t.border,
+      // The blue rim, not the neutral one, and no plate shadow under it.
+      // The `0 4px 0` plate used to be the thing that said "Royale" now that
+      // the palette is shared; the rim says it in one device instead of two,
+      // and without the offset block of navy under every card.
+      borderColor: t.chrome.cr.rim,
       borderRadius: t.radius.md,
       // Clips the fan-kit art that several sections scale past their box, the
       // same reason CoC's Panel does.
       overflow: 'hidden',
-      ...t.shadow.panel,
     },
     sectionHead: {
       flexDirection: 'row',
@@ -735,11 +738,12 @@ export const build = (t: Theme) =>
     portraitFrame: {
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.arena.edge,
+      backgroundColor: t.royale.chip,
       borderWidth: 2,
+      // Neutral, not the blue rim: these are small frames repeated down a
+      // roster, and a card's rim colour on each of them reads as noise.
       borderColor: t.border,
       borderRadius: t.radius.md,
-      ...t.shadow.panel,
     },
 
     list: { gap: 8 },
@@ -836,7 +840,7 @@ export const build = (t: Theme) =>
       borderWidth: 2,
       borderColor: t.border,
     },
-    podiumArtWinner: { borderColor: t.primary },
+    podiumArtWinner: { borderColor: t.royale.highlight },
     medal: {
       marginTop: -11,
       minWidth: 24,
@@ -848,9 +852,15 @@ export const build = (t: Theme) =>
       borderWidth: 2,
       borderColor: t.border,
     },
-    medalWinner: { backgroundColor: t.primary, borderColor: t.primary },
+    /*
+     * First place is gold, and it is gold in all three of its marks -- the
+     * medal, the art border and the plinth below. The medal used to take the
+     * shared accent while the plinth took Royale's, which read as two
+     * different ideas of "winner" stacked on one column.
+     */
+    medalWinner: { backgroundColor: t.royale.highlight, borderColor: t.royale.highlight },
     medalText: { fontFamily: t.fonts.display, fontSize: 11, color: t.foreground },
-    medalTextWinner: { color: t.primaryForeground },
+    medalTextWinner: { color: t.royale.onHighlight },
     podiumName: {
       marginTop: 8,
       width: '100%',
@@ -869,17 +879,19 @@ export const build = (t: Theme) =>
     },
     podiumScoreRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5 },
     podiumScore: { fontFamily: t.fonts.display, fontSize: 12, color: t.accent, flexShrink: 1 },
-    // `arena.heading` rather than `muted`: on the Royale palette muted sits a
-    // shade off the page background, so second and third place read as holes
-    // rather than plinths.
+    // A Royale chip rather than `muted`: muted sits a shade off the page
+    // background, so second and third place would read as holes rather than
+    // plinths. The chip is deliberately lighter than the card on dark and
+    // darker on light, so a plinth is always a plinth.
     podiumBase: {
       width: '100%',
       height: 26,
       marginTop: 8,
       borderTopLeftRadius: t.radius.sm,
       borderTopRightRadius: t.radius.sm,
-      backgroundColor: t.arena.heading,
+      backgroundColor: t.royale.chip,
     },
-    podiumBaseWinner: { height: 44, backgroundColor: t.primary },
+    // Gold for first place -- one of the few marks that should pop.
+    podiumBaseWinner: { height: 44, backgroundColor: t.royale.highlight },
     podiumBaseThird: { height: 18 },
   });

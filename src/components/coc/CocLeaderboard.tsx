@@ -134,6 +134,7 @@ export function CocLeaderboard() {
   return (
     <View style={s.stack}>
       <Tabs
+        tone="coc"
         value={board}
         onChange={pickBoard}
         tabs={[

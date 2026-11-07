@@ -87,17 +87,6 @@ assets/**
 # Generated API keys
 src/config/keys.ts
 
-# The generated asset output IS committed, despite being build output.
-#
-# It cannot be regenerated in CI: the inputs are 185 MB of fan-kit packs that
-# are far too large for git and are gated behind a terms-acceptance download,
-# so they can never live in the repo. Without the committed output an APK
-# would build with no artwork and no fonts at all.
-#
-# ~9 MB of WebP, rebuilt locally with `bun run build:assets`.
-#   src/assets/img/, src/assets/fonts/, src/assets/registry.*.ts
-#   android/app/src/main/assets/fonts/
-
 # Web build + browser-check screenshots
 dist-web/
 .shots/

@@ -17,7 +17,7 @@
  */
 export const COPY_TABLE = [2, 4, 10, 20, 50, 100, 200, 400, 800, 1000, 2000, 5000] as const;
 
-/** Game level of each rarity's level 1. Common starts at 1, Champion at 11. */
+
 const START: Record<string, number> = {
   common: 1,
   rare: 3,
@@ -31,7 +31,7 @@ export type CopyProgress =
   | { kind: 'unknown'; owned: number }
   | { kind: 'progress'; owned: number; needed: number; ready: boolean };
 
-/** Rarity-relative API level -> the level shown in game. */
+
 export function gameLevel(level: number, rarity: string) {
   return level + (START[rarity.toLowerCase()] ?? 1) - 1;
 }

@@ -72,7 +72,7 @@ export function PassportScreen() {
         0289PYLQGRJCUV and start with #.
       </PageTitle>
 
-      <Panel style={s.card}>
+      <Panel tone="plain" style={s.card}>
         <Fields draft={draft} onChange={setDraft} s={s} theme={theme} />
         <Button onPress={save}>Save Passport</Button>
         {status ? (

@@ -49,6 +49,7 @@ export function WarTabs({ tag, warResult }: { tag: string; warResult?: GameResul
   return (
     <View style={s.stack}>
       <Tabs
+        tone="coc"
         value={tab}
         onChange={setChosen}
         tabs={[
@@ -103,7 +104,7 @@ export function WarTabs({ tag, warResult }: { tag: string; warResult?: GameResul
         <View style={s.fill}>
           <EmptyState
             title="Not in war league"
-            body="Clan War League runs for the first week of each month. When this clan is signed up, the season, its rounds and the league table show up here."
+            body="Clan War League runs for the first week of each month."
           />
           {/* A 404 is the API's way of saying "no league group", not a fault,
               so it must not raise the service-error box. Anything else is

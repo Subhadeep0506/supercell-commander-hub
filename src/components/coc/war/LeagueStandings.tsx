@@ -102,10 +102,7 @@ export function LeagueStandings({
         );
       })}
 
-      <Text style={s.footnote}>
-        Includes the {WIN_BONUS_STARS}-star bonus for each war won. Promotion and relegation
-        places are the in-game values — the API does not report them.
-      </Text>
+      <Text style={s.footnote}>Includes the {WIN_BONUS_STARS}-star win bonus.</Text>
     </Panel>
   );
 }

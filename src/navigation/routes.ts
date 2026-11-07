@@ -1,11 +1,4 @@
-/**
- * Route names and params for the root stack.
- *
- * `tag` is optional on the three lookup screens, carried through as a query
- * param so the reference app's deep links keep working: a clan member row
- * links to /coc?tag=%232PP, and that URL must still open the right village
- * after a refresh or when pasted into a new tab.
- */
+
 export type RootStackParamList = {
   Today: undefined;
   Passport: undefined;
@@ -20,7 +13,10 @@ export type RootStackParamList = {
   CrDecks: { tag?: string } | undefined;
   CrClan: { tag?: string } | undefined;
   CrLeaderboard: undefined;
-  BsHome: undefined;
+  BsHome: { tag?: string } | undefined;
+  BsStats: { tag?: string } | undefined;
+  BsClub: { tag?: string } | undefined;
+  BsLeaderboard: undefined;
 };
 
 export type RouteName = keyof RootStackParamList;
@@ -43,6 +39,9 @@ export const ROUTE_PATHS: Record<RouteName, string> = {
   CrClan: 'cr/clan',
   CrLeaderboard: 'cr/leaderboard',
   CrHome: 'cr',
+  BsStats: 'bs/stats',
+  BsClub: 'bs/club',
+  BsLeaderboard: 'bs/leaderboard',
   BsHome: 'bs',
   Passport: 'passport',
   Today: '',
@@ -50,6 +49,6 @@ export const ROUTE_PATHS: Record<RouteName, string> = {
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }

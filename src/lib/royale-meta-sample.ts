@@ -2,31 +2,21 @@ import { getGameData } from '@/api/client';
 import { normalizeTag, record, rows, text, type ApiRecord } from '@/api/game-api';
 import { seasonIds } from './royale-ladders';
 
-/**
- * Collecting the battle logs the meta is computed from, on the device.
- *
- * There is no backend here -- `api/client.ts` fetches the proxy straight from
- * the phone -- so this is the whole pipeline: pick whose logs to read, read
- * them with a bounded number in flight, hand the battles to `aggregate`.
- *
- * It is deliberately explicit about its budget. A hundred requests is a real
- * cost on mobile data, so nothing here runs on mount; `CrDecks` starts it on a
- * press and caches the result for a week.
- */
 
-/** Requests in flight. Enough to be quick, few enough not to look like abuse. */
+
+
 const CONCURRENCY = 6;
 
-/** Battle logs to read. ~75% of the battles in them will be competitive. */
+
 export const DEFAULT_BUDGET = 100;
 
 export type SampleResult = {
   battles: ApiRecord[];
-  /** Logs that came back. */
+
   sampled: number;
-  /** Logs that failed or were empty. Shown, not swallowed. */
+
   failed: number;
-  /** Where the tags came from, for the "what did you measure" line. */
+
   seeds: { opponents: number; clanmates: number; topLadder: number };
   fetchedAt: string;
 };
@@ -54,17 +44,7 @@ async function json(request: Parameters<typeof getGameData>[0]): Promise<unknown
   }
 }
 
-/**
- * Tags of the players at the top of the ranked ladder.
- *
- * Reads the **previous** calendar month. The current season 404s until it
- * closes, and the season *list* endpoint now returns nothing but nulls, so
- * `seasonIds` reconstructs the months from the clock -- see its comment.
- *
- * Last month's leaderboard is the right sample regardless: a battle log is
- * always the last ~30 battles, so these players' *current* decks come back
- * however long ago they were ranked.
- */
+
 async function topLadderTags(limit: number, now: Date): Promise<string[]> {
   for (const season of seasonIds(undefined, now).slice(0, 3)) {
     const body = await json({ game: 'cr', resource: 'pathOfLegend', season, limit });
@@ -74,7 +54,7 @@ async function topLadderTags(limit: number, now: Date): Promise<string[]> {
   return [];
 }
 
-/** Runs `work` over `items`, at most `CONCURRENCY` at a time. */
+
 async function pooled<T>(
   items: T[],
   work: (item: T) => Promise<void>,
@@ -102,7 +82,7 @@ export async function sampleMeta({
 }: {
   tag: string;
   player: ApiRecord;
-  /** The player's own log, already fetched by the Decks screen. Free.  */
+
   ownBattles: ApiRecord[];
   budget?: number;
   signal?: AbortSignal;

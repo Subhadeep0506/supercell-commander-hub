@@ -11,7 +11,7 @@ import { Collapsible } from '@/components/ui/Collapsible';
 import { Meter } from '@/components/ui/Meter';
 import { Select, type SelectOption } from '@/components/ui/Select';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
-import { CrEmpty, CrownRecord, DerivedNote, Metric, MetricGrid, Section } from './CrBits';
+import { CrEmpty, CrownRecord, Metric, MetricGrid, Section } from './CrBits';
 import { CardGrid, useCardSheet } from './CrCards';
 
 /**
@@ -97,11 +97,14 @@ export function CrMeta({
 
         {!meta.running && !meta.snapshot ? (
           <View style={s.start}>
+            {/*
+              Kept, shortened. It is the only warning that the button below
+              fires ~100 requests and takes a while, which the reader is
+              entitled to know before pressing it.
+            */}
             <Text style={s.startBody}>
-              There is no meta endpoint, but every battle log carries both players' decks and who
-              won. This reads about {DEFAULT_BUDGET} of them — your recent opponents, your
-              clanmates and the top of the ranked ladder — and counts what wins. It takes a
-              moment, and the result is kept for a week.
+              Reads about {DEFAULT_BUDGET} battle logs and counts what wins. Takes a moment; kept
+              for a week.
             </Text>
             <Button
               accessibilityLabel="Find the current meta"
@@ -145,20 +148,20 @@ export function CrMeta({
             ) : (
               <CrEmpty
                 title="Nothing to rank yet"
-                body="The sampled logs held no competitive battles — only friendlies and party modes. Try again later, when the accounts sampled have played ranked."
+                body="The sampled logs held no competitive battles."
               />
             )}
 
-            <DerivedNote>
-              Counted from {meta.sampled} battle{meta.sampled === 1 ? '' : 's'} log
-              {meta.sampled === 1 ? '' : 's'} ({meta.seeds?.opponents ?? 0} recent opponents,{' '}
-              {meta.seeds?.clanmates ?? 0} clanmates, {meta.seeds?.topLadder ?? 0} from the ranked
-              ladder){meta.failed > 0 ? `, ${meta.failed} unreachable` : ''} —{' '}
-              {meta.snapshot.battles} competitive battles, {meta.snapshot.skipped} skipped as
-              friendlies or party modes. Ranked order blends how often a deck is played with the
-              lower bound of its win rate, so a deck seen a handful of times cannot top the list.
-              {meta.stale ? ' This sample is over a week old — press Refresh.' : ''}
-            </DerivedNote>
+            {/*
+              The sample size, as figures rather than the paragraph this used
+              to be. It still has to be on screen -- a ranking built from
+              eleven battles and one built from two thousand look identical
+              otherwise -- but the prose around it did not earn its space.
+            */}
+            <Text style={s.sample}>
+              Counted from {meta.sampled} logs · {meta.snapshot.battles} battles
+              {meta.stale ? ' · over a week old' : ''}
+            </Text>
           </>
         ) : null}
       </Section>
@@ -409,6 +412,7 @@ const build = (t: Theme) =>
   StyleSheet.create({
     start: { gap: 12 },
     startBody: { fontSize: 12, lineHeight: 19, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    sample: { marginTop: 10, fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
 
     progress: { gap: 10 },
     progressText: { fontFamily: t.fonts.display, fontSize: 13, color: t.foreground },

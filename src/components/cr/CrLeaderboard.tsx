@@ -59,7 +59,7 @@ export function CrLeaderboard() {
   const [side, setSide] = useState<Side>('players');
   return (
     <View>
-      <Tabs tabs={SIDES} value={side} onChange={setSide} />
+      <Tabs tone="cr" tabs={SIDES} value={side} onChange={setSide} />
       {side === 'players' ? <PlayerLadders /> : <ClanLadders />}
     </View>
   );
@@ -185,9 +185,6 @@ function PlayerLadders() {
             onChange={setSeason}
             accessibilityLabel="Choose a season"
           />
-          <Text style={s.note}>
-            Finished seasons only — the current season returns nothing until it closes.
-          </Text>
         </>
       )}
 
@@ -199,9 +196,6 @@ function PlayerLadders() {
             onChange={setOther}
             accessibilityLabel="Choose a ladder"
           />
-          <Text style={s.note}>
-            These ladders return rankings but no name, so they are listed by id.
-          </Text>
         </>
       )}
 
@@ -526,13 +520,6 @@ function ClanLadders() {
 
 const build = (t: Theme) =>
   StyleSheet.create({
-    note: {
-      fontFamily: t.fonts.sans,
-      fontSize: 10,
-      lineHeight: 16,
-      marginBottom: 10,
-      color: t.mutedForeground,
-    },
     locationRow: { flexDirection: 'row', alignItems: 'stretch', gap: 8, marginBottom: 8 },
     locationGrow: { flex: 1, minWidth: 0 },
     location: {

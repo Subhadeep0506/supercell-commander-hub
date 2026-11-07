@@ -1,10 +1,9 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
-import { themes, type Theme } from './tokens';
+import { themes, type GameTone, type Theme } from './tokens';
 import { registerFonts } from './fonts';
-import { useHub } from '@/state/HubProvider';
 
-export type { Theme };
+export type { GameTone, Theme };
 
 const ThemeCtx = createContext<Theme>(themes.light);
 
@@ -14,23 +13,26 @@ const ThemeCtx = createContext<Theme>(themes.light);
 registerFonts();
 
 /**
- * Mirrors the reference app's `[data-game]` skins and its
- * `@media (prefers-color-scheme: dark)` block.
+ * Mirrors the reference app's `@media (prefers-color-scheme: dark)` block.
  *
- * The reference swaps skins by setting `document.documentElement.dataset.game`
- * and letting CSS cascade; there are no custom properties here, so the game is
- * read from the hub and the whole token set is swapped instead.
+ * **Deliberately independent of which game is open.** This used to read
+ * `useHub().game` and hand back a third, all-blue Clash Royale palette. That
+ * replaced the entire theme object on every switch, which invalidated the
+ * `useMemo(() => build(theme), [theme])` every component in the app holds and
+ * re-ran `StyleSheet.create` in all of them -- the lag on the game picker, and
+ * the reason `TopBar` defers `setGame` to the next frame to get the highlighter
+ * moving first.
  *
- * Clash Royale ignores the system colour scheme deliberately -- its block in
- * styles.css has no dark counterpart, so it is one palette in both. Brawl
- * Stars slots in the same way when those screens land.
+ * Royale now wears the same neutrals as everything else and keeps its identity
+ * through `theme.royale`, so this object is referentially stable across a
+ * switch and nothing has to repaint for it. Brawl Stars slots in the same way
+ * when those screens land.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const scheme = useColorScheme();
-  const { game } = useHub();
   const theme = useMemo(
-    () => (game === 'cr' ? themes.cr : scheme === 'dark' ? themes.dark : themes.light),
-    [game, scheme],
+    () => (scheme === 'dark' ? themes.dark : themes.light),
+    [scheme],
   );
   return <ThemeCtx.Provider value={theme}>{children}</ThemeCtx.Provider>;
 }

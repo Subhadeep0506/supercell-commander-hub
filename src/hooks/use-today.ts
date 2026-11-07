@@ -10,32 +10,18 @@ import {
   type TodayEvent,
   type TodayNote,
 } from '@/lib/today';
+import { normalizeEvents } from '@/lib/bs-events';
 import { useHub } from '@/state/HubProvider';
 import { useLeagueWars } from './use-league-wars';
 
-/**
- * Everything the Today screen needs, fetched and reduced to an event list.
- *
- * Nothing here renders and nothing here decides what Today *means* -- that is
- * `buildToday`, which is pure and tested. This hook's only job is getting the
- * records, and doing it without turning a launch screen into a request storm.
- *
- * Two things keep the cost down:
- *
- * - **One war per Clan War League round, not all 28.** `sampleWarTags` takes
- *   the first tag of each drawn round; the round's four wars share a state and
- *   a pair of timestamps, so the sample is exact rather than approximate.
- * - **React Query's 60s `staleTime`.** The player and clan records here are the
- *   same query keys the Home and Clan screens use, so arriving at Today and
- *   then tapping through costs one fetch, not two.
- */
+
 export function useToday(): {
   events: TodayEvent[];
   notes: TodayNote[];
-  /** Running now, but with no end time to count to. */
+
   live: LiveEvent[];
-  accounts: { coc?: ApiRecord; cr?: ApiRecord };
-  /** True only while nothing has arrived yet -- a refetch must not blank the screen. */
+  accounts: { coc?: ApiRecord; cr?: ApiRecord; bs?: ApiRecord };
+
   loading: boolean;
   /**
    * The same, for the "Running now" list.
@@ -45,14 +31,15 @@ export function useToday(): {
    * a skeleton over the whole board for a visitor who has saved nothing.
    */
   loadingLive: boolean;
-  /** No account saved for any game: the screen has nothing to resolve from. */
+
   empty: boolean;
 } {
   const { passport, ready } = useHub();
   const cocTag = passport.coc;
   const crTag = passport.cr;
+  const bsTag = passport.bs;
 
-  // --- the two player records, which also carry the clan tags -------------
+  // --- the three player records; the first two also carry the clan tags ---
   const cocPlayer = useQuery({
     ...gameQuery({ game: 'coc', resource: 'player', tag: cocTag }),
     enabled: ready && Boolean(cocTag),
@@ -61,9 +48,21 @@ export function useToday(): {
     ...gameQuery({ game: 'cr', resource: 'player', tag: crTag }),
     enabled: ready && Boolean(crTag),
   });
+  /*
+   * Brawl Stars contributes no countdown of its own from the player record --
+   * its timeline entries all come from the global rotation below. This is
+   * fetched purely so the account appears in "Your accounts" alongside the
+   * other two, and it shares the Home screen's query key, so arriving at
+   * Today and tapping through costs one request rather than two.
+   */
+  const bsPlayer = useQuery({
+    ...gameQuery({ game: 'bs', resource: 'player', tag: bsTag }),
+    enabled: ready && Boolean(bsTag),
+  });
 
   const cocRecord = parsed(cocPlayer.data);
   const crRecord = parsed(crPlayer.data);
+  const bsRecord = parsed(bsPlayer.data);
   const cocClan = clanTag(cocRecord);
   const crClan = clanTag(crRecord);
 
@@ -107,6 +106,21 @@ export function useToday(): {
     enabled: ready,
   });
 
+  /*
+   * Brawl Stars' rotation. Also global and also account-free, but unlike the
+   * Royale list every slot carries a real start and end -- so these join the
+   * timeline rather than the "running now" section.
+   *
+   * Ten minutes of staleTime: a 24-hour slot does not need re-reading on the
+   * 60s default, and the Stats screen shares this exact query key for its
+   * "live now" map markers.
+   */
+  const bsEvents = useQuery({
+    ...gameQuery({ game: 'bs', resource: 'events' }),
+    enabled: ready,
+    staleTime: 600000,
+  });
+
   const { events, notes, live } = useMemo(
     () =>
       buildToday({
@@ -117,6 +131,7 @@ export function useToday(): {
         tournaments: tournamentItems(parsedAny(tournaments.data)),
         riverRace: parsed(riverRace.data),
         crEvents: rows(parsedAny(crEvents.data)),
+        bsEvents: normalizeEvents(parsedAny(bsEvents.data)),
         hasCoc: Boolean(cocTag),
         hasCr: Boolean(crTag),
       }),
@@ -131,6 +146,7 @@ export function useToday(): {
       tournaments.data,
       riverRace.data,
       crEvents.data,
+      bsEvents.data,
       cocTag,
       crTag,
     ],
@@ -147,10 +163,12 @@ export function useToday(): {
     events,
     notes,
     live,
-    accounts: { coc: cocRecord, cr: crRecord },
+    accounts: { coc: cocRecord, cr: crRecord, bs: bsRecord },
     loading,
     loadingLive: !ready || (!crEvents.data && crEvents.isFetching),
-    empty: ready && !cocTag && !crTag,
+    // All three now, not two: saving only a Brawl Stars tag used to leave the
+    // board reporting "no accounts yet" above a timeline full of its rotation.
+    empty: ready && !cocTag && !crTag && !bsTag,
   };
 }
 
@@ -163,7 +181,7 @@ function parsed(result: GameResult | undefined): ApiRecord | undefined {
   }
 }
 
-/** Same, but keeps a top-level array -- `globaltournaments` may return one. */
+
 function parsedAny(result: GameResult | undefined): unknown {
   if (!result?.ok) return undefined;
   try {

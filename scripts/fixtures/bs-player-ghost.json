@@ -1,0 +1,54 @@
+{
+  "tag": "#2V09YC92LY",
+  "name": "@talebrawl",
+  "icon": {
+    "id": 28000000
+  },
+  "trophies": 0,
+  "highestTrophies": 0,
+  "totalPrestigeLevel": 0,
+  "fame": 0,
+  "fameTierName": "GLOBAL FAME I",
+  "expLevel": 1,
+  "expPoints": 0,
+  "isQualifiedFromChampionshipChallenge": false,
+  "3vs3Victories": 0,
+  "soloVictories": 0,
+  "duoVictories": 0,
+  "bestRoboRumbleTime": 0,
+  "bestTimeAsBigBrawler": 0,
+  "rankedSeasonId": 0,
+  "rankedRank": 0,
+  "rankedElo": 0,
+  "highestSeasonRankedRank": 0,
+  "highestSeasonRankedElo": 0,
+  "highestAllTimeRankedRank": 0,
+  "highestAllTimeRankedElo": 0,
+  "club": {},
+  "brawlers": [
+    {
+      "id": 16000000,
+      "name": "SHELLY",
+      "power": 1,
+      "rank": 1,
+      "trophies": 0,
+      "highestTrophies": 0,
+      "prestigeLevel": 0,
+      "currentWinStreak": 0,
+      "maxWinStreak": 0,
+      "skin": {
+        "id": 29000000,
+        "name": "SHELLY"
+      },
+      "gadgets": [],
+      "gears": [],
+      "starPowers": [],
+      "hyperCharges": [],
+      "buffies": {
+        "gadget": false,
+        "starPower": false,
+        "hyperCharge": false
+      }
+    }
+  ]
+}

@@ -37,27 +37,10 @@ const indexDir = resolve(
   args.find((a) => a.startsWith('--index='))?.slice('--index='.length) ?? '..',
 );
 
-/**
- * Width requested from the CDN.
- *
- * Every url takes `?width=N` and the originals run to 8000px, so asking for
- * the size we actually want keeps the download from being gigabytes. 256 is
- * the largest any of this art renders at (3x on a 80px tile) and build-assets
- * downsamples from there.
- */
+
 const WIDTH = 256;
 
-/**
- * Hand-picked single images: fan-kit title -> pack path.
- *
- * Keyed by title because that is the only stable handle the index gives -- the
- * numeric ids are internal to the fan kit and the CDN urls are opaque hashes.
- *
- * Several of these are emotes or logos rather than purpose-built icons. That
- * is deliberate and is the same trade assets-req.md already records: a
- * right-feeling picture at 24px beats a hole in the row, and the fan kit has
- * no icon for "repair points" or "TV Royale" to be had.
- */
+
 const SINGLES = [
   // --- cr/icons -------------------------------------------------------------
   // The game switcher in the header. Clash of Clans already ships
@@ -92,28 +75,26 @@ const SINGLES = [
   { title: 'icon_League_Badge_Ultimate_Champion', to: 'cr/pol/pol10.png' },
 ];
 
-/**
- * A padlock for locked cards, which the kit does not have.
- *
- * Searching both fan-kit indexes for /lock/i turns up `Banner_LockStockAndBarrel`
- * and a furnace emote -- a banner and an animation, neither of which reads as
- * "you have not found this card". The collection tile therefore prints the word
- * LOCKED instead. Add a title here if one ever ships and the tile picks it up;
- * tracked in assets-req.md.
- */
+
+const BS_SINGLES = [
+  // Fame. The kit files these per tier (icon_fame_1_1 .. icon_fame_meteoric);
+  // `fameTierName` cannot be mapped onto them from two observed samples, so
+  // the first is taken as the generic drop rather than guessing a tier ladder.
+  { title: 'icon_fame_1_1', to: 'bs/icons/fame.png' },
+  { title: 'icon_xp', to: 'bs/icons/xp.png' },
+  // Power points: the currency that raises a brawler's power level, so it is
+  // the honest picture for a "power 11" count.
+  { title: 'icon_powerpoints_stack', to: 'bs/icons/power.png' },
+  // The flat total-prestige mark. Preferred over prestiges/tiered from
+  // Brawlify, whose art has the tier number drawn into it -- wrong on a tile
+  // whose own value is the number.
+  { title: 'icon_total_prestige', to: 'bs/icons/prestige.png' },
+];
+
+
 const UNSOURCED = [{ want: 'padlock icon', to: 'cr/icons/lock.png' }];
 
-/**
- * Player badges: every `badge_<Family>_lv<N>` in the kit.
- *
- * 1,192 images, 129 families. The API returns a badge `name` and `level` and
- * an `iconUrls.large` on api-assets.clashroyale.com -- which 403s on this
- * network, and which is a cold network request on every other one. Bundling
- * the whole set is ~4MB at 128px and makes the badge list render offline.
- *
- * The filename keeps the family and level separable (`xbow-lv5`) so
- * royale.ts can join an API badge to it without a generated map.
- */
+
 function playerBadges(assets) {
   const out = [];
   const seen = new Set();
@@ -129,7 +110,7 @@ function playerBadges(assets) {
   return out;
 }
 
-/** `MiniP.E.K.K.A` -> `minipekka`; `top_ranked_finishes` -> `toprankedfinishes`. */
+
 function slug(value) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
@@ -178,7 +159,7 @@ async function grab(asset, to) {
   }
 }
 
-/** Download with a small concurrency cap, to stay polite to the CDN. */
+
 async function grabAll(jobs, label) {
   if (!jobs.length) return;
   console.log(`${label}: ${jobs.length} image(s)`);
@@ -212,6 +193,25 @@ async function main() {
 
   if (!only || only === 'badges') {
     await grabAll(playerBadges(assets), 'Clash Royale player badges');
+  }
+
+  if (!only || only === 'bs-icons') {
+    // A second index: the stat icons live in the Brawl Stars kit, not Royale's.
+    const bsByTitle = new Map();
+    for (const asset of loadIndex('brawl-stars')) {
+      if (!bsByTitle.has(asset.title)) bsByTitle.set(asset.title, asset);
+    }
+    const bsJobs = [];
+    for (const single of BS_SINGLES) {
+      const asset = bsByTitle.get(single.title);
+      if (!asset) {
+        failed += 1;
+        console.log(`  FAIL ${single.title} -> not in the fan-kit index`);
+        continue;
+      }
+      bsJobs.push({ asset, to: single.to });
+    }
+    await grabAll(bsJobs, 'Brawl Stars stat icons');
   }
 
   console.log(`\n${downloaded} downloaded, ${skipped} already present, ${failed} failed.`);

@@ -49,6 +49,7 @@ export function ClashBook() {
   return (
     <View>
       <Tabs
+        tone="coc"
         value={village}
         onChange={(v) => {
           setVillage(v);

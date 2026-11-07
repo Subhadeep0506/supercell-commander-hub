@@ -4,6 +4,7 @@ import { Sheet } from '@/components/ui/Sheet';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 import { CocLayer, CocSheetTitle } from './CocLayers';
 import { CrLayer, CrSheetTitle } from './CrLayers';
+import { BsLayer, BsSheetTitle } from './BsLayers';
 import type { SheetEntry } from './DetailSheetProvider';
 
 /**
@@ -35,17 +36,36 @@ export function DetailSheet({
     <Sheet
       open
       variant="plain"
-      title={top.game === 'cr' ? <CrSheetTitle entry={top} /> : <CocSheetTitle entry={top} />}
+      title={<SheetTitle entry={top} />}
       onClose={onClose}
       onBack={stack.length > 1 ? onBack : undefined}
     >
       {stack.map((entry, i) => (
         <Layer key={`${entry.game}-${entry.kind}-${entry.tag}-${i}`} hidden={i !== stack.length - 1}>
-          {entry.game === 'cr' ? <CrLayer entry={entry} /> : <CocLayer entry={entry} />}
+          {entry.game === 'cr' ? (
+            <CrLayer entry={entry} />
+          ) : entry.game === 'bs' ? (
+            <BsLayer entry={entry} />
+          ) : (
+            <CocLayer entry={entry} />
+          )}
         </Layer>
       ))}
     </Sheet>
   );
+}
+
+/**
+ * The header, dispatched on game the same way the layers are.
+ *
+ * Lifted out of the `title` prop once there were three of them: a nested
+ * ternary inline is where the Brawl Stars case would have been quietly missed
+ * and every club header would have read as a Clash of Clans clan.
+ */
+function SheetTitle({ entry }: { entry: SheetEntry }) {
+  if (entry.game === 'cr') return <CrSheetTitle entry={entry} />;
+  if (entry.game === 'bs') return <BsSheetTitle entry={entry} />;
+  return <CocSheetTitle entry={entry} />;
 }
 
 /** A stack layer. `display: none` keeps it mounted but out of the way. */

@@ -61,6 +61,7 @@ export function CocBuilderScreen() {
       </View>
 
       <Tabs
+        tone="coc"
         value={tab}
         onChange={setTab}
         tabs={[

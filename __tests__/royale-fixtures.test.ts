@@ -7,16 +7,7 @@ import { copyProgress } from '@/lib/royale-upgrades';
 import { arenaArt, arenaEvolutionArt } from '@/assets/arena';
 import { groupLadders, seasonIds } from '@/lib/royale-ladders';
 
-/**
- * The same modules, run over REAL captured responses.
- *
- * royale.test.ts uses hand-built records to pin behaviour; this pins the
- * behaviour against shapes Supercell actually returned. Regenerate with
- * `bun run build:cr-fixtures` -- if an assertion here starts failing after a
- * recapture, the API changed, not us.
- *
- * Captured 2026-11-04 from #L8YV8P2CL / #QC8LCPUU.
- */
+
 
 import playerJson from '../scripts/fixtures/cr-player.json';
 import catalogJson from '../scripts/fixtures/cr-cards.json';
