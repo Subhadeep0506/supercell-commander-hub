@@ -1,27 +1,3 @@
-// Downloads artwork from Supercell's fan kit into assets/packs/, driven by the
-// fan-kit index JSONs.
-//
-//   node --use-system-ca scripts/fetch-fankit.mjs [--force] [--only=<group>]
-//   bun run fetch:fankit
-//
-// Why this exists alongside fetch-cr-assets.mjs: that script pulls from
-// RoyaleAPI/cr-api-assets, which was last published 2026-03-05 and has no
-// player badges at all. The fan kit has 1,192 of them -- every badge family at
-// every level -- plus the Ultimate Champion league badge and a handful of UI
-// icons the hand-sourced set was missing.
-//
-// It does *not* scrape fankit.supercell.com, which is blocked on this network
-// (Zscaler, "Online and Other Games"). It reads a pre-fetched index of the fan
-// kit -- `<game>-fankit-images.json`, a list of {id, title, url, width,
-// height} -- and downloads from media.ffycdn.net, the CDN those urls point at,
-// which is reachable.
-//
-// The index lives outside this repo by default (it is ~7MB across three
-// games). Point --index at wherever it sits; the default is the parent
-// directory, which is where it was dropped.
-//
-// --use-system-ca is required: this machine does TLS inspection and Node
-// otherwise rejects every HTTPS call.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,11 +18,6 @@ const WIDTH = 256;
 
 
 const SINGLES = [
-  // --- cr/icons -------------------------------------------------------------
-  // The game switcher in the header. Clash of Clans already ships
-  // coc/main/game-icon.png and Brawl Stars bs/main/bsicon.png; Royale was the
-  // only one of the three with no square icon anywhere in the repo, and a
-  // wordmark cannot sit in a 34px tab beside two app icons.
   { title: 'Clash_Royale_App_Icon', to: 'cr/icons/appicon.png' },
   // Repair points, River Race and the race log. The kit has no UI hammer; the
   // Hog Rider emote is a clean golden hammer once trimmed out of its frame.
@@ -73,6 +44,9 @@ const SINGLES = [
   // League 10. The other nine were hand-sourced; this completes the set, so
   // Ultimate Champion no longer falls back to the older trophy-road art.
   { title: 'icon_League_Badge_Ultimate_Champion', to: 'cr/pol/pol10.png' },
+  { title: 'Chest_TowerTroops_Closed', to: 'cr/chests/chest-towertroop.png' },
+  { title: 'Chest_Champion_Chest', to: 'cr/chests/chest-champion.png' },
+  { title: 'Chest_Level_Up_Chest', to: 'cr/chests/chest-levelup.png' },
 ];
 
 
@@ -89,6 +63,21 @@ const BS_SINGLES = [
   // Brawlify, whose art has the tier number drawn into it -- wrong on a tile
   // whose own value is the number.
   { title: 'icon_total_prestige', to: 'bs/icons/prestige.png' },
+];
+
+const COC_SINGLES = [
+  { title: 'Barbarian_King_1', to: 'coc/clash-book/home_barbarian-king.png', width: 512 },
+  // _3, not _1 or _2: both of those are posed on a grass-and-dirt platform,
+  // which survives the alpha trim and leaves a lump of scenery under her in a
+  // 62px tile. _3 is the same figure floating free, like the other four.
+  { title: 'Archer_Queen_3', to: 'coc/clash-book/home_archer-queen.png', width: 512 },
+  { title: 'Grand_Warden_1', to: 'coc/clash-book/home_grand-warden.png', width: 512 },
+  { title: 'Royal_Champion_1', to: 'coc/clash-book/home_royal-champion.png', width: 512 },
+  {
+    title: 'Hero_Minion_Prince_01_NoShadow',
+    to: 'coc/clash-book/home_minion-prince.png',
+    width: 512,
+  },
 ];
 
 
@@ -110,7 +99,7 @@ function playerBadges(assets) {
   return out;
 }
 
-
+/** `MiniP.E.K.K.A` -> `minipekka`; `top_ranked_finishes` -> `toprankedfinishes`. */
 function slug(value) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
@@ -132,7 +121,7 @@ let downloaded = 0;
 let skipped = 0;
 let failed = 0;
 
-async function grab(asset, to) {
+async function grab(asset, to, width = WIDTH) {
   const target = resolve(PACKS, to);
   if (!force && existsSync(target)) {
     skipped += 1;
@@ -142,8 +131,8 @@ async function grab(asset, to) {
   // Ask the CDN to resize. `resized_url` is a template with a {width}
   // placeholder; the plain url takes the same query parameter.
   const url = asset.resized_url
-    ? asset.resized_url.replace('{width}', String(WIDTH))
-    : `${asset.url}?width=${WIDTH}`;
+    ? asset.resized_url.replace('{width}', String(width))
+    : `${asset.url}?width=${width}`;
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(30000) });
     if (!response.ok) {
@@ -159,14 +148,14 @@ async function grab(asset, to) {
   }
 }
 
-
+/** Download with a small concurrency cap, to stay polite to the CDN. */
 async function grabAll(jobs, label) {
   if (!jobs.length) return;
   console.log(`${label}: ${jobs.length} image(s)`);
   const queue = [...jobs];
   const workers = Array.from({ length: 8 }, async () => {
     for (let job = queue.shift(); job; job = queue.shift()) {
-      await grab(job.asset, job.to);
+      await grab(job.asset, job.to, job.width);
     }
   });
   await Promise.all(workers);
@@ -193,6 +182,25 @@ async function main() {
 
   if (!only || only === 'badges') {
     await grabAll(playerBadges(assets), 'Clash Royale player badges');
+  }
+
+  if (!only || only === 'coc-heroes') {
+    // A third index: the heroes live in the Clash of Clans kit.
+    const cocByTitle = new Map();
+    for (const asset of loadIndex('clash-of-clans')) {
+      if (!cocByTitle.has(asset.title)) cocByTitle.set(asset.title, asset);
+    }
+    const cocJobs = [];
+    for (const single of COC_SINGLES) {
+      const asset = cocByTitle.get(single.title);
+      if (!asset) {
+        failed += 1;
+        console.log(`  FAIL ${single.title} -> not in the fan-kit index`);
+        continue;
+      }
+      cocJobs.push({ asset, to: single.to, width: single.width });
+    }
+    await grabAll(cocJobs, 'Clash of Clans heroes');
   }
 
   if (!only || only === 'bs-icons') {
