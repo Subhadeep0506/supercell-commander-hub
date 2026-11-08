@@ -14,7 +14,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useIsFetching } from '@tanstack/react-query';
 import { GAME_ICONS } from '@/assets/art';
 import { Spinner } from '@/components/ui/Shimmer';
-import { useRefresh } from '@/hooks/use-refresh';
 import { gameFromRoute } from '@/lib/game-navigation';
 import { useHub } from '@/state/HubProvider';
 import type { Game } from '@/api/game-api';
@@ -49,7 +48,6 @@ export function TopBar() {
   const { game, setGame } = useHub();
   const active = gameFromRoute(useCurrentRouteName(), game);
   const fetching = useIsFetching();
-  const { refreshing, onRefresh } = useRefresh();
   const s = useMemo(() => build(theme), [theme]);
 
   /*
@@ -129,32 +127,12 @@ export function TopBar() {
           {fetching > 0 ? <Spinner style={s.busy} /> : null}
           <View style={s.links}>
             {/*
-              A refresh that cannot silently fail.
-
-              The pull gesture is the primary way to do this, but a gesture is
-              invisible: when it stopped working on device there was nothing on
-              screen to try instead, and no way to tell a broken gesture from a
-              broken refetch. This is also the only one of the two that a mouse
-              can reach, which makes the behaviour testable in the browser.
-
-              It needs no spinner of its own -- the one beside the title above
-              is driven by useIsFetching() and already covers every request the
-              app makes, including this one.
+              No refresh button here any more. It existed only as a fallback
+              while pull-to-refresh was broken on device; the gesture works
+              now, so the bar goes back to two links. The spinner beside the
+              title above still reports that a refresh is running -- it is
+              driven by useIsFetching() and covers every request the app makes.
             */}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Refresh"
-              disabled={refreshing}
-              onPress={onRefresh}
-              // The glyph is one narrow character, so its own box is about
-              // 10x14 -- a quarter of the 48dp minimum in each direction, and
-              // unmissably small on a phone. "Today" and "Passport" get away
-              // with no padding because a word is wide; this does not.
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              style={s.refresh}
-            >
-              <Text style={[s.refreshGlyph, refreshing && s.linkBusy]}>↻</Text>
-            </Pressable>
             <Pressable onPress={() => navigate('Today')}>
               <Text style={s.link}>Today</Text>
             </Pressable>
@@ -244,11 +222,6 @@ const build = (t: Theme) =>
     busy: { marginLeft: 8, marginRight: 'auto', paddingVertical: 0 },
     links: { flexDirection: 'row', gap: 16 },
     link: { fontFamily: t.fonts.sans, fontSize: 12, color: t.foreground },
-    linkBusy: { opacity: 0.4 },
-    refresh: { paddingHorizontal: 4, justifyContent: 'center' },
-    // Larger than the word links beside it: a single glyph needs the size to
-    // read as a control rather than as punctuation.
-    refreshGlyph: { fontFamily: t.fonts.sans, fontSize: 19, lineHeight: 22, color: t.foreground },
 
     games: { flexDirection: 'row', height: TAB_HEIGHT, marginBottom: 8 },
     gameTab: { flex: 1, minWidth: 0, alignItems: 'center', justifyContent: 'center' },

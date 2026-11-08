@@ -3,10 +3,12 @@ import {
   battleTypeLabel,
   byBrawler,
   byMode,
+  isRankedType,
   modeLabel,
   normalizeBattle,
   normalizeBattles,
   parseBattleTime,
+  rankedTierName,
   summarize,
 } from '@/lib/bs-battles';
 import { brawlerMeta, collection, collectionSummary, rankBand, rankProgress } from '@/lib/bs-brawlers';
@@ -153,6 +155,95 @@ describe('battle type', () => {
     expect(battles[0]!.typeLabel).toBe('Trophies');
     expect(battles[22]!.type).toBe('soloRanked');
     expect(battles[22]!.typeLabel).toBe('Ranked');
+  });
+});
+
+/*
+ * ---- trap 5: a Ranked match has no trophies -----------------------------
+ *
+ * The service sends a trophy count and a Ranked tier under the same key,
+ * `brawler.trophies`, and only the battle type says which. The capture makes
+ * the difference obvious once you look: the trophy ladder carries 1049-1508,
+ * the Ranked match carries 7-8. Rendered as trophies, a power-11 brawler owned
+ * "8" of them; it is Gold II.
+ */
+describe('ranked tiers', () => {
+  it('separates the competitive queue from the trophy ladder', () => {
+    expect(isRankedType('soloRanked')).toBe(true);
+    expect(isRankedType('teamRanked')).toBe(true);
+    // The one that inverts the whole feature if it goes wrong.
+    expect(isRankedType('ranked')).toBe(false);
+  });
+
+  it('names the tiers the captures attest', () => {
+    // rankedRank/rankedRankName pairs read off the two player dumps.
+    expect(rankedTierName(1)).toBe('Bronze I');
+    expect(rankedTierName(4)).toBe('Silver I');
+    expect(rankedTierName(7)).toBe('Gold I');
+    expect(rankedTierName(8)).toBe('Gold II');
+  });
+
+  it('keeps the three-step families aligned', () => {
+    expect(rankedTierName(3)).toBe('Bronze III');
+    expect(rankedTierName(6)).toBe('Silver III');
+    expect(rankedTierName(9)).toBe('Gold III');
+    expect(rankedTierName(10)).toBe('Diamond I');
+    expect(rankedTierName(18)).toBe('Legendary III');
+  });
+
+  it('returns nothing rather than a wrong name off the end of the table', () => {
+    expect(rankedTierName(0)).toBeUndefined(); // unranked, per the captures
+    expect(rankedTierName(-1)).toBeUndefined();
+    expect(rankedTierName(99)).toBeUndefined();
+    expect(rankedTierName(undefined)).toBeUndefined();
+    expect(rankedTierName(1.5)).toBeUndefined();
+  });
+
+  it('every tier it names has a badge to draw', () => {
+    for (let rank = 1; rank <= 20; rank++) {
+      const name = rankedTierName(rank);
+      if (name) expect(rankArt(name)).toBeDefined();
+    }
+  });
+
+  it('reads a Ranked battle number as a tier, never as trophies', () => {
+    const ranked = battles[22]!;
+    expect(ranked.type).toBe('soloRanked');
+    const all = ranked.teams.flat();
+    expect(all).toHaveLength(6);
+    for (const p of all) {
+      expect(p.trophies).toBeUndefined();
+      expect(p.rankedRank).toBeDefined();
+    }
+    // 7 and 8 in the capture -- Gold I and Gold II.
+    expect(rankedTierName(all[0]!.rankedRank)).toBe('Gold II');
+  });
+
+  it('still reads the trophy ladder as trophies', () => {
+    const ladder = battles[0]!;
+    expect(ladder.type).toBe('ranked');
+    for (const p of ladder.teams.flat()) {
+      expect(p.rankedRank).toBeUndefined();
+      expect(p.trophies).toBeDefined();
+    }
+    // Four figures, which is what a trophy count looks like.
+    expect(ladder.teams.flat()[0]!.trophies).toBe(1049);
+  });
+
+  it('treats every team alike, not just the first', () => {
+    /*
+     * Guards `rows(team).map(participant)`. Array.map hands the callback the
+     * index as its second argument, which would arrive as the `ranked` flag --
+     * false for team 0 and true for every team after it. The screen would show
+     * one team in trophies and the other in tiers, which looks plausible
+     * enough to survive a glance.
+     */
+    const ranked = battles[22]!;
+    expect(ranked.teams).toHaveLength(2);
+    for (const team of ranked.teams) {
+      expect(team.length).toBeGreaterThan(0);
+      for (const p of team) expect(p.rankedRank).toBeDefined();
+    }
   });
 });
 

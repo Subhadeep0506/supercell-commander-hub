@@ -25,7 +25,16 @@ export type Participant = {
   brawlerId?: number;
   brawlerName: string;
   power?: number;
+  /**
+   * Trophy count. Set on trophy-ladder battles only.
+   *
+   * The service sends this and `rankedRank` under the same key, `trophies`,
+   * and which one it means depends on the battle type. They are split here so
+   * no renderer has to know that.
+   */
   trophies?: number;
+  /** Ranked tier, 1 = Bronze I. Set on `soloRanked`/`teamRanked` only. */
+  rankedRank?: number;
 };
 
 export type BattleShape = 'team' | 'showdown' | 'unknown';
@@ -105,19 +114,75 @@ export function modeLabel(mode: unknown): string {
 export function battleTypeLabel(type: unknown): string {
   if (typeof type !== 'string' || !type) return 'Battle';
   if (type === 'ranked') return 'Trophies';
-  if (type === 'soloRanked' || type === 'teamRanked') return 'Ranked';
+  if (isRankedType(type)) return 'Ranked';
   return modeLabel(type);
 }
 
-function participant(raw: ApiRecord): Participant {
+/**
+ * True for the competitive queue, false for the trophy ladder.
+ *
+ * **`ranked` is deliberately excluded.** That value is the trophy ladder -- see
+ * `battleTypeLabel` -- and treating it as Ranked mode would relabel every
+ * trophy count in the log as a rank tier. The whole fix inverts on this one
+ * predicate, which is why it is a named function with a test rather than an
+ * inline comparison.
+ */
+export function isRankedType(type: unknown): boolean {
+  return type === 'soloRanked' || type === 'teamRanked';
+}
+
+/** Bronze through Legendary run in threes; Masters and Pro are single steps. */
+const RANK_FAMILIES = ['Bronze', 'Silver', 'Gold', 'Diamond', 'Mythic', 'Legendary'];
+const RANK_NUMERALS = ['I', 'II', 'III'];
+
+/**
+ * Ranked tier for the number a battle log carries.
+ *
+ * In a Ranked battle `brawler.trophies` is not a trophy count -- it is the
+ * player's rank. A power-11 brawler reading "8" gave that away: as trophies it
+ * is absurd, as a tier it is Gold II.
+ *
+ * The ladder is read off the captures rather than guessed. Pairs of
+ * `rankedRank` and `rankedRankName` in the two player dumps give 1 = BRONZE I,
+ * 4 = SILVER I, 7 = GOLD I and 8 = GOLD II -- which fixes both the three-step
+ * family size and the offset.
+ *
+ * Returns undefined for 0, which the captures show for an unranked account,
+ * and for anything past the table. **Masters and Pro are inferred**, not
+ * attested: they follow the pattern and the eight bundled badge families, but
+ * no capture reaches them. An unknown value renders as nothing rather than as
+ * a confidently wrong name.
+ */
+export function rankedTierName(rank: unknown): string | undefined {
+  if (typeof rank !== 'number' || !Number.isInteger(rank) || rank < 1) return undefined;
+  const steps = RANK_FAMILIES.length * RANK_NUMERALS.length;
+  if (rank <= steps) {
+    const family = RANK_FAMILIES[Math.floor((rank - 1) / RANK_NUMERALS.length)]!;
+    return `${family} ${RANK_NUMERALS[(rank - 1) % RANK_NUMERALS.length]!}`;
+  }
+  if (rank === steps + 1) return 'Masters';
+  if (rank === steps + 2) return 'Pro';
+  return undefined;
+}
+
+/**
+ * One raw participant.
+ *
+ * `ranked` decides which field the brawler's number lands in, because the
+ * service reuses `trophies` for both a trophy count and a rank tier. Exactly
+ * one of `trophies` / `rankedRank` is ever set.
+ */
+function participant(raw: ApiRecord, ranked: boolean): Participant {
   const brawler = record(raw['brawler']);
+  const value = typeof brawler['trophies'] === 'number' ? brawler['trophies'] : undefined;
   return {
     tag: typeof raw['tag'] === 'string' ? raw['tag'] : '',
     name: typeof raw['name'] === 'string' ? raw['name'] : '',
     brawlerId: typeof brawler['id'] === 'number' ? brawler['id'] : undefined,
     brawlerName: typeof brawler['name'] === 'string' ? brawler['name'] : '',
     power: typeof brawler['power'] === 'number' ? brawler['power'] : undefined,
-    trophies: typeof brawler['trophies'] === 'number' ? brawler['trophies'] : undefined,
+    trophies: ranked ? undefined : value,
+    rankedRank: ranked ? value : undefined,
   };
 }
 
@@ -142,10 +207,22 @@ export function normalizeBattle(entry: ApiRecord, myTag: string): NormalBattle {
   const rawTeams = Array.isArray(battle['teams']) ? battle['teams'] : undefined;
   const rawPlayers = Array.isArray(battle['players']) ? battle['players'] : undefined;
 
+  // Decided once, here, because `participant` needs it and the raw type is not
+  // threaded any further down.
+  const ranked = isRankedType(battle['type']);
+
   let teams: Participant[][];
   let shape: BattleShape;
   if (rawTeams) {
-    teams = rawTeams.map((team) => rows(team).map(participant));
+    /*
+      `.map((p) => participant(p, ranked))`, never `.map(participant)`.
+
+      Array.map passes the index as the second argument, which would land in
+      `ranked` -- false for team 0 and true for every team after it. The bug
+      would show as one team rendering trophies and the other rendering tiers,
+      which is subtle enough to survive a glance at the screen.
+    */
+    teams = rawTeams.map((team) => rows(team).map((p) => participant(p, ranked)));
     // Duo showdown is also `teams`, but ten of them rather than two. The
     // discriminator that matters downstream is whether there is a `result`,
     // not how many teams there are.
@@ -153,7 +230,7 @@ export function normalizeBattle(entry: ApiRecord, myTag: string): NormalBattle {
   } else if (rawPlayers) {
     // Solo showdown: a flat list of 20. Wrapped one-per-team so every consumer
     // can iterate `teams` without caring which shape it came from.
-    teams = rows(rawPlayers).map((p) => [participant(p)]);
+    teams = rows(rawPlayers).map((p) => [participant(p, ranked)]);
     shape = 'showdown';
   } else {
     teams = [];
@@ -163,7 +240,7 @@ export function normalizeBattle(entry: ApiRecord, myTag: string): NormalBattle {
   const myTeamIndex = teams.findIndex((team) => team.some((p) => p.tag.toUpperCase() === tag));
   const me = myTeamIndex >= 0 ? teams[myTeamIndex]!.find((p) => p.tag.toUpperCase() === tag) : undefined;
   const star = record(battle['starPlayer']);
-  const starPlayer = typeof star['tag'] === 'string' ? participant(star) : undefined;
+  const starPlayer = typeof star['tag'] === 'string' ? participant(star, ranked) : undefined;
 
   const result = battle['result'];
   return {

@@ -4,12 +4,14 @@ import { Collapsible } from '@/components/ui/Collapsible';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { ChipRow } from '@/components/ui/ChipRow';
 import { useDetailSheet } from '@/components/detail/DetailSheetProvider';
-import { BS_STAT, brawlerArt, mapArt, modeArt } from '@/assets/brawl';
+import { BS_STAT, brawlerArt, mapArt, modeArt, rankArt } from '@/assets/brawl';
 import { COC_ART } from '@/assets/art';
 import { arenaImages } from '@/assets/registry.arena';
 import {
   byBrawler,
   byMode,
+  isRankedType,
+  rankedTierName,
   summarize,
   type Breakdown,
   type NormalBattle,
@@ -194,23 +196,28 @@ function BattleRow({ battle, live }: { battle: NormalBattle; live: boolean }) {
             <View style={s.battleScore}>
               <Text style={[s.battleOutcome, won && s.won, lost && s.lost]}>{outcome}</Text>
               {/*
-                An absent trophyChange is a dash, never a zero: two of the 23
-                captured battles simply do not report one, and "0" would claim
-                the match was worth nothing.
+                Nothing at all for a Ranked match. It moves your tier, not your
+                trophies, so there is no delta to be missing -- the dash below
+                read as absent data when in fact no such number exists. Each
+                player's tier is on their own row instead.
+
+                Everywhere else an absent trophyChange is still a dash, never a
+                zero: two of the 23 captured battles simply do not report one,
+                and "0" would claim the match was worth nothing. No trophy icon
+                on that dash either -- it means "the service did not say", and
+                an icon beside it would read as a figure.
               */}
-              {/*
-                No trophy icon on an absent delta: the dash means "the service
-                did not say", and an icon beside it would read as a figure.
-              */}
-              <IconValue
-                icon={battle.trophyChange === undefined ? undefined : BS_STAT.trophy}
-                size={12}
-                style={s.battleDelta}
-              >
-                {battle.trophyChange === undefined
-                  ? '—'
-                  : `${battle.trophyChange > 0 ? '+' : ''}${battle.trophyChange}`}
-              </IconValue>
+              {isRankedType(battle.type) ? null : (
+                <IconValue
+                  icon={battle.trophyChange === undefined ? undefined : BS_STAT.trophy}
+                  size={12}
+                  style={s.battleDelta}
+                >
+                  {battle.trophyChange === undefined
+                    ? '—'
+                    : `${battle.trophyChange > 0 ? '+' : ''}${battle.trophyChange}`}
+                </IconValue>
+              )}
             </View>
           </View>
         )}
@@ -335,7 +342,23 @@ function PlayerLine({
           {player.power !== undefined ? ` · P${player.power}` : ''}
         </Text>
       </View>
-      {player.trophies !== undefined ? (
+      {/*
+        Trophies or a Ranked tier, never both -- the service sends them under
+        the same key and only the battle type tells them apart, which
+        `normalize` has already resolved.
+
+        A rank behind a trophy cup was the bug this fixes: every player in a
+        Ranked match showed a cup and "1", which is Bronze I, not one trophy.
+      */}
+      {player.rankedRank !== undefined ? (
+        <IconValue
+          icon={rankArt(rankedTierName(player.rankedRank))}
+          size={14}
+          style={s.playerRank}
+        >
+          {rankedTierName(player.rankedRank) ?? '—'}
+        </IconValue>
+      ) : player.trophies !== undefined ? (
         <IconValue icon={BS_STAT.trophy} size={12} style={s.playerTrophies}>
           {num(player.trophies)}
         </IconValue>
@@ -413,4 +436,7 @@ const build = (t: Theme) =>
     playerNameMe: { color: t.brawl.heading },
     playerBrawlerName: { fontFamily: t.fonts.sans, fontSize: 9, color: t.mutedForeground },
     playerTrophies: { fontFamily: t.fonts.sans, fontSize: 10, color: t.mutedForeground },
+    // A tier is a word rather than a figure, so it takes the display face and
+    // the accent the other ranked badges on these screens use.
+    playerRank: { fontFamily: t.fonts.display, fontSize: 10, color: t.brawl.heading },
   });
