@@ -56,10 +56,24 @@ const PROXIED = {
   '/api/bs': 'https://bsproxy.royaleapi.dev',
 };
 
+/**
+ * Packages that ship a `.web.js` next to every native file.
+ *
+ * They must stay out of dependency pre-bundling. The optimizer resolves with
+ * its own rules rather than `resolve.extensions`, so it walks into the native
+ * file, follows a deep `react-native/Libraries/...` import -- which the
+ * `^react-native$` alias does not rewrite, because it is an exact match -- and
+ * dies on React Native's Flow syntax. Excluded, they go through the normal
+ * plugin pipeline, which picks the `.web.js` and never reaches the Flow source.
+ *
+ * Only the dev server is affected; `vite build` resolves these correctly
+ * either way, which is exactly what makes forgetting one so easy to miss.
+ */
 const RN_WEB_SPLIT_PACKAGES = [
   'react-native-safe-area-context',
   'react-native-screens',
   'react-native-svg',
+  'react-native-gesture-handler',
 ];
 
 export default defineConfig(({ mode }) => ({

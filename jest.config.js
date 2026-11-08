@@ -32,6 +32,8 @@ module.exports = {
         // jest-mock.js is ESM source, and the package's own entry point is
         // TypeScript under src/ -- neither survives being left untransformed.
         '@notifee',
+        // Ships ESM only (`lib/module`), same as the above.
+        'react-native-gesture-handler',
       ].join('|') +
       ')/)',
   ],

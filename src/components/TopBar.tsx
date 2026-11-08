@@ -146,8 +146,14 @@ export function TopBar() {
               accessibilityLabel="Refresh"
               disabled={refreshing}
               onPress={onRefresh}
+              // The glyph is one narrow character, so its own box is about
+              // 10x14 -- a quarter of the 48dp minimum in each direction, and
+              // unmissably small on a phone. "Today" and "Passport" get away
+              // with no padding because a word is wide; this does not.
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              style={s.refresh}
             >
-              <Text style={[s.link, refreshing && s.linkBusy]}>↻</Text>
+              <Text style={[s.refreshGlyph, refreshing && s.linkBusy]}>↻</Text>
             </Pressable>
             <Pressable onPress={() => navigate('Today')}>
               <Text style={s.link}>Today</Text>
@@ -239,6 +245,10 @@ const build = (t: Theme) =>
     links: { flexDirection: 'row', gap: 16 },
     link: { fontFamily: t.fonts.sans, fontSize: 12, color: t.foreground },
     linkBusy: { opacity: 0.4 },
+    refresh: { paddingHorizontal: 4, justifyContent: 'center' },
+    // Larger than the word links beside it: a single glyph needs the size to
+    // read as a control rather than as punctuation.
+    refreshGlyph: { fontFamily: t.fonts.sans, fontSize: 19, lineHeight: 22, color: t.foreground },
 
     games: { flexDirection: 'row', height: TAB_HEIGHT, marginBottom: 8 },
     gameTab: { flex: 1, minWidth: 0, alignItems: 'center', justifyContent: 'center' },

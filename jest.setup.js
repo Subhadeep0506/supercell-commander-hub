@@ -14,3 +14,8 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 // Note this is the *native* path, not notifications.web.ts: Jest resolves
 // plain `.ts` like Metro does, so tests exercise the same module the APK runs.
 jest.mock('@notifee/react-native', () => require('@notifee/react-native/jest-mock'));
+
+// Gesture handler is a native module too. Its own setup file installs the
+// mocks; without it anything rendering a GestureDetector -- which is every
+// screen, through the shells' PullToRefresh -- dies on a missing native module.
+require('react-native-gesture-handler/jestSetup');
