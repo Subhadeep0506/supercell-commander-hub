@@ -39,7 +39,7 @@ if (!existsSync(DATA)) {
 const catalog = JSON.parse(readFileSync(CATALOG, 'utf8'));
 const extra = [];
 
-
+/** `images.icon` for an upstream file, else the highest level's artwork. */
 function iconFrom(node) {
   if (node?.images?.icon) return node.images.icon;
   const withArt = (node?.levels ?? []).filter((r) => r.images);
@@ -47,7 +47,7 @@ function iconFrom(node) {
   return last ? (last.images.normal ?? Object.values(last.images)[0]) : undefined;
 }
 
-
+/** Reads the upstream file a catalog entry was generated from. */
 function upstream(sourcePath) {
   if (!sourcePath) return undefined;
   const p = join(DATA, String(sourcePath).split(/[\\/]/).join(sep));
@@ -62,7 +62,7 @@ function upstream(sourcePath) {
 // `baseItemId` so the book can link the two cards in both directions.
 // ---------------------------------------------------------------------------
 
-
+/** Nested sub-items, keyed by the field they hang off the parent on. */
 const NESTED = [
   { field: 'superTroop', category: 'super-troop' },
   { field: 'ruinKnight', category: 'troop' },

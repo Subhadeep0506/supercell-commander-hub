@@ -27,14 +27,33 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = resolve(root, 'src/data/bs');
 const OUT = resolve(OUT_DIR, 'brawler-meta.json');
 
-
+/**
+ * The game version whose tables we read.
+ *
+ * Pinned deliberately. The upstream repo carries ~200 version directories and
+ * adds one every few weeks; resolving "latest" at fetch time would mean two
+ * runs a week apart could generate different data with no edit in between,
+ * which is exactly the kind of drift a committed artefact exists to prevent.
+ *
+ * Bump by hand when new brawlers appear, then re-run and commit the result.
+ * The validation below fails loudly if the pinned version has gone stale --
+ * a brawler the live API knows about but these tables do not is a hard error,
+ * not a silently missing rarity badge.
+ */
 const BS_DATA_VERSION = '70.648';
 const BASE = `https://raw.githubusercontent.com/tailsjs/brawl-stars-assets/master/${BS_DATA_VERSION}/csv_logic/`;
 
-
+/** The newest capture, used to validate that every live brawler resolves. */
 const DUMP = resolve(root, '../brawl-stars-player-api-dump_v2.json');
 
-
+/**
+ * Supercell's CSV dialect.
+ *
+ * Two header rows -- column names, then column types -- before any data, and
+ * fields may be quoted with embedded commas and doubled quotes. `characters.csv`
+ * has 185 columns and `cards.csv` 1,551 rows, so a naive `split(',')` mangles
+ * both: brawler names and ability descriptions contain commas.
+ */
 function parseCsv(text) {
   const rows = [];
   let field = '';
@@ -86,10 +105,10 @@ async function csv(name) {
   return parseCsv(await response.text());
 }
 
-
+/** Column index by name, from the first header row. */
 const column = (rows, name) => rows[0].indexOf(name);
 
-
+/** Data rows only: skip both header rows, drop continuation rows. */
 const entities = (rows) => rows.slice(2).filter((r) => r[0] && r[0].trim());
 
 console.log(`Reading csv_logic tables from game version ${BS_DATA_VERSION}...`);
@@ -109,7 +128,7 @@ const charType = column(characters, 'Type');
 const charClass = column(characters, 'ClassArchetype');
 const heroes = entities(characters).filter((r) => r[charType] === 'Hero');
 
-
+/** brawler id -> { code, class }. `code` joins into cards.csv. */
 const byId = new Map(
   heroes.map((row, index) => [
     16000000 + index,

@@ -14,6 +14,7 @@ import { cardLevel, canEvolve, isEvolved, rarityOf, starLevel } from '@/lib/roya
 import { COPY_TABLE, copyProgress } from '@/lib/royale-upgrades';
 import { CR_ICONS, rarityTokenArt } from '@/assets/royale';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
+import { Meter } from '@/components/ui/Meter';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 import { Sheet } from '@/components/ui/Sheet';
 import { CrArt, CrIcon, num, url } from './CrBits';
@@ -334,18 +335,47 @@ export function CardDetail({ card }: { card: ApiRecord }) {
             <CrIcon name="cards" size={20} />
             <Text style={s.ladderHead}>Copies per upgrade</Text>
           </View>
+          {/*
+            Every row carries a bar, so the ladder reads as one column you can
+            scan rather than a list of numbers. Colour is the whole message:
+            green is behind you, gold is ahead. The row that used to be a
+            level label and a bare "✓" squeezed into 40px now gives the meter
+            its own line, which is the only width at which it is readable.
+          */}
           {steps.map((step) => {
             const here = step.from === apiLevel;
             const done = step.from < apiLevel;
+            // Only the current step has real progress to show. A future step
+            // is an empty gold track -- deliberately not a partial one, since
+            // copies do not carry over past the upgrade you are saving for.
+            const have = here ? Math.min(owned, step.needed ?? 0) : done ? (step.needed ?? 0) : 0;
             return (
               <View key={step.from} style={[s.step, here && s.stepHere]}>
-                <Text style={[s.stepLevel, here && s.stepLevelHere]}>
-                  {gameLevelLabel(step.from, rarity)} → {gameLevelLabel(step.from + 1, rarity)}
-                </Text>
-                <Text style={[s.stepCost, done && s.stepDone]}>
-                  {done ? '✓' : num(step.needed)}
-                  {here ? ` · you have ${num(owned)}` : ''}
-                </Text>
+                <View style={s.stepTop}>
+                  <Text style={[s.stepLevel, here && s.stepLevelHere]}>
+                    {gameLevelLabel(step.from, rarity)} → {gameLevelLabel(step.from + 1, rarity)}
+                  </Text>
+                  <Text style={[s.stepCost, done && s.stepDone, here && s.stepCostHere]}>
+                    {done
+                      ? '✓'
+                      : here
+                        ? `${num(owned)} / ${num(step.needed)}`
+                        : num(step.needed)}
+                  </Text>
+                </View>
+                {/*
+                  The rim carries the colour as well as the fill. A step you
+                  have not reached has nothing to fill, so with the default
+                  grey track an empty bar would read as "disabled" rather than
+                  as "ahead of you" -- the gold rim is what makes the whole
+                  column below your level one colour.
+                */}
+                <Meter
+                  value={have}
+                  max={step.needed ?? 1}
+                  fill={done ? theme.success : theme.gold}
+                  style={[s.stepMeter, done ? s.stepMeterDone : s.stepMeterPending]}
+                />
               </View>
             );
           })}
@@ -587,20 +617,29 @@ const build = (t: Theme) =>
     ladderHeadRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
     ladderHead: { fontFamily: t.fonts.display, fontSize: 13, color: t.foreground },
     step: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 10,
+      gap: 6,
       paddingVertical: 9,
       paddingHorizontal: 10,
       borderBottomWidth: 1,
       borderBottomColor: t.border,
     },
     stepHere: { backgroundColor: t.muted, borderRadius: t.radius.sm },
+    stepTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+    },
     stepLevel: { fontFamily: t.fonts.sans, fontSize: 11, color: t.mutedForeground },
     stepLevelHere: { color: t.accent },
     stepCost: { fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
+    stepCostHere: { color: t.gold },
     stepDone: { color: t.success },
+    // Slimmer than the default 10px bar: there is one per upgrade step and a
+    // level-14 card stacks thirteen of them.
+    stepMeter: { height: 6 },
+    stepMeterDone: { borderColor: t.success },
+    stepMeterPending: { borderColor: t.gold },
 
     note: {
       fontFamily: t.fonts.sans,

@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useIsFetching } from '@tanstack/react-query';
 import { GAME_ICONS } from '@/assets/art';
 import { Spinner } from '@/components/ui/Shimmer';
+import { useRefresh } from '@/hooks/use-refresh';
 import { gameFromRoute } from '@/lib/game-navigation';
 import { useHub } from '@/state/HubProvider';
 import type { Game } from '@/api/game-api';
@@ -48,6 +49,7 @@ export function TopBar() {
   const { game, setGame } = useHub();
   const active = gameFromRoute(useCurrentRouteName(), game);
   const fetching = useIsFetching();
+  const { refreshing, onRefresh } = useRefresh();
   const s = useMemo(() => build(theme), [theme]);
 
   /*
@@ -126,6 +128,27 @@ export function TopBar() {
           */}
           {fetching > 0 ? <Spinner style={s.busy} /> : null}
           <View style={s.links}>
+            {/*
+              A refresh that cannot silently fail.
+
+              The pull gesture is the primary way to do this, but a gesture is
+              invisible: when it stopped working on device there was nothing on
+              screen to try instead, and no way to tell a broken gesture from a
+              broken refetch. This is also the only one of the two that a mouse
+              can reach, which makes the behaviour testable in the browser.
+
+              It needs no spinner of its own -- the one beside the title above
+              is driven by useIsFetching() and already covers every request the
+              app makes, including this one.
+            */}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Refresh"
+              disabled={refreshing}
+              onPress={onRefresh}
+            >
+              <Text style={[s.link, refreshing && s.linkBusy]}>↻</Text>
+            </Pressable>
             <Pressable onPress={() => navigate('Today')}>
               <Text style={s.link}>Today</Text>
             </Pressable>
@@ -215,6 +238,7 @@ const build = (t: Theme) =>
     busy: { marginLeft: 8, marginRight: 'auto', paddingVertical: 0 },
     links: { flexDirection: 'row', gap: 16 },
     link: { fontFamily: t.fonts.sans, fontSize: 12, color: t.foreground },
+    linkBusy: { opacity: 0.4 },
 
     games: { flexDirection: 'row', height: TAB_HEIGHT, marginBottom: 8 },
     gameTab: { flex: 1, minWidth: 0, alignItems: 'center', justifyContent: 'center' },

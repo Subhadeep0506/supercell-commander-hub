@@ -16,9 +16,9 @@ export type BookItem = BookRecord & {
   description?: string;
   sourcePath: string;
   levels?: BookRecord[];
-
+  /** Set on a nested sub-item: the entry it is a variant of. */
   baseItemId?: string;
-
+  /** Crafted defenses upgrade per module instead of having a single level. */
   modules?: { name: string; controls?: string; upgrades: BookRecord[] }[];
 };
 
@@ -29,7 +29,7 @@ export type BookItem = BookRecord & {
  */
 export const BOOK_ITEMS = [...(catalog as BookItem[]), ...(catalogExtra as BookItem[])];
 
-
+/** Sub-item <-> base item, resolved both ways off `baseItemId`. */
 const RELATED = new Map<string, BookItem[]>();
 for (const item of BOOK_ITEMS) {
   if (!item.baseItemId) continue;
@@ -119,14 +119,27 @@ export function filterBook(village: string, category: string, query: string) {
   );
 }
 
-
+/**
+ * The upgrade track: one row per level, sorted.
+ *
+ * **Supercharge is a second track sharing the same numbering**, and eighteen
+ * buildings carry one. The Inferno Tower's `levels` holds fourteen rows for a
+ * twelve-level building: twelve ordinary levels, then Supercharge 1 and 2,
+ * each marked `supercharge: true` and gated at Town Hall 18.
+ *
+ * Mixing the two was visible: the card read "14 levels" directly under "Game
+ * max 12", and the last two stops of the level slider jumped back to a level 1
+ * tower with Town Hall 18 costs. They are separated here rather than
+ * de-duplicated -- the rows are real data, not copies, and `superchargeLevels`
+ * hands them back.
+ */
 export function bookLevels(item: BookItem) {
   return (item.levels ?? [])
     .filter((row) => typeof row['level'] === 'number' && row['supercharge'] !== true)
     .sort((a, b) => Number(a['level']) - Number(b['level']));
 }
 
-
+/** The Supercharge track, for the eighteen buildings that have one. */
 export function superchargeLevels(item: BookItem) {
   return (item.levels ?? [])
     .filter((row) => typeof row['level'] === 'number' && row['supercharge'] === true)

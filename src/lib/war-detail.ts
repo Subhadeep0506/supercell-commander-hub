@@ -11,7 +11,7 @@ export type AttackEvent = {
   stars: number;
   destruction: number;
   duration: number;
-
+  /** Running score after this attack. */
   usStars: number;
   themStars: number;
 };
@@ -87,7 +87,7 @@ export function warEvents(war: ApiRecord, clanTag?: string): AttackEvent[] {
   return events.reverse();
 }
 
-
+/** Members with attacks left, in map order, plus how many the clan still has. */
 export function stillToAttack(side: ApiRecord, per: number) {
   const members = [...rows(side['members'])].sort(
     (a, b) => (Number(a['mapPosition']) || 0) - (Number(b['mapPosition']) || 0),
@@ -97,7 +97,7 @@ export function stillToAttack(side: ApiRecord, per: number) {
   return { pending, left };
 }
 
-
+/** Attack counts by star result, index 0..3. */
 export function starHistogram(side: ApiRecord): number[] {
   const buckets = [0, 0, 0, 0];
   for (const m of rows(side['members'])) {
@@ -126,7 +126,7 @@ export function avgDestruction(side: ApiRecord): number {
   return all.reduce((n, a) => n + (Number(a['destructionPercentage']) || 0), 0) / all.length;
 }
 
-
+/** The attack a member made, and the best one made against them. */
 export function memberResult(member: ApiRecord) {
   const made = rows(member['attacks']);
   const taken = record(member['bestOpponentAttack']);
@@ -141,7 +141,7 @@ export function thOf(member: ApiRecord): number {
   return memberTh(member);
 }
 
-
+/** mm:ss, as the game shows attack length. */
 export function clockDuration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return '—';
   const m = Math.floor(seconds / 60);

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { PageTitle } from '@/components/PageTitle';
 import { DeleteConfirm, PassportList } from '@/components/PassportList';
 import { Button } from '@/components/ui/Button';
@@ -32,7 +32,8 @@ type Status = { kind: 'ok' | 'error'; message: string } | undefined;
 export function PassportScreen() {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
-  const { savePassport, updatePassport, deletePassport } = useHub();
+  const { savePassport, updatePassport, deletePassport, notify, setNotify, sound, setSound } =
+    useHub();
 
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [status, setStatus] = useState<Status>();
@@ -96,6 +97,33 @@ export function PassportScreen() {
         Saved on this device only. Tags are not verified account ownership.
       </Text>
 
+      <Text style={s.sectionTitle}>Settings</Text>
+      <Panel tone="plain" style={s.card}>
+        {/*
+          Both switches have lived in the hub context with no UI at all --
+          `sound` since the port. This is the first screen to expose either,
+          and Passport is the right home for them: it is already the
+          device-level page, so a settings screen for two rows would be a tab
+          nobody needs.
+        */}
+        <Toggle
+          label="Builder notifications"
+          hint="A heads-up one minute before an upgrade finishes. Needs a village import, and only knows what was running when you pasted it."
+          value={notify}
+          onChange={setNotify}
+          s={s}
+          theme={theme}
+        />
+        <Toggle
+          label="Button sounds"
+          hint="A short tone on taps."
+          value={sound}
+          onChange={setSound}
+          s={s}
+          theme={theme}
+        />
+      </Panel>
+
       <Sheet
         open={Boolean(editing)}
         variant="plain"
@@ -132,6 +160,45 @@ export function PassportScreen() {
         ) : null}
       </Sheet>
     </ScrollView>
+  );
+}
+
+/**
+ * A labelled switch with a line of explanation under it.
+ *
+ * Built on the platform `Switch` rather than a custom control: it is one of
+ * the few RN components react-native-web implements fully, so the browser gets
+ * a real toggle and the device gets the system one.
+ */
+function Toggle({
+  label,
+  hint,
+  value,
+  onChange,
+  s,
+  theme,
+}: {
+  label: string;
+  hint: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+  s: ReturnType<typeof build>;
+  theme: Theme;
+}) {
+  return (
+    <View style={s.toggle}>
+      <View style={s.toggleText}>
+        <Text style={s.toggleLabel}>{label}</Text>
+        <Text style={s.toggleHint}>{hint}</Text>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onChange}
+        accessibilityLabel={label}
+        trackColor={{ false: theme.border, true: theme.primary }}
+        thumbColor={theme.card}
+      />
+    </View>
   );
 }
 
@@ -269,6 +336,15 @@ const build = (t: Theme) =>
       color: t.primary,
     },
     note: { marginTop: 20, fontSize: 12, color: t.mutedForeground, fontFamily: t.fonts.sans },
+    toggle: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6 },
+    toggleText: { flex: 1, minWidth: 0, gap: 2 },
+    toggleLabel: { fontFamily: t.fonts.display, fontSize: 13, color: t.foreground },
+    toggleHint: {
+      fontFamily: t.fonts.sans,
+      fontSize: 11,
+      lineHeight: 16,
+      color: t.mutedForeground,
+    },
     sheet: { padding: 14, paddingBottom: 32, gap: 12 },
     sheetBtns: { flexDirection: 'row', gap: 8, marginTop: 4 },
   });

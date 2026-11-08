@@ -72,7 +72,7 @@ async function capture(file, request) {
   return json;
 }
 
-
+/** Fetch without writing a fixture -- used to choose what is worth capturing. */
 async function peek(request) {
   const parsed = gameRequestSchema.safeParse(request);
   if (!parsed.success) return null;

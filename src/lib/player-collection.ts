@@ -3,26 +3,40 @@ import { BOOK_ITEMS, bookLevels, type BookItem } from './clash-book';
 import { gatesFor, hallOnly, maxLevelAt, type Gates } from './village-plan';
 import type { VillageImport, VillageSide } from './village-export';
 
-
+/**
+ * The player's Clash Book, rather than the player's inventory.
+ *
+ * The Clash of Clans player endpoint returns **only what you own** -- an
+ * account with no Pet House comes back with no pet rows at all, which is why
+ * the profile had no Pets section rather than twelve locked ones. Everything
+ * here is driven by the catalog instead, and the API fills in the levels it
+ * knows.
+ *
+ * Nothing is estimated. Which levels a hall allows comes from
+ * `maxLevelAt`/`hallOnly`, which read the catalog's own requirement rows --
+ * including the fact that each gating building (Laboratory, Hero Hall, Pet
+ * House, Blacksmith) is itself Town-Hall-gated, so a Town Hall 13 account's
+ * Barbarian King really does cap at 75 and its pets really are locked.
+ */
 
 export type CollectionState =
-
+  /** A level came back from the service, or from an imported village. */
   | 'owned'
-
+  /** Not owned, and this hall can unlock it today. */
   | 'ready'
-
+  /** Not owned, and this hall cannot reach level 1. */
   | 'locked';
 
 export type CollectionEntry = {
   item: BookItem;
   name: string;
-
+  /** Undefined unless `state` is 'owned'. */
   level?: number;
-
+  /** How many are placed. Only an imported village knows this. */
   count?: number;
-
+  /** Highest level this hall allows. 0 means the item is not unlockable yet. */
   hallMax: number;
-
+  /** Highest level in the game. */
   gameMax: number;
   maxedForHall: boolean;
   maxedForGame: boolean;
@@ -32,7 +46,7 @@ export type CollectionEntry = {
 export type CollectionSection = {
   id: string;
   name: string;
-
+  /** A name the `Art` component resolves, as the old GROUPS table used. */
   icon: string;
   entries: CollectionEntry[];
   owned: number;
@@ -44,11 +58,20 @@ type SectionSpec = {
   name: string;
   icon: string;
   categories: readonly string[];
-
+  /** Which player field carries these. */
   from: 'heroes' | 'troops' | 'spells' | 'heroEquipment';
 };
 
-
+/**
+ * The army, in the order the game's own army screen uses.
+ *
+ * **Buildings, defenses, traps and walls are deliberately absent.** The player
+ * endpoint publishes no building levels at all, so they used to render as a
+ * grid of grey "?" tiles above a prompt to go and paste a village export --
+ * for your own account only, since nobody else's export exists. Every player
+ * now gets the same profile, and the Builder screen keeps the village grid
+ * that genuinely has the data.
+ */
 const HOME_SECTIONS: SectionSpec[] = [
   { id: 'heroes', name: 'Heroes', icon: 'Barbarian King', categories: ['hero'], from: 'heroes' },
   { id: 'pets', name: 'Pets', icon: 'pets', categories: ['pet'], from: 'troops' },
@@ -88,7 +111,7 @@ const BUILDER_SECTIONS: SectionSpec[] = [
   { id: 'troops', name: 'Troops', icon: 'Raged Barbarian', categories: ['troop'], from: 'troops' },
 ];
 
-
+/** Catalog ids keyed by the normalised name the API uses. */
 const BY_NAME = new Map<string, BookItem>();
 for (const item of BOOK_ITEMS) {
   BY_NAME.set(`${item.base}|${normalise(item.name)}`, item);
@@ -98,7 +121,7 @@ function normalise(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-
+/** Levels the service reported, keyed by catalog id. */
 function apiLevels(player: ApiRecord, base: 'home' | 'builder') {
   const wantedVillage = base === 'builder' ? 'builderBase' : 'home';
   const levels = new Map<string, { level: number; gameMax?: number }>();
@@ -124,7 +147,15 @@ function apiLevels(player: ApiRecord, base: 'home' | 'builder') {
   return levels;
 }
 
-
+/**
+ * Everything in the book for one village, with the player's standing against it.
+ *
+ * `imported` is the pasted village export. It is kept even though buildings
+ * are no longer listed here, because it *sharpens the army caps*: it knows the
+ * real Laboratory, Hero Hall and Blacksmith levels rather than the ones a hall
+ * level merely implies, so a village that has not yet built its Laboratory 11
+ * stops claiming the troop levels that lab would allow.
+ */
 export function playerCollection(
   player: ApiRecord,
   village: 'home' | 'builderBase',
@@ -196,7 +227,7 @@ export function playerCollection(
 
 const ORDER: Record<CollectionState, number> = { owned: 0, ready: 1, locked: 2 };
 
-
+/** Crafted defenses carry module tracks instead of a level table. */
 function moduleMax(item: BookItem): number {
   return Math.max(0, ...(item.modules ?? []).map((m) => m.upgrades?.length ?? 0));
 }

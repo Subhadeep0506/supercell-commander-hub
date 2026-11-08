@@ -23,16 +23,26 @@ import { CrEmpty, CrIcon, CrList, CrLoading, RankRow, Source, num } from './CrBi
  * inline rather than only offering a search box, because the Royale Clan tab
  * is your clan. Other clans still open in the sheet.
  */
-export function CrLookup({
-  view,
-  initialTag = '',
-  children,
-}: {
+type LookupProps = {
   view: 'player' | 'clan';
   initialTag?: string;
   /** Rendered with the resolved record once it loads. */
   children: (data: ApiRecord, tag: string) => ReactNode;
-}) {
+};
+
+/**
+ * Remounts the whole lookup when the active passport changes.
+ *
+ * See the note on `CocLookup`: without this, switching accounts leaves the
+ * screen showing the previous one, because `useLiveAccount`'s search override
+ * outlives the switch and beats the saved tag.
+ */
+export function CrLookup(props: LookupProps) {
+  const { passport } = useHub();
+  return <CrLookupView key={passport.id} {...props} />;
+}
+
+function CrLookupView({ view, initialTag = '', children }: LookupProps) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
 

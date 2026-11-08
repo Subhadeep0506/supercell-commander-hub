@@ -5,7 +5,31 @@ import { periodLabel } from '@/lib/river-race';
 import { modifierLabel, type BsEvent } from '@/lib/bs-events';
 import type { RouteName } from '@/navigation/routes';
 
-
+/**
+ * What the Today screen shows, decided here rather than in the view.
+ *
+ * The screen's one rule is **real timestamps only**: every countdown on it
+ * traces back to a field the game service published, never to an assumption
+ * about when a period ends. That rule is why this file exists -- the two games
+ * differ sharply in what they publish, and the difference has to be handled
+ * somewhere that can be tested without a browser.
+ *
+ * - **Clash of Clans publishes three.** The current war, each Clan War League
+ *   round, and the capital raid weekend all carry real start and end times.
+ * - **Clash Royale publishes one, and only sometimes.** A live global
+ *   tournament carries `startTime`/`endTime`, but the usual answer from that
+ *   endpoint is an empty list. `currentriverrace` has no timestamp at all --
+ *   only `state`, `periodType` and `periodIndex` -- so the river race can be
+ *   described but never counted down.
+ * - **Brawl Stars publishes one for every slot.** `/v1/events/rotation`
+ *   carries a real `startTime` and `endTime` on all fourteen, which is the
+ *   one place that game is more forthcoming than the other two. Its events
+ *   are the only ones here that need no special pleading.
+ *
+ * Anything real but unclocked becomes a `TodayNote`: a sentence, never a
+ * timer. Saying "no end time is published" is the honest answer; inventing one
+ * from the period index would not be.
+ */
 
 export type TodayKind = 'war' | 'cwl' | 'raid' | 'tournament' | 'rotation';
 
@@ -13,21 +37,21 @@ export type TodayEvent = {
   id: string;
   game: Game;
   kind: TodayKind;
-
+  /** "Clan War", "Clan War League". */
   title: string;
-
+  /** The phase the clock belongs to: "Battle day", "Preparation", "Opens". */
   phase: string;
-
+  /** Optional second line: "Round 3 of 7". */
   detail?: string;
-
+  /** What the clock counts to. */
   target: Date;
-
+  /** Whether `target` ends the thing or starts it. Changes the verb only. */
   ending: boolean;
-
+  /** Where tapping the card goes. */
   route: RouteName;
 };
 
-
+/** Something real that has no timestamp, or a game with nothing scheduled. */
 export type TodayNote = {
   id: string;
   game: Game;
@@ -36,7 +60,14 @@ export type TodayNote = {
   route?: RouteName;
 };
 
-
+/**
+ * An event that is running now but publishes no end time.
+ *
+ * Clash Royale's `/v1/events` is exactly this: `{eventTag, title,
+ * description}` and nothing else. The events are real and worth listing --
+ * they are what is actually playable right now -- but they can never join the
+ * timeline, because there is no moment to count to.
+ */
 export type LiveEvent = {
   id: string;
   game: Game;
@@ -45,22 +76,22 @@ export type LiveEvent = {
 };
 
 export type TodayInput = {
-
+  /** `clans/{tag}/currentwar`. */
   war?: ApiRecord;
-
+  /** `clans/{tag}/currentwar/leaguegroup`. */
   leagueGroup?: ApiRecord;
   /**
    * League wars keyed by war tag. One war per round is enough -- all four
    * wars of a round share one state and one pair of timestamps.
    */
   leagueWars?: Map<string, ApiRecord>;
-
+  /** `items` from `clans/{tag}/capitalraidseasons`. */
   raidSeasons?: ApiRecord[];
-
+  /** `items` from `/v1/globaltournaments`, or the bare array. */
   tournaments?: ApiRecord[];
-
+  /** `clans/{tag}/currentriverrace`. */
   riverRace?: ApiRecord;
-
+  /** `/v1/events` — Clash Royale's untimed list of what is running. */
   crEvents?: ApiRecord[];
   /**
    * `/v1/events/rotation` — Brawl Stars' event schedule, already normalised.
@@ -70,13 +101,20 @@ export type TodayInput = {
    * these belong in the timeline rather than in the untimed list.
    */
   bsEvents?: BsEvent[];
-
+  /** Whether a Clash of Clans account is saved and resolved. */
   hasCoc?: boolean;
-
+  /** Whether a Clash Royale account is saved and resolved. */
   hasCr?: boolean;
 };
 
-
+/**
+ * How far past a target may be and still count as live.
+ *
+ * The services' `state` lags the clock by a minute or two at every changeover,
+ * so a war that is seconds from ending still reports `inWar` with an `endTime`
+ * in the past. Dropping those would blink the card out early and put it back;
+ * the view renders them as "any moment now". `WarClock` takes the same line.
+ */
 const GRACE_MS = 5 * 60_000;
 
 /**
@@ -124,7 +162,17 @@ export function buildToday(
   return { events, notes, live };
 }
 
-
+/**
+ * The Brawl Stars rotation, as countdowns.
+ *
+ * Only the slots actually running: the response also carries slots whose
+ * `startTime` is in the future, and a card that counts down to the end of
+ * something not yet playable would be wrong in both directions.
+ *
+ * Capped, because the rotation is fourteen slots and Today is a board rather
+ * than a schedule -- fourteen Brawl cards would bury the other two games'
+ * three between them. The soonest to end are the ones worth acting on.
+ */
 const BS_SLOTS = 4;
 
 function brawl(input: TodayInput, now: Date, out: TodayEvent[]): void {
@@ -269,7 +317,15 @@ function cocLeague(input: TodayInput, now: Date, out: TodayEvent[]): void {
   });
 }
 
-
+/**
+ * The capital raid weekend.
+ *
+ * `raidCountdown` already decides between "this one ends" and "the next one
+ * opens", and it is the only place in the app allowed to compute a time the
+ * API does not give: there is no "next start" field anywhere, so the weekly
+ * Friday 07:00 UTC opening is derived. That is a published, fixed schedule
+ * rather than a guess, which is why it survives the real-timestamps rule.
+ */
 function cocRaid(input: TodayInput, now: Date, out: TodayEvent[]): void {
   const seasons = input.raidSeasons ?? [];
   if (!seasons.length) return;
@@ -302,7 +358,7 @@ function royale(
   now: Date,
   out: TodayEvent[],
   notes: TodayNote[],
-
+  /** How many events the board will actually show, after filtering. */
   liveCount: number,
 ): void {
   const live = liveTournament(input.tournaments ?? [], now);
@@ -339,7 +395,7 @@ function royale(
   });
 }
 
-
+/** The tournament that is running now, or the next one still to start. */
 function liveTournament(list: ApiRecord[], now: Date): ApiRecord | undefined {
   const at = now.getTime();
   const dated = list
@@ -350,7 +406,7 @@ function liveTournament(list: ApiRecord[], now: Date): ApiRecord | undefined {
   return dated[0]?.t;
 }
 
-
+/** Titles arrive as `Event_SomeName`; the battle log's cleaner handles both. */
 function cleanTitle(value: unknown): string {
   const raw = text(value);
   if (raw === '—') return '';
@@ -361,7 +417,14 @@ function cleanTitle(value: unknown): string {
     .trim();
 }
 
-
+/**
+ * What Royale has instead of a clock.
+ *
+ * Deliberately explicit that no end time exists. The river race genuinely runs
+ * on a daily cycle, so the obvious move is to derive a countdown from
+ * `periodIndex` -- but the service publishes no timestamp to anchor it, and a
+ * clock that is quietly wrong is worse than a sentence that is right.
+ */
 function riverRaceSentence(race: ApiRecord | undefined, hasEvents: boolean): string {
   // With events listed above, "no global tournament" alone would read as
   // "nothing is happening", which is the opposite of what the screen shows.
@@ -372,7 +435,7 @@ function riverRaceSentence(race: ApiRecord | undefined, hasEvents: boolean): str
   return `${base} Your clan's river race is on ${periodLabel(race)}, which the game service also publishes without an end time.`;
 }
 
-
+/** `items` wrapper or a bare array -- this endpoint is documented as both. */
 export function tournamentItems(payload: unknown): ApiRecord[] {
   if (Array.isArray(payload)) return rows(payload);
   return rows((payload as { items?: unknown } | null)?.items);

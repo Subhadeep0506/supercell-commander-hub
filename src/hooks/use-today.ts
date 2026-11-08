@@ -14,14 +14,29 @@ import { normalizeEvents } from '@/lib/bs-events';
 import { useHub } from '@/state/HubProvider';
 import { useLeagueWars } from './use-league-wars';
 
-
+/**
+ * Everything the Today screen needs, fetched and reduced to an event list.
+ *
+ * Nothing here renders and nothing here decides what Today *means* -- that is
+ * `buildToday`, which is pure and tested. This hook's only job is getting the
+ * records, and doing it without turning a launch screen into a request storm.
+ *
+ * Two things keep the cost down:
+ *
+ * - **One war per Clan War League round, not all 28.** `sampleWarTags` takes
+ *   the first tag of each drawn round; the round's four wars share a state and
+ *   a pair of timestamps, so the sample is exact rather than approximate.
+ * - **React Query's 60s `staleTime`.** The player and clan records here are the
+ *   same query keys the Home and Clan screens use, so arriving at Today and
+ *   then tapping through costs one fetch, not two.
+ */
 export function useToday(): {
   events: TodayEvent[];
   notes: TodayNote[];
-
+  /** Running now, but with no end time to count to. */
   live: LiveEvent[];
   accounts: { coc?: ApiRecord; cr?: ApiRecord; bs?: ApiRecord };
-
+  /** True only while nothing has arrived yet -- a refetch must not blank the screen. */
   loading: boolean;
   /**
    * The same, for the "Running now" list.
@@ -31,7 +46,7 @@ export function useToday(): {
    * a skeleton over the whole board for a visitor who has saved nothing.
    */
   loadingLive: boolean;
-
+  /** No account saved for any game: the screen has nothing to resolve from. */
   empty: boolean;
 } {
   const { passport, ready } = useHub();
@@ -181,7 +196,7 @@ function parsed(result: GameResult | undefined): ApiRecord | undefined {
   }
 }
 
-
+/** Same, but keeps a top-level array -- `globaltournaments` may return one. */
 function parsedAny(result: GameResult | undefined): unknown {
   if (!result?.ok) return undefined;
   try {

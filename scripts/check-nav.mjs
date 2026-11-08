@@ -38,7 +38,19 @@ await page.setViewport({ width: 430, height: 932 });
  */
 page.setDefaultNavigationTimeout(120000);
 
-
+/**
+ * Best-effort network idle after a navigation.
+ *
+ * Navigating with `networkidle2` used to be enough, but the dev server now
+ * serves roughly 6,700 image modules on a cold load and may never reach it
+ * inside the timeout. Navigation therefore waits only for
+ * `domcontentloaded`, and this mops up afterwards -- which the assertions
+ * that count <img> elements need, because an image that has not loaded yet
+ * reports naturalWidth 0 and looks exactly like missing artwork.
+ *
+ * It swallows its own timeout on purpose: not reaching idle is a slow dev
+ * server, not a failing check.
+ */
 const idle = () => page.waitForNetworkIdle({ idleTime: 600, timeout: 45000 }).catch(() => {});
 
 const pageErrors = [];
@@ -57,7 +69,7 @@ const path = () => new URL(page.url()).pathname;
 // root, so reading #root alone cannot see a sheet at all.
 const body = () => page.evaluate(() => document.body?.innerText ?? '');
 
-
+/** Clicks the first element whose aria-label matches exactly. */
 async function clickLabel(label) {
   const handle = await page.evaluateHandle((l) => {
     const nodes = [...document.querySelectorAll('[aria-label]')];
@@ -145,13 +157,21 @@ const capitalBody = await body();
 check('clan capital tab renders', capitalBody.includes('Super Barbarian') && capitalBody.includes('Troops'), capitalBody.slice(0, 90).replace(/\n/g, ' '));
 check('capital tab excludes magic items', !/Magic Items/.test(capitalBody));
 
-
+/**
+ * Passport round-trip.
+ *
+ * Passport holds a *list* now -- a player routinely has more than one Clash
+ * account -- so this adds two, switches between them, and reloads. The old
+ * check typed a tag and read the same field back after a refresh; that cannot
+ * work any more, because the form clears on save and what persists is the row
+ * below it.
+ */
 await page.goto(`${BASE}/passport`, { waitUntil: 'domcontentloaded', timeout: 120000 });
 await idle();
 await settle(1500);
 check('/passport loads', path() === '/passport', path());
 
-
+/** Types into the field carrying this exact label. */
 async function fill(label, value) {
   const handle = await page.evaluateHandle(
     (l) => [...document.querySelectorAll('[aria-label]')].find((n) => n.getAttribute('aria-label') === l) ?? null,
@@ -163,7 +183,7 @@ async function fill(label, value) {
   await page.keyboard.type(value);
 }
 
-
+/** Presses by aria-label, falling back to the button's own text. */
 async function press(label) {
   const ok = await page.evaluate((l) => {
     const el = [...document.querySelectorAll('[role="button"]')].find(

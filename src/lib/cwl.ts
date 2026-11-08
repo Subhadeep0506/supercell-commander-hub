@@ -1,19 +1,27 @@
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 
+/**
+ * Clan War League maths, kept out of the components.
+ *
+ * Everything here is derived from two responses: the league group
+ * (`/currentwar/leaguegroup`) and the individual league wars
+ * (`/clanwarleagues/wars/{warTag}`). Nothing estimates and nothing guesses --
+ * with one flagged exception, the promotion table, which the API does not
+ * expose at all.
+ */
 
-
-
+/** Rounds that have not been drawn yet carry this instead of real war tags. */
 const PLACEHOLDER = '#0';
 
 export type RoundStatus = 'ended' | 'inWar' | 'preparation' | 'upcoming';
 
 export type SeasonRound = {
-
+  /** 0-based; the UI shows `index + 1`. */
   index: number;
-
+  /** Real tags only -- the `#0` placeholders are dropped. */
   warTags: string[];
   status: RoundStatus;
-
+  /** The wars of this round that have loaded so far. */
   wars: ApiRecord[];
 };
 
@@ -32,19 +40,42 @@ export function realWarTags(round: ApiRecord): string[] {
   );
 }
 
-
+/** Every real war tag in the season, in round order. */
 export function allWarTags(group: ApiRecord): string[] {
   return rows(group['rounds']).flatMap(realWarTags);
 }
 
-
+/**
+ * One war tag per drawn round -- at most 7 instead of 28.
+ *
+ * **All four wars of a round share one `state` and one pair of timestamps**,
+ * because a round starts and ends for every pairing at the same moment. So a
+ * caller that only needs to know *when the round is* can sample one war and
+ * be exactly right, not approximately.
+ *
+ * `buildRounds` works unchanged on the resulting sparse map: `statusOf` reads
+ * `wars.some(...)` and `wars.every(...)`, which agree with the full set
+ * precisely because the four wars agree with each other.
+ *
+ * The full `allWarTags` is still what the season board and the standings need
+ * -- those read each war's *results*, which do differ.
+ */
 export function sampleWarTags(group: ApiRecord): string[] {
   return rows(group['rounds'])
     .map((round) => realWarTags(round)[0])
     .filter((tag): tag is string => Boolean(tag));
 }
 
-
+/**
+ * The season's rounds, each carrying whichever of its wars have loaded.
+ *
+ * A round's status comes from its *wars*, not from the group. The group has
+ * one state for the whole season, and the API publishes the next round's tags
+ * while the current round is still being fought -- so "the last round with
+ * tags" is not the round in progress. Until a round's wars arrive the status
+ * falls back to the season's own state, which is right often enough to avoid
+ * a flash of the wrong label.
+ */
 export function buildRounds(group: ApiRecord, warsByTag: Map<string, ApiRecord>): SeasonRound[] {
   return rows(group['rounds']).map((round, index) => {
     const warTags = realWarTags(round);
@@ -83,14 +114,21 @@ export const ROUND_LABELS: Record<RoundStatus, string> = {
 /* Town Halls                                                                  */
 /* -------------------------------------------------------------------------- */
 
-
+/**
+ * A member's Town Hall level.
+ *
+ * War rosters spell it `townhallLevel` and clan rosters `townHallLevel` --
+ * same API, different casing, and reading only one silently yields 0 for every
+ * member of the other. The league group uses the clan-roster spelling and the
+ * wars inside it use the war spelling, so both appear on this one screen.
+ */
 export function memberTh(member: ApiRecord): number {
   const value = member['townhallLevel'] ?? member['townHallLevel'];
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
 }
 
-
+/** Town Hall counts for a roster, highest level first. */
 export function thHistogram(members: ApiRecord[]): { th: number; count: number }[] {
   const counts = new Map<number, number>();
   for (const member of members) {
@@ -102,7 +140,7 @@ export function thHistogram(members: ApiRecord[]): { th: number; count: number }
     .sort((a, b) => b.th - a.th);
 }
 
-
+/** Mean Town Hall level, or 0 for a roster with no usable levels. */
 export function averageTh(members: ApiRecord[]): number {
   const levels = members.map(memberTh).filter((n) => n > 0);
   if (!levels.length) return 0;
@@ -141,7 +179,7 @@ export function thColour(level: number): string {
   return TH_COLOURS[level] ?? '#4F4160';
 }
 
-
+/** Highest and lowest Town Hall across every clan, for the legend's end caps. */
 export function thRange(group: ApiRecord): { high: number; low: number } {
   const levels = rows(group['clans'])
     .flatMap((clan) => rows(clan['members']))
@@ -155,7 +193,7 @@ export function thRange(group: ApiRecord): { high: number; low: number } {
 /* Wars                                                                        */
 /* -------------------------------------------------------------------------- */
 
-
+/** Orients a war so `us` is the clan asked about. Falls back to `clan`. */
 export function warSides(war: ApiRecord, clanTag?: string) {
   const clan = record(war['clan']);
   const opponent = record(war['opponent']);
@@ -165,7 +203,7 @@ export function warSides(war: ApiRecord, clanTag?: string) {
 
 export type WarOutcome = 'win' | 'lose' | 'tie';
 
-
+/** Stars first, destruction as the tie-break -- the game's own rule. */
 export function warOutcome(us: ApiRecord, them: ApiRecord): WarOutcome {
   const stars = Number(us['stars']) || 0;
   const theirStars = Number(them['stars']) || 0;
@@ -210,7 +248,7 @@ export function attacksPerMember(war: ApiRecord): number {
 /* Standings                                                                   */
 /* -------------------------------------------------------------------------- */
 
-
+/** Stars awarded on top of a war's own for winning it. A CWL-only rule. */
 export const WIN_BONUS_STARS = 10;
 
 export type Standing = {
@@ -223,7 +261,14 @@ export type Standing = {
   warsCounted: number;
 };
 
-
+/**
+ * The league table.
+ *
+ * Counts wars that are being fought as well as finished ones, which is what
+ * the in-game table does -- live stars move the standings during battle day.
+ * The 10-star win bonus is only awarded once a war has ended, so a clan ahead
+ * on live stars does not show a bonus it has not earned yet.
+ */
 export function standings(group: ApiRecord, warsByTag: Map<string, ApiRecord>): Standing[] {
   const table = new Map<string, Standing>();
 
@@ -278,7 +323,18 @@ export function standings(group: ApiRecord, warsByTag: Map<string, ApiRecord>): 
 
 export type LeagueRule = { promote: number; demote: number };
 
-
+/**
+ * How many clans go up and down at the end of the season.
+ *
+ * NOT EXPOSED BY THE API -- `warLeague` is an id and a name and nothing else.
+ * These are the in-game values and the one thing on this screen that is not
+ * computed from a response, so they live in exactly one place and are easy to
+ * correct. Champion I is the top tier and promotes nobody; Bronze III is the
+ * bottom and demotes nobody.
+ *
+ * Unconfirmed against the live game. If the line is drawn in the wrong place,
+ * this table is the only thing to change.
+ */
 const RULES: Record<string, LeagueRule> = {
   'champion league i': { promote: 0, demote: 2 },
   'bronze league iii': { promote: 2, demote: 0 },

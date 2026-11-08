@@ -94,7 +94,7 @@ export function townHallArt(level: unknown): ImageSourcePropType | undefined {
   return HALLS[Number(level)];
 }
 
-
+/** Standalone icons the shell and search fields use. */
 export const UI_ART = {
   search: cocImages['magnifying_glass'],
   social: cocImages['hud_button_social'],
@@ -109,7 +109,17 @@ export const GAME_LOGOS = {
   bs: logoImages['bs'],
 } as const;
 
-
+/**
+ * Square app icons for the game switcher.
+ *
+ * Three different packs, because that is where each one lives: Clash of Clans
+ * has always shipped `coc/main/game-icon.png`, Brawl Stars `bs/main/bsicon.png`
+ * (which lands in the `arena` registry with the rest of that pack), and Royale
+ * had none until `Clash_Royale_App_Icon` was pulled from the fan kit.
+ *
+ * Distinct from GAME_LOGOS, which are the wide wordmarks. A wordmark cannot
+ * sit in a 34px tab, and the switcher is a tab bar rather than a billboard.
+ */
 export const GAME_ICONS = {
   coc: cocImages['game-icon'],
   cr: crIconImages['appicon'],
@@ -170,7 +180,25 @@ const LEVELS_WITH_ART = (() => {
   return map;
 })();
 
-
+/**
+ * Clash Book artwork for a catalog item *at a level*.
+ *
+ * A level-1 and a level-14 Inferno Tower are different buildings to look at,
+ * and this is what makes the level slider, the player's unit tiles and the
+ * builder plan show the one the number refers to.
+ *
+ * Three fallbacks, in order:
+ *
+ *  - The exact level.
+ *  - **The nearest level at or below it.** Upstream level tables are sparse --
+ *    Battle Copter declares max level 35 and ships 21 rows -- so an exact-only
+ *    lookup would blank out the top of several items rather than holding the
+ *    last render the game actually changed.
+ *  - `bookArt(id)`, the single image. This is the answer for every hero, pet,
+ *    spell, hero equipment, guardian and Super Troop: the dataset ships one
+ *    `icon.png` for those and no per-level art exists anywhere, so the picture
+ *    legitimately does not change as their slider moves.
+ */
 export function bookArtAt(
   id: string,
   level?: number,
@@ -194,7 +222,7 @@ export function bookArtAt(
   return bookArt(id);
 }
 
-
+/** True when this item's artwork actually changes with its level. */
 export function hasLevelArt(id: string): boolean {
   return LEVELS_WITH_ART.has(id.replace(/\//g, '_'));
 }
@@ -213,7 +241,19 @@ export function resourceArt(name: string): ImageSourcePropType | undefined {
   return first ? resourceImages[first] : undefined;
 }
 
-
+/**
+ * Per-image scale corrections for `coc/main` artwork.
+ *
+ * styles.css nudges a handful of images with attribute selectors
+ * (`img[src$="war.png"] { transform: scale(2.2) }`) because the fan-kit art has
+ * inconsistent padding. React Native has no equivalent, so the values are
+ * applied explicitly by the component that draws the image.
+ *
+ * Only `coc/main` still needs this. The icon, nav and Clash Book sets are
+ * trimmed to their alpha bounding box by scripts/build-assets.mjs, which fixes
+ * the padding at source -- including the three `_face` hero portraits that
+ * previously needed a 2.8x correction.
+ */
 export const ART_SCALE = {
   panelBuilder: 3,
   panelWar: 1.8,

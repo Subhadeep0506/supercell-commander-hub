@@ -1,7 +1,15 @@
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { averageElixir, averageLevel } from './royale-cards';
 
-
+/**
+ * Battle log normalisation.
+ *
+ * `/v1/players/{tag}/battlelog` returns roughly the last 25-30 battles and
+ * nothing older -- there is no paging and no history endpoint, so this is the
+ * entire window the app will ever see. Everything derived from it (deck
+ * records, per-mode results) is therefore "recent", never lifetime, and has to
+ * say so on screen.
+ */
 
 /**
  * `20261104T045754.000Z` is not a format Date understands.
@@ -20,7 +28,17 @@ export function parseApiDate(value: unknown): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-
+/**
+ * `Event_GlobalLightning_EventDeck` -> `Global Lightning Event Deck`,
+ * `CW_Duel_1v1` -> `CW Duel 1v1`, `riverRacePvP` -> `River Race PvP`.
+ *
+ * Supercell mixes snake_case, camelCase and PascalCase across `type` and
+ * `gameMode.name`, sometimes within one string.
+ *
+ * `PvP` is put back together afterwards. It is the single most common `type`
+ * in any battle log, and the camel-case split cuts it to "Pv P" -- the only
+ * place the general rule produces something that reads as a typo.
+ */
 export function modeLabel(value: unknown): string {
   const raw = text(value);
   if (raw === '—') return raw;
@@ -55,7 +73,7 @@ export function crownsOf(players: ApiRecord[]): number | null {
   return typeof value === 'number' ? value : null;
 }
 
-
+/** Null rather than a guess when either side's crowns are missing. */
 export function outcomeOf(battle: ApiRecord, tag: string): Outcome | null {
   const side = sideOf(battle, tag);
   const mine = crownsOf(rows(battle[side]));
@@ -64,12 +82,23 @@ export function outcomeOf(battle: ApiRecord, tag: string): Outcome | null {
   return mine > theirs ? 'victory' : mine < theirs ? 'defeat' : 'draw';
 }
 
-
+/** A number field, or null -- never 0, which is a real tower hit-point value. */
 function number(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
-
+/**
+ * One participant, with everything the log says about them.
+ *
+ * The towers need explaining. `princessTowersHitPoints` is the list of
+ * princess towers **still standing**, so a one-element array means one was
+ * lost and the field is *absent entirely* when both are down -- not an empty
+ * array. `kingTowerHitPoints: 0` is a destroyed king, and 0 is a legitimate
+ * value rather than a missing one, which is why `number()` above distinguishes
+ * the two. Crowns conceded therefore equal (2 - towers standing) + the king,
+ * which is exactly the opponent's `crowns` -- the per-tower breakdown is the
+ * part the API only tells you this way.
+ */
 export type BattleSide = {
   tag: string;
   name: string;
@@ -81,9 +110,9 @@ export type BattleSide = {
   trophyChange: number | null;
   globalRank: number | null;
   kingTowerHitPoints: number | null;
-
+  /** Princess towers left standing, 0-2. */
   princessTowers: number[];
-
+  /** Crowns conceded: princess towers lost, plus one if the king fell. */
   towersLost: number;
   kingDown: boolean;
   elixirLeaked: number | null;
@@ -136,18 +165,18 @@ export type NormalBattle = {
   outcome: Outcome | null;
   mine: ApiRecord[];
   theirs: ApiRecord[];
-
+  /** The same two rosters, read out. */
   myRoster: BattleSide[];
   theirRoster: BattleSide[];
   myCrowns: number | null;
   theirCrowns: number | null;
   trophyChange: number | null;
   elixirLeaked: { mine: number | null; theirs: number | null };
-
+  /** 1v1 unless the mode is a 2v2; drives the roster layout. */
   teamSize: number;
-
+  /** `collection` for your own deck, `eventDeck` for a handed-out one. */
   deckSelection: string | null;
-
+  /** Present on event and challenge battles only. */
   eventTag: string | null;
   leagueNumber: number | null;
   isHostedMatch: boolean;
@@ -191,7 +220,7 @@ export const OUTCOME_LABELS: Record<Outcome, string> = {
   draw: 'Draw',
 };
 
-
+/** "3h ago" / "2d ago". `battleTime` is a timestamp, not a duration. */
 export function relativeTime(when: Date, now = Date.now()): string {
   const minutes = Math.max(0, Math.round((now - when.getTime()) / 60000));
   if (minutes < 60) return `${minutes}m ago`;
@@ -219,14 +248,14 @@ export type BattleSummary = {
   wins: number;
   losses: number;
   draws: number;
-
+  /** Battles the API gave no crown count for, so the result is unknown. */
   undecided: number;
   crownsFor: number;
   crownsAgainst: number;
-
+  /** Net trophies across the window; null when no battle reported a change. */
   trophyChange: number | null;
   winRate: number | null;
-
+  /** Mean elixir left to overflow, across battles that reported it. */
   elixirLeaked: number | null;
 };
 
@@ -272,12 +301,12 @@ export function battleSummary(battles: ApiRecord[], tag: string): BattleSummary 
   return out;
 }
 
-
+/** Distinct `type` values present, for the filter chips. */
 export function battleTypes(battles: ApiRecord[]): string[] {
   return [...new Set(battles.map((b) => text(b['type'])))].filter((t) => t !== '—');
 }
 
-
+/** Distinct `gameMode.name` values present. */
 export function battleModes(battles: ApiRecord[]): string[] {
   return [...new Set(battles.map((b) => text(record(b['gameMode'])['name'])))].filter(
     (m) => m !== '—',
@@ -296,7 +325,14 @@ export type ModeRecord = {
   winRate: number | null;
 };
 
-
+/**
+ * Win/loss per game mode, derived from the battle log.
+ *
+ * This is the only per-mode record available -- the player object carries
+ * lifetime `wins`/`losses` across everything and no breakdown at all. It is
+ * computed, covers only the returned window, and the UI must label it as
+ * derived rather than presenting it as an official stat.
+ */
 export function modeRecords(battles: ApiRecord[], tag: string): ModeRecord[] {
   const found = new Map<string, ModeRecord>();
   for (const battle of battles) {

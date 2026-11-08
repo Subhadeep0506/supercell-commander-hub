@@ -5,9 +5,29 @@ import { ThemeProvider, useTheme, type Theme } from '@/theme/ThemeProvider';
 import { themes } from '@/theme/tokens';
 import type { Game } from '@/api/game-api';
 
+/**
+ * The theme must not depend on which game is open.
+ *
+ * Clash Royale used to be a third palette, swapped in on `useHub().game`. That
+ * replaced the whole theme object on every switch, which invalidated the
+ * `useMemo(() => build(theme), [theme])` that every component in the app holds
+ * and re-ran `StyleSheet.create` in all of them -- the lag on the game picker.
+ *
+ * These tests exist so a future `game`-dependent branch in ThemeProvider
+ * cannot quietly restore that cost: nothing else in the suite would notice,
+ * because the app would still look right.
+ */
 
-
-
+/**
+ * A live probe of the theme while the hub's game changes under it.
+ *
+ * Deliberately records the *latest* theme rather than counting renders. If
+ * switching game re-renders nothing, `latest` still holds the first theme and
+ * the identity assertion passes — which is the correct answer, and the best
+ * possible outcome for the lag. If ThemeProvider ever reads the game again it
+ * *will* re-render with a different object, and the assertion fails. Counting
+ * renders instead would let a no-render case pass vacuously.
+ */
 async function probe() {
   let latest: Theme | undefined;
   let current: Game | undefined;

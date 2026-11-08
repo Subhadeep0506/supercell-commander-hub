@@ -40,7 +40,22 @@ const REPO = 'Brawlify/CDN';
 const BRANCH = 'master';
 const RAW = `https://raw.githubusercontent.com/${REPO}/${BRANCH}/`;
 
-
+/**
+ * Source directory -> pack directory.
+ *
+ * `into` groups several sources into one pack dir where their id spaces do not
+ * overlap. Gadgets, star powers and gears all land in `kit`: gadget and star
+ * power ids share the 23xxxxxx space but are unique within it, and gears are
+ * 62xxxxxx. The collision check below enforces that rather than trusting it.
+ *
+ * `regular` is used for gadgets and star powers rather than `borderless`.
+ * Brawlify marks borderless deprecated and it shows: it is missing 28 of the
+ * 222 ids the live catalog returns, while regular has all 222.
+ *
+ * Hypercharges have no artwork in any source -- Brawlify has no hypercharge
+ * directory, and the fan kit carries art for only eight of the 106 that exist.
+ * Those rows render as a named chip with no icon; see BsBrawlerDetail.
+ */
 const GROUPS = [
   // Square tiles with the rarity border baked in -- the collection grid.
   { name: 'brawler', from: 'brawlers/borders/', into: 'brawler' },
@@ -81,9 +96,9 @@ if (tree.truncated) throw new Error('GitHub truncated the tree listing; cannot e
 
 const paths = tree.tree.filter((t) => t.type === 'blob' && t.path.endsWith('.png')).map((t) => t.path);
 
-
+/** Everything to download, after collision checking. */
 const jobs = [];
-
+/** pack-relative destination -> source path, to catch two sources colliding. */
 const claimed = new Map();
 
 for (const group of GROUPS) {

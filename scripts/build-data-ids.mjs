@@ -20,7 +20,16 @@ const CATALOG = resolve(root, 'src/data/clash-book/catalog.json');
 const CATALOG_EXTRA = resolve(root, 'src/data/clash-book/catalog-extra.json');
 const OUT = resolve(root, 'src/data/clash-book/data-ids.json');
 
-
+/**
+ * Ids confirmed against a real village export but absent upstream.
+ *
+ * Only pairs a player has verified in their own game belong here -- the rule
+ * everywhere else in this file is to skip rather than guess, and an override
+ * that turns out to be wrong mislabels a building instead of omitting it.
+ *
+ * B.O.T.O's Shack has no entry in clash-of-clans-data at all, so
+ * build-catalog-extra.mjs writes a stub for it to point at.
+ */
 const OVERRIDES = {
   1000047: 'builder/botos-shack',
 };

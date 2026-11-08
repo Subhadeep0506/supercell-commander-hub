@@ -2,11 +2,31 @@ import { z } from 'zod';
 import DATA_IDS from '@/data/clash-book/data-ids.json';
 import { BOOK_ITEMS, type BookItem } from './clash-book';
 
-
+/**
+ * Parses the village JSON the game exports from
+ * Profile -> Settings -> More Settings -> Export Json data.
+ *
+ * The export identifies everything by Supercell's numeric data id and carries
+ * no names, levels-available or costs -- only what you own. Those numbers are
+ * translated through the generated data-ids map (scripts/build-data-ids.mjs)
+ * onto Clash Book catalog ids, which is where the artwork, level tables and
+ * upgrade costs already live.
+ *
+ * The API cannot provide any of this: it returns no in-progress upgrades, no
+ * building levels at all, and no Builder Base troop levels. The export is the
+ * only source for a builder plan.
+ */
 
 const ID_MAP = DATA_IDS as Record<string, string>;
 
-
+/**
+ * One crafted defense inside the Crafting Station, with its module levels.
+ *
+ * Crafted defenses are not buildings in their own right in the export: the
+ * Crafting Station (dataId 1000097) carries a `types` array, and each entry
+ * there is one crafted defense identified by a `103xxxxxx` id, upgrading
+ * three modules independently rather than having a single level.
+ */
 const TypeSchema = z
   .object({
     data: z.number(),
@@ -58,16 +78,16 @@ export const VillageExportSchema = z
 
 export type VillageExport = z.infer<typeof VillageExportSchema>;
 
-
+/** One owned thing, already resolved onto a catalog entry. */
 export type Owned = {
   catalogId: string;
   name: string;
   category: string;
-
+  /** Highest level owned. Multiple instances at mixed levels collapse here. */
   level: number;
-
+  /** How many are placed, summed across level buckets. 1 for non-placeables. */
   count: number;
-
+  /** Per-level breakdown, so walls can report "Lv 13 x58 · Lv 12 x242". */
   byLevel: { level: number; count: number }[];
   /**
    * Set only for crafted defenses, which upgrade three modules independently
@@ -83,7 +103,7 @@ export type Upgrade = {
   category: string;
   fromLevel: number;
   toLevel: number;
-
+  /** Absolute ms epoch, so a countdown survives a restart. */
   finishesAt: number;
 };
 
@@ -98,7 +118,7 @@ export type VillageSide = {
 
 export type VillageImport = {
   tag: string;
-
+  /** When the player copied it, from the export's own timestamp. */
   exportedAt: number;
   importedAt: number;
   home: VillageSide;
@@ -115,12 +135,22 @@ function lookup(dataId: number): BookItem | undefined {
 type Row = z.infer<typeof RowSchema>;
 type CraftedType = z.infer<typeof TypeSchema>;
 
-
+/**
+ * Module ids follow from the crafted defense's own id.
+ *
+ * Each crafted defense owns three consecutive module ids starting at
+ * `102000000 + (typeId - 103000000) * 3`, in the same order the catalog lists
+ * them. Verified against a real export: Hero Hunter is 103000012, its modules
+ * are 102000036-38, and 102000036 is the Hitpoints track.
+ *
+ * The ids are matched rather than trusted positionally so that a module the
+ * formula does not account for is dropped instead of mislabelled.
+ */
 function moduleIndex(typeId: number, moduleId: number): number {
   return moduleId - (102000000 + (typeId - 103000000) * 3);
 }
 
-
+/** Crafted defenses read out of the Crafting Station's `types` array. */
 function craftedFrom(types: CraftedType[]): Owned[] {
   const out: Owned[] = [];
   for (const type of types) {
@@ -148,7 +178,15 @@ function craftedFrom(types: CraftedType[]): Owned[] {
   return out;
 }
 
-
+/**
+ * Collapses the rows of one village into owned items and in-progress upgrades.
+ *
+ * The shape has two traps. A building appears once per level bucket carrying
+ * `cnt` -- `{data:1000010,lvl:12,cnt:242}` and `{data:1000010,lvl:13,cnt:58}`
+ * are the same 300 walls -- and separately once more carrying `timer` when it
+ * is upgrading. So counts are summed across buckets, the level kept is the
+ * highest, and timer rows are read for the upgrade but never counted as stock.
+ */
 function collapse(rows: Row[], exportedAt: number) {
   const owned = new Map<string, Owned>();
   const inProgress: Upgrade[] = [];
@@ -204,7 +242,7 @@ function collapse(rows: Row[], exportedAt: number) {
   return { owned: [...owned.values()], inProgress };
 }
 
-
+/** Hall level, read off the Town Hall / Builder Hall entry itself. */
 function hallLevel(owned: Owned[], inProgress: Upgrade[], id: string): number {
   return (
     owned.find((o) => o.catalogId === id)?.level ??
@@ -213,12 +251,12 @@ function hallLevel(owned: Owned[], inProgress: Upgrade[], id: string): number {
   );
 }
 
-
+/** Builders = Builder's Huts placed. The export has no explicit count. */
 function builderCount(owned: Owned[], id: string, fallback: number): number {
   return owned.find((o) => o.catalogId === id)?.count ?? fallback;
 }
 
-export class VillageExportError extends Error { }
+export class VillageExportError extends Error {}
 
 /**
  * Parses pasted text into the normalised model.

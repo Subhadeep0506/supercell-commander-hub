@@ -34,7 +34,7 @@ const war = (a: ApiRecord, b: ApiRecord, state: string): ApiRecord => ({
   opponent: b,
 });
 
-
+/** Four clans, two rounds drawn, one round still a placeholder. */
 const group: ApiRecord = {
   state: 'inWar',
   season: '2026-11',

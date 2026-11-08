@@ -6,13 +6,13 @@ import {
   playerLeague,
 } from '@/lib/league-tier';
 
-
+/** The shape the API sends: id and the same number repeated in the name. */
 const tier = (n: number) => ({
   id: LEAGUE_TIER_BASE + n,
   name: `${NAMES[Math.ceil(n / TIERS_PER_FAMILY) - 1]} League ${n}`,
 });
 
-
+/** Display spellings, which differ from the artwork slugs for P.E.K.K.A. */
 const NAMES = [
   'Skeleton', 'Barbarian', 'Archer', 'Wizard', 'Valkyrie', 'Witch',
   'Golem', 'P.E.K.K.A', 'Titan', 'Dragon', 'Electro', 'Legend',

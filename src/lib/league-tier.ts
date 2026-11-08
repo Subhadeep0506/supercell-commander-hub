@@ -1,9 +1,33 @@
 import { record, type ApiRecord } from '@/api/game-api';
 import { leagueFamily, leagueSlug } from '@/assets/slug';
 
+/**
+ * Clash of Clans League Tiers.
+ *
+ * The update that introduced them retired Home Village trophy leagues and put
+ * a new `leagueTier` field on players, clan members and the player ladder:
+ *
+ *   "leagueTier": { "id": 105000011, "name": "Wizard League 11" }
+ *
+ * The legacy `league` field did not go away -- it still arrives on clan
+ * members and ranking rows -- but it now reads `{ id: 29000000, name:
+ * "Unranked" }` for every player alive, so reading it is how the whole app
+ * ended up showing one meaningless badge. `leagueTier` is the real one and is
+ * preferred wherever both are present.
+ *
+ * The number in that name is the awkward part: it counts across the *whole*
+ * ladder, 1-36, not within the family. "Wizard League 11" is the second of
+ * the three Wizard tiers, and the game calls it Wizard League II. Twelve
+ * families, three tiers each, so:
+ *
+ *   family index = ceil(N / 3)        tier within family = ((N - 1) % 3) + 1
+ *
+ * Confirmed against a live capture rather than assumed -- Archer 7/8/9,
+ * Wizard 10/11/12, Valkyrie 14/15, Golem 20, P.E.K.K.A 24 and Dragon 29 all
+ * land exactly where this arithmetic puts them.
+ */
 
-
-
+/** Lowest to highest. Index + 1 is the family's position in the 1-36 ladder. */
 export const LEAGUE_FAMILIES = [
   'skeleton',
   'barbarian',
@@ -19,33 +43,40 @@ export const LEAGUE_FAMILIES = [
   'legend',
 ] as const;
 
-
+/** `leagueTier.id` is this plus the 1-36 tier number; 105000000 is Unranked. */
 export const LEAGUE_TIER_BASE = 105000000;
 
 export const TIERS_PER_FAMILY = 3;
 
-
+/** The marker drawn in the corner of a ranked badge, indexed by tier - 1. */
 export const LEAGUE_TIER_ROMAN = ['I', 'II', 'III'] as const;
 
-
+/**
+ * Which badge set a league belongs to, because three of them are live at once
+ * and they are drawn at different granularities.
+ *
+ *   ranked   League Tiers, per family (`ranked-league-wizard`)
+ *   builder  Builder Base, per tier   (`bb-league-iron-iii`)
+ *   trophy   the retired Home Village leagues, per family (`league-crystal`)
+ */
 export type LeagueSystem = 'ranked' | 'builder' | 'trophy';
 
 export type LeagueTierInfo = {
-
+  /** Slug for the artwork lookup: `wizard`, `iron-iii`, `crystal`. */
   family: string;
-
+  /** The family's own tier, 1-3. Absent when unranked or unnumbered. */
   tier?: 1 | 2 | 3;
-
+  /** The ladder-wide 1-36 number, for sorting. Absent when unranked. */
   number?: number;
-
+  /** What to print: "Wizard League II". */
   label: string;
-
+  /** The name exactly as the API gave it, for the artwork fallbacks. */
   name: string;
   system: LeagueSystem;
   unranked: boolean;
 };
 
-
+/** "Wizard League 11" -> 11. Absent when the name carries no number. */
 function trailingNumber(name: string): number | undefined {
   const match = /(\d+)\s*$/.exec(name);
   if (!match) return undefined;
@@ -109,7 +140,14 @@ export function leagueTierInfo(value: unknown, system: LeagueSystem): LeagueTier
   };
 }
 
-
+/**
+ * The league to show for a player row on whichever ladder is open.
+ *
+ * Home mode has to serve two shapes at once: `leagueTier` on anything fetched
+ * since the update, and the old `league` on a cached or fixture payload that
+ * predates it. Falling back rather than committing to one keeps old captures
+ * rendering something truthful instead of a hole.
+ */
 export function playerLeague(
   entry: ApiRecord,
   mode: 'home' | 'builder' | 'capital',

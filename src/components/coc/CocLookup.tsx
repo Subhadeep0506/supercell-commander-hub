@@ -26,7 +26,30 @@ type LookupView = 'player' | 'war' | 'clan';
  * clan-name matches, and the resolved account. The clan view always shows the
  * form because it accepts a name as well as a tag.
  */
-export function CocLookup({ view = 'player', initialTag = '' }: { view?: LookupView; initialTag?: string }) {
+type LookupProps = { view?: LookupView; initialTag?: string };
+
+/**
+ * Remounts the whole lookup when the active passport changes.
+ *
+ * Switching accounts on the Passport screen used to leave every game screen
+ * showing the previous one. The stack keeps screens mounted, so nothing ever
+ * cleared `useLiveAccount`'s search override -- and `target = override ||
+ * savedTag` means a tag searched once wins over the saved tag forever. The
+ * clan-name matches, the text in the search box and the `searched` ref had the
+ * same lifetime problem.
+ *
+ * Keying on `passport.id` rather than on the tag resets all four at once, and
+ * catches an *edit* to the active passport's tag as well as a switch to a
+ * different one. The screens' own `key={tag}` still handles arriving from a
+ * roster row, which is a different question: whose profile to show, not which
+ * account is mine.
+ */
+export function CocLookup(props: LookupProps) {
+  const { passport } = useHub();
+  return <CocLookupView key={passport.id} {...props} />;
+}
+
+function CocLookupView({ view = 'player', initialTag = '' }: LookupProps) {
   const theme = useTheme();
   const navigation = useNavigation();
   const s = useMemo(() => build(theme), [theme]);

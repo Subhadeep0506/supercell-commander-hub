@@ -62,7 +62,7 @@ export function RootNavigator() {
   );
 }
 
-
+/** Chrome shared by every screen, matching the reference's root layout. */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);

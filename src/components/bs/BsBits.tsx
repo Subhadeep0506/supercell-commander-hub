@@ -1,7 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import {
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -10,6 +9,8 @@ import {
   type TextStyle,
 } from 'react-native';
 import type { GameResult } from '@/api/game-api';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
+import { useRefresh } from '@/hooks/use-refresh';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 
 /**
@@ -56,10 +57,17 @@ export function nameTint(value: unknown): string | undefined {
 export function BsShell({ children }: { children: ReactNode }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
+  // Wired once here rather than per screen -- see the note on CocShell.
+  const { refreshing, onRefresh } = useRefresh();
   return (
-    <ScrollView style={s.shell} contentContainerStyle={s.shellInner}>
+    <PullToRefresh
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      style={s.shell}
+      contentContainerStyle={s.shellInner}
+    >
       {children}
-    </ScrollView>
+    </PullToRefresh>
   );
 }
 

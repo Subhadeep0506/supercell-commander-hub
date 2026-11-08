@@ -7,7 +7,14 @@ import { record, rows, type ApiRecord } from '@/api/game-api';
  * estimates, and nothing needs a second request.
  */
 
-
+/**
+ * Supercell timestamps are `20251030T070000.000Z`, which `new Date()` rejects:
+ * it is ISO 8601 basic format, and the Date constructor only handles the
+ * extended form. Expanded to `2025-10-30T07:00:00.000Z` before parsing.
+ *
+ * Returns undefined rather than an Invalid Date, so callers can branch on a
+ * missing timestamp without checking `isNaN(d.getTime())` everywhere.
+ */
 export function parseApiTime(value: unknown): Date | undefined {
   if (typeof value !== 'string') return undefined;
   const compact = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(\.\d+)?Z$/.exec(value.trim());
@@ -18,7 +25,7 @@ export function parseApiTime(value: unknown): Date | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
 
-
+/** 1293951 -> "1.3M". Used for the compact figures on the weekend chips. */
 export function compactNumber(value: unknown): string {
   const n = Number(value);
   if (!Number.isFinite(n)) return '—';
@@ -42,7 +49,7 @@ export function groupedNumber(value: unknown): string {
   return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
-
+/** Raid weekends run Friday 07:00 UTC to Monday 07:00 UTC, every week. */
 const RAID_START_DAY = 5;
 const RAID_START_HOUR = 7;
 
@@ -72,7 +79,7 @@ export function raidCountdown(
   return { target: next, label: 'Next Raid Weekend in' };
 }
 
-
+/** "3d 10h 11m 14s", dropping leading units that are zero. */
 export function formatDuration(ms: number): string {
   if (!Number.isFinite(ms) || ms <= 0) return 'now';
   const total = Math.floor(ms / 1000);
@@ -89,7 +96,7 @@ export function formatDuration(ms: number): string {
     .join(' ');
 }
 
-
+/** "2d ago", "3h ago" -- the relative stamp on a war log row. */
 export function timeAgo(value: unknown, now: Date = new Date()): string {
   const date = parseApiTime(value);
   if (!date) return '—';
@@ -98,7 +105,7 @@ export function timeAgo(value: unknown, now: Date = new Date()): string {
   return `${formatDuration(ms).split(' ')[0]} ago`;
 }
 
-
+/** Short date range for a raid weekend: "Oct 30 – Nov 2". */
 export function dateRange(start: unknown, end: unknown): string {
   const a = parseApiTime(start);
   const b = parseApiTime(end);
@@ -108,14 +115,14 @@ export function dateRange(start: unknown, end: unknown): string {
   return b ? `${fmt(a)} – ${fmt(b)}` : fmt(a);
 }
 
-
+/** Just the opening day, for the weekend chips: "Oct 30". */
 export function shortDate(value: unknown): string {
   const d = parseApiTime(value);
   if (!d) return '—';
   return `${d.toLocaleString('en', { month: 'short', timeZone: 'UTC' })} ${d.getUTCDate()}`;
 }
 
-
+/** Share of wars won, counting ties as played. Returns undefined with no wars. */
 export function winRate(clan: ApiRecord): number | undefined {
   const wins = Number(clan['warWins']) || 0;
   const losses = Number(clan['warLosses']) || 0;
@@ -137,7 +144,7 @@ export function roleLabel(role: unknown): string {
   return typeof role === 'string' ? (ROLES[role] ?? role) : '—';
 }
 
-
+/** Clan type chip: "inviteOnly" -> "Invite only". */
 export function clanTypeLabel(type: unknown): string {
   if (type === 'inviteOnly') return 'Invite only';
   if (type === 'open') return 'Anyone can join';
@@ -155,7 +162,7 @@ const WAR_FREQUENCY: Record<string, string> = {
   unknown: 'Not set',
 };
 
-
+/** War frequency chip. The API returns camelCase keys, not display text. */
 export function warFrequencyLabel(value: unknown): string {
   if (typeof value !== 'string') return '—';
   return WAR_FREQUENCY[value] ?? value;
@@ -207,7 +214,7 @@ export function memberMatches(member: ApiRecord, query: string): boolean {
   return `${member['name'] ?? ''} ${member['tag'] ?? ''}`.toLowerCase().includes(q);
 }
 
-
+/** Totals for one raid weekend, all summed from the rows the API returned. */
 export type RaidTotals = {
   loot: number;
   attacks: number;
@@ -281,13 +288,13 @@ export function attacksPerCapital(log: ApiRecord[]): number | undefined {
   return log.reduce((n, entry) => n + raidLogTotals(entry).attacks, 0) / log.length;
 }
 
-
+/** The clan on the other end of a raid: defender on offence, attacker on defence. */
 export function raidOpponent(entry: ApiRecord): ApiRecord {
   const defender = record(entry['defender']);
   return defender['name'] !== undefined ? defender : record(entry['attacker']);
 }
 
-
+/** Averages and best across every weekend loaded so far. */
 export function raidSummary(seasons: ApiRecord[]) {
   const totals = seasons.map(raidTotals);
   if (!totals.length) return undefined;
@@ -299,7 +306,7 @@ export function raidSummary(seasons: ApiRecord[]) {
   };
 }
 
-
+/** The `after` cursor for the next page, when the API offered one. */
 export function nextCursor(payload: unknown): string | undefined {
   const after = record(record(record(payload)['paging'])['cursors'])['after'];
   return typeof after === 'string' && after ? after : undefined;

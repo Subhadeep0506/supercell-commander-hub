@@ -29,6 +29,9 @@ module.exports = {
         'react-native-screens',
         'react-native-svg',
         '@react-native-async-storage',
+        // jest-mock.js is ESM source, and the package's own entry point is
+        // TypeScript under src/ -- neither survives being left untransformed.
+        '@notifee',
       ].join('|') +
       ')/)',
   ],

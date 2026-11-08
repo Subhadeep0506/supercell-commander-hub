@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const FIXTURES = resolve(here, 'fixtures');
 
-
+/** A bundled image stands in for Supercell's CDN, which is unreachable here. */
 const CDN_STANDIN = resolve(here, '../src/assets/img/nav/clan.webp');
 
 /**
@@ -30,7 +30,14 @@ const PRIVATE_WAR_LOG = process.env.FIXTURE_WARLOG === 'private';
  */
 const BLOCK_CDN = process.env.FIXTURE_CDN === 'block';
 
-
+/**
+ * Set FIXTURE_CWL=none to answer the league group with a 404.
+ *
+ * That is what the API returns for a clan that is not signed up, and it is the
+ * only way to reach the "Not in war league" empty state -- which must not look
+ * like a service error, because for eleven months of the year it is the normal
+ * answer.
+ */
 const NO_LEAGUE = process.env.FIXTURE_CWL === 'none';
 
 /**
@@ -39,7 +46,7 @@ const NO_LEAGUE = process.env.FIXTURE_CWL === 'none';
  */
 const LEAGUE_WARS = resolve(FIXTURES, 'coc-league-wars.json');
 
-
+/** Request path -> fixture filename. Most specific patterns first. */
 export function fixtureFor(url) {
   // Must precede the /currentwar rule: the league group hangs off that same
   // path, so the looser pattern would answer it with the regular-war fixture
@@ -68,8 +75,25 @@ export function fixtureFor(url) {
   return null;
 }
 
-
-
+/**
+ * Request path -> fixture filename, Clash Royale.
+ *
+ * Unlike the Clash of Clans set these are **real captures** (see
+ * scripts/make-cr-fixtures.mjs), because the Royale proxy is reachable here.
+ *
+ * Most specific first, same as above: `/players/{tag}/battlelog` and
+ * `/upcomingchests` both sit under `/players/`, and `/clans/{tag}/...` under
+ * `/clans/`.
+ */
+/**
+ * Player tags that sit on the Path of Legend leaderboard fixture.
+ *
+ * Read once, so the meta sampler's hundred battle-log requests can be answered
+ * the way they would be live: a top-ladder tag returns a *ranked* log and
+ * everyone else returns the calibration account's Trophy Road one. Serving one
+ * log for every tag collapsed the whole sample into a single bracket, which
+ * made the bracket picker -- the thing most worth checking -- untestable.
+ */
 let topTags;
 function isTopLadderTag(url) {
   if (!topTags) {
@@ -111,13 +135,43 @@ export function crFixtureFor(url) {
   return null;
 }
 
-
+/**
+ * Request path -> fixture filename, Brawl Stars.
+ *
+ * Real captures, like the Royale set -- but for the opposite reason. Royale's
+ * proxy is reachable here so its fixtures could be *generated* live;
+ * bsproxy.royaleapi.dev answers a Zscaler 403, so these come from a dump
+ * captured elsewhere (scripts/make-bs-fixtures.mjs). Either way nothing here
+ * is invented, apart from the two ranking ladders which say so in the file.
+ *
+ * Most specific first. `/players/{tag}/battlelog` sits under `/players/`, and
+ * `/rankings/global/brawlers/{id}` under `/rankings/`.
+ *
+ * Set FIXTURE_BS_PLAYER=ghost to answer every player lookup with the reset
+ * account from the capture -- zero trophies, expLevel 1, one brawler,
+ * `club: {}` and four missing optional fields. That is a real 200 the service
+ * returns for battle opponents, and its "reset or inactive" notice is
+ * otherwise unreachable.
+ *
+ * Read at call time rather than at import, unlike the other FIXTURE_* flags
+ * here: a check script wants to flip it partway through a run, and a
+ * module-scope constant is fixed before the first line of that script runs.
+ */
 const bsGhost = () => process.env.FIXTURE_BS_PLAYER === 'ghost';
 
-
+/** The capture's own account, without its leading '#'. */
 const BS_OWNER = 'Q8R0UP09R';
 
-
+/**
+ * Two captured profiles, not one.
+ *
+ * The club roster fan-out issues a request per member, and serving the same
+ * profile for every tag made all eleven rows read "108 brawlers · 61x P11 ·
+ * GOLD I" -- which looks plausible and proves nothing, because a fan-out that
+ * ignored the tag entirely would render identically. Alex2610 is a real second
+ * capture from the same club (107 brawlers, 62 power 11s, SILVER I), so the
+ * two are distinguishable on screen and in an assertion.
+ */
 export function bsFixtureFor(url) {
   if (/\/players\/[^/]+\/battlelog/.test(url)) return 'bs-battlelog.json';
   if (/\/players\//.test(url)) {
@@ -139,13 +193,41 @@ export function bsFixtureFor(url) {
   return null;
 }
 
-
+/**
+ * Set FIXTURE_CR_RACE=warday to answer the current river race with a
+ * hand-authored war day.
+ *
+ * The calibration clan has only ever been seen in `training`, where
+ * `periodLogs` is an empty array, so the war-day branch is otherwise
+ * unreachable from here. The shape is from the documented schema, not a
+ * capture -- which is exactly why the UI reads every field defensively.
+ */
 const WAR_DAY = process.env.FIXTURE_CR_RACE === 'warday';
 
-
+/**
+ * Set FIXTURE_CR_POL=present to give the player a Path of Legend history and
+ * league statistics.
+ *
+ * Both are absent on the calibration account -- `leagueStatistics` is
+ * undefined and all three season results are null below Legend arena, which
+ * is the common case. The app renders those sections conditionally, so the
+ * *present* branch is the one that is otherwise never exercised here.
+ */
 const WITH_POL = process.env.FIXTURE_CR_POL === 'present';
 
-
+/**
+ * Set FIXTURE_CR_TOURNAMENT=live to answer /globaltournaments with a running
+ * tournament.
+ *
+ * The real capture is `{"items": []}` -- **an empty list is the normal answer
+ * from this endpoint**, which is precisely the problem: Today's only Clash
+ * Royale countdown hangs off a live tournament, so without this flag that card
+ * can never render under test and would ship unexercised.
+ *
+ * Times are generated relative to now rather than baked in, because a fixed
+ * stamp would expire the way the Clash of Clans war fixture does and turn a
+ * passing check into a confusing failure a few hours later.
+ */
 const LIVE_TOURNAMENT = process.env.FIXTURE_CR_TOURNAMENT === 'live';
 
 function liveTournaments() {
@@ -211,7 +293,7 @@ function warDayRace() {
   };
 }
 
-
+/** Attaches interception to a Puppeteer page. */
 export async function serveFixtures(page) {
   await page.setRequestInterception(true);
   page.on('request', (req) => {

@@ -1,7 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import {
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -15,6 +14,8 @@ import { itemArt, playerBookItem } from '@/lib/clash-book';
 import type { LeagueTierInfo } from '@/lib/league-tier';
 import { text, type GameResult } from '@/api/game-api';
 import { LeagueTierBadge } from '@/components/ui/LeagueTierBadge';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
+import { useRefresh } from '@/hooks/use-refresh';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 
 /**
@@ -216,14 +217,20 @@ function describe(error: string): string {
 export function CocShell({ children }: { children: ReactNode }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
+  // Every Clash of Clans screen scrolls through here, so pull-to-refresh is
+  // wired once rather than per screen. The hook refetches whatever the screen
+  // currently has active, not just its headline record.
+  const { refreshing, onRefresh } = useRefresh();
   return (
-    <ScrollView
+    <PullToRefresh
+      refreshing={refreshing}
+      onRefresh={onRefresh}
       style={s.scroll}
       contentContainerStyle={s.shell}
       keyboardShouldPersistTaps="handled"
     >
       {children}
-    </ScrollView>
+    </PullToRefresh>
   );
 }
 

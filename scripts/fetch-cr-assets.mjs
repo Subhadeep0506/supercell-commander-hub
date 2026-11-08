@@ -44,13 +44,13 @@ async function json(url) {
   return r.json();
 }
 
-
+/** Names in a repo directory, minus the extension. */
 async function listDir(dir) {
   const entries = await json(`${API}${dir}`);
   return entries.filter((e) => e.type === 'file' && e.name.endsWith('.png')).map((e) => e.name);
 }
 
-
+/** Download one file unless it is already on disk. */
 async function grab(repoPath, targetDir, name) {
   const target = resolve(targetDir, name);
   if (!force && existsSync(target)) {
@@ -74,7 +74,7 @@ async function grab(repoPath, targetDir, name) {
   }
 }
 
-
+/** Download a list with a small concurrency cap, to stay polite to raw.github. */
 async function grabAll(files, targetDir, label) {
   mkdirSync(targetDir, { recursive: true });
   const queue = [...files];

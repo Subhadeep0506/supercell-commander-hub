@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
+import { useRefresh } from '@/hooks/use-refresh';
 import { useToday } from '@/hooks/use-today';
 import {
   AccountRow,
@@ -31,9 +33,17 @@ export function TodayScreen() {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
   const { events, notes, live, accounts, loading, loadingLive, empty } = useToday();
+  // Today has no shell of its own, so it wires the same hook the three game
+  // shells do. A pull here refreshes all three accounts and the rotation.
+  const { refreshing, onRefresh } = useRefresh();
 
   return (
-    <ScrollView style={s.scroll} contentContainerStyle={s.shell}>
+    <PullToRefresh
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      style={s.scroll}
+      contentContainerStyle={s.shell}
+    >
       {empty ? <NoAccounts /> : null}
 
       {loading && !events.length && !notes.length ? (
@@ -110,7 +120,7 @@ export function TodayScreen() {
         rotation is now in the timeline above with the rest of the countdowns,
         which is exactly where that note said it would land.
       */}
-    </ScrollView>
+    </PullToRefresh>
   );
 }
 

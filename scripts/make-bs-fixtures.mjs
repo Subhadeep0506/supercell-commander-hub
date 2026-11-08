@@ -76,7 +76,17 @@ write('bs-player-ghost', body('opponent-player'));
 
 /* ---- synthetic --------------------------------------------------------- */
 
-
+/**
+ * The player and club ladders, which neither capture covers.
+ *
+ * Rows follow PlayerRanking and ClubRanking from the published schema. The
+ * player rows are grown from the three real brawler-ranking rows so the names,
+ * icons and nameColors are at least shapes the service really emitted.
+ *
+ * Note what PlayerRanking.club does *not* have: a tag. A club cell on the
+ * player ladder therefore cannot be tapped through to a club profile, and the
+ * fixture reproduces that rather than quietly adding one.
+ */
 const seed = body('battle-brawler-rankings').items;
 const TAG_ALPHABET = '0289PYLQGRJCUV';
 function fakeTag(index) {

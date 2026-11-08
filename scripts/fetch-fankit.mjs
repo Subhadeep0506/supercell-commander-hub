@@ -13,9 +13,7 @@ const indexDir = resolve(
   args.find((a) => a.startsWith('--index='))?.slice('--index='.length) ?? '..',
 );
 
-
 const WIDTH = 256;
-
 
 const SINGLES = [
   { title: 'Clash_Royale_App_Icon', to: 'cr/icons/appicon.png' },
@@ -49,7 +47,6 @@ const SINGLES = [
   { title: 'Chest_Level_Up_Chest', to: 'cr/chests/chest-levelup.png' },
 ];
 
-
 const BS_SINGLES = [
   // Fame. The kit files these per tier (icon_fame_1_1 .. icon_fame_meteoric);
   // `fameTierName` cannot be mapped onto them from two observed samples, so
@@ -67,9 +64,6 @@ const BS_SINGLES = [
 
 const COC_SINGLES = [
   { title: 'Barbarian_King_1', to: 'coc/clash-book/home_barbarian-king.png', width: 512 },
-  // _3, not _1 or _2: both of those are posed on a grass-and-dirt platform,
-  // which survives the alpha trim and leaves a lump of scenery under her in a
-  // 62px tile. _3 is the same figure floating free, like the other four.
   { title: 'Archer_Queen_3', to: 'coc/clash-book/home_archer-queen.png', width: 512 },
   { title: 'Grand_Warden_1', to: 'coc/clash-book/home_grand-warden.png', width: 512 },
   { title: 'Royal_Champion_1', to: 'coc/clash-book/home_royal-champion.png', width: 512 },
@@ -80,9 +74,7 @@ const COC_SINGLES = [
   },
 ];
 
-
 const UNSOURCED = [{ want: 'padlock icon', to: 'cr/icons/lock.png' }];
-
 
 function playerBadges(assets) {
   const out = [];

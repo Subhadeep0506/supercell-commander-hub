@@ -2,7 +2,6 @@ import { isValidElement, useMemo, type ReactNode } from 'react';
 import {
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -18,9 +17,11 @@ import {
   clanBadgeArt,
   type CrIconName,
 } from '@/assets/royale';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { RemoteImage } from '@/components/ui/RemoteImage';
 import { SkeletonRows } from '@/components/ui/Shimmer';
 import { record, text, type ApiRecord, type GameResult } from '@/api/game-api';
+import { useRefresh } from '@/hooks/use-refresh';
 import { useTheme, type Theme } from '@/theme/ThemeProvider';
 
 /**
@@ -130,14 +131,18 @@ export function CrIcon({
 export function CrShell({ children }: { children: ReactNode }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
+  // Wired once here rather than per screen -- see the note on CocShell.
+  const { refreshing, onRefresh } = useRefresh();
   return (
-    <ScrollView
+    <PullToRefresh
+      refreshing={refreshing}
+      onRefresh={onRefresh}
       style={s.scroll}
       contentContainerStyle={s.shell}
       keyboardShouldPersistTaps="handled"
     >
       {children}
-    </ScrollView>
+    </PullToRefresh>
   );
 }
 

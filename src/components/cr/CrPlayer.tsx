@@ -12,6 +12,7 @@ import {
   CR_ICONS,
   arenaBadgeArt,
   chestArt,
+  chestFallbackArt,
   clanBadgeArt,
   leagueBadgeArt,
   playerBadgeArt,
@@ -655,17 +656,34 @@ function ArenaArt({ id, fallback }: { id: unknown; fallback: 'trophy' | 'crown' 
 }
 
 /**
- * Chest art.
+ * Chest art, with a silhouette for the ones we have no picture of.
  *
- * Keeps its box when the lookup misses so the cards on the rail stay the same
- * height -- Tower Troop Chest postdates the upstream asset repo, and a card
- * that silently loses 34px breaks the line the timeline is built on.
+ * This used to render an empty box on a miss, to keep the cards on the rail
+ * the same height -- a card that silently loses 34px breaks the line the
+ * timeline is built on. The height is still the reason, but a hole looked
+ * broken: "Crown Chest" shows up in the track and neither
+ * RoyaleAPI/cr-api-assets nor the fan kit has art for it, so the hole was
+ * permanent rather than a gap waiting on the next asset sync.
+ *
+ * The fallback is deliberately faint. At full strength it would assert that
+ * this is a Wooden Chest; at 45% it reads as a placeholder, and the chest's
+ * real name is printed directly beneath it either way.
  */
 function ChestArt({ name }: { name: unknown }) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
   const source = chestArt(name);
-  if (!source) return <View style={s.chestArt} />;
+  if (!source) {
+    if (!chestFallbackArt) return <View style={s.chestArt} />;
+    return (
+      <Image
+        source={chestFallbackArt}
+        style={[s.chestArt, s.chestArtUnknown]}
+        resizeMode="contain"
+        accessibilityIgnoresInvertColors
+      />
+    );
+  }
   return (
     <Image
       source={source}
@@ -827,6 +845,9 @@ const build = (t: Theme) =>
     chestIndexText: { fontFamily: t.fonts.display, fontSize: 10, color: t.royale.onChip },
     chestIndexTextNext: { color: t.primaryForeground },
     chestArt: { width: 38, height: 38, flexShrink: 0 },
+    // Faint, so it reads as "no picture for this one" rather than as a claim
+    // about which chest it is. Same device the unowned unit tiles use.
+    chestArtUnknown: { opacity: 0.45 },
     chestName: {
       fontFamily: t.fonts.display,
       fontSize: 10,

@@ -15,7 +15,19 @@ import {
 import { CopyBar } from '@/components/cr/CrCards';
 import { LoadMore, usePaged } from '@/components/ui/Paged';
 
-
+/**
+ * Render tests for the shared Royale pieces.
+ *
+ * These exist for one failure mode the browser checks cannot see: React Native
+ * throws on a raw string rendered as a child of a View, where react-native-web
+ * only logs a warning. A component that puts a conditional figure next to an
+ * icon -- which is every crown component below -- is exactly the shape that
+ * slips through a browser-only pass and crashes on a phone.
+ *
+ * So the assertion is mostly "it renders at all", with the surrounding `act`
+ * surfacing the invariant. The numbers are checked too, because a crown
+ * component that renders an empty box would otherwise pass.
+ */
 /**
  * HubProvider is here for the click sound in Tabs/Collapsible/Button, not for
  * the theme. ThemeProvider used to read the active game off the hub; it no
@@ -35,7 +47,7 @@ const render = async (node: React.ReactElement) => {
   return tree!;
 };
 
-
+/** Every string the tree renders, flattened. */
 const texts = (tree: ReactTestRenderer.ReactTestRenderer): string[] =>
   tree.root.findAllByType('Text' as never).flatMap((n) => {
     const kids = Array.isArray(n.props.children) ? n.props.children : [n.props.children];

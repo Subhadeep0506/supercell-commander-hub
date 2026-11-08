@@ -3,15 +3,35 @@ import { useQueries } from '@tanstack/react-query';
 import { gameQuery } from '@/api/queries';
 import { record, rows, type ApiRecord } from '@/api/game-api';
 
-
+/**
+ * Full profiles for a club roster, on demand.
+ *
+ * `/v1/clubs/{tag}` returns eight scalar fields and a roster of
+ * `{tag, name, nameColor, role, trophies, icon}`. There is no club war, club
+ * league or club history endpoint in this API at all -- no equivalent of Clash
+ * of Clans' war log or Royale's river race -- so without this the Club tab can
+ * only restate what the club call already said.
+ *
+ * Everything worth knowing about a club is therefore a property of its members
+ * individually: who is actually progressing, how deep the rosters are, where
+ * the Ranked strength sits. Reaching it costs one call per member.
+ *
+ * **Behind a button, not automatic.** A club caps at 30, so this is up to 30
+ * requests; firing them on mount would make the tab slow to settle every
+ * single visit for a figure the reader may not have wanted.
+ *
+ * The 5-minute staleTime is deliberately longer than the app's 60s default.
+ * At the default, navigating away and back inside a minute would re-issue all
+ * 30 -- the thing the button exists to prevent.
+ */
 
 const MEMBER_STALE_MS = 300000;
 
 export type MemberDetail = {
   tag: string;
-
+  /** Unlocked brawlers, out of however many exist. */
   brawlers: number;
-
+  /** Brawlers at power 11. */
   maxed: number;
   prestige: number;
   rankedRankName?: string;
@@ -20,17 +40,17 @@ export type MemberDetail = {
 };
 
 export type ClubMembers = {
-
+  /** Fetched details by tag, growing as the pages land. */
   details: Map<string, MemberDetail>;
-
+  /** True once the caller has asked for them. */
   armed: boolean;
   load: () => void;
   loaded: number;
   total: number;
   busy: boolean;
-
+  /** 0-1, for the progress bar. */
   progress: number;
-
+  /** Tags the service refused. A private or deleted account is not an outage. */
   failed: string[];
 };
 

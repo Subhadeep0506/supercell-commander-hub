@@ -2,7 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { text, type ApiRecord } from '@/api/game-api';
 import { readSnapshot, writeSnapshot, type RankSnapshot } from '@/lib/bs-rank-history';
 
-
+/**
+ * The baseline a ladder's movement arrows are measured against.
+ *
+ * The ordering here is the whole point and is easy to get backwards: the
+ * stored snapshot is **read into state before the new one is written**, and
+ * the baseline is then frozen for as long as the board is open. Write first
+ * and every row compares against what was just saved, so nothing ever appears
+ * to have moved.
+ *
+ * `saved` guards against the rewrite that the rows arriving page by page would
+ * otherwise cause — only the first full set for a board is recorded, so
+ * pressing "Load more" does not reset the comparison mid-read.
+ */
 export function useBsRankMovement(
   key: string,
   rows: ApiRecord[],

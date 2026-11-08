@@ -1,17 +1,48 @@
 import { record, rows, text, type ApiRecord } from '@/api/game-api';
 import { averageElixir } from './royale-cards';
 
+/**
+ * The meta, computed rather than looked up.
+ *
+ * There is no `/meta-decks` endpoint and there never was. What there is, is a
+ * battle log that returns **both** players' complete eight-card decks and the
+ * result -- so sampling enough logs and counting is the whole method, and it
+ * is the same method the big sites use.
+ *
+ * Everything here is pure. The fetching half is `royale-meta-sample.ts`.
+ */
 
-
-
+/**
+ * Battle types worth counting. **Probed live, and the obvious guess is wrong.**
+ *
+ * A ranked battle is `type: "pathOfLegend"`, *not* `"PvP"` -- filtering on
+ * `PvP`, which is what every write-up of this technique says to do, discards
+ * every ranked battle there is. `PvP` is the Trophy Road ladder and is worth
+ * counting too, but it is the lower half of the game, not the competitive one.
+ *
+ * Everything else in a real log is noise: `friendly`, `clanMate`, `quickplay`
+ * and `trail` are unranked, and in one sampled top player's log 30 of 30
+ * battles were friendlies.
+ */
 const COMPETITIVE = ['pathOfLegend', 'PvP'];
 
-
+/**
+ * Which tier a battle was fought at.
+ *
+ * **Two different systems, and each one's field is junk in the other.** Probed
+ * live: every ranked battle reports `arena: "Legendary Arena"` whatever league
+ * it was played in, so arena cannot bucket ranked play. Trophy Road battles
+ * are the mirror image -- they report a `leagueNumber` of `1` regardless,
+ * because Path of Legends has not started for that account, so reading it
+ * there invents a league the player has never been in.
+ *
+ * Reading one field for both is the bug this function exists to prevent.
+ */
 export type Bracket =
   | { kind: 'league'; id: string; label: string; order: number }
   | { kind: 'arena'; id: string; label: string; order: number };
 
-
+/** Path of Legends league names, 1-10. `leagueNumber` indexes this directly. */
 const LEAGUE_NAMES = [
   'Challenger I',
   'Challenger II',
@@ -52,7 +83,17 @@ export function bracketOf(battle: ApiRecord): Bracket | undefined {
   };
 }
 
-
+/**
+ * Order-independent identity for a meta deck, **including evolutions**.
+ *
+ * Two decks holding the same eight cards but evolving different ones play
+ * differently and are not the same deck, so the evolved ids are part of the
+ * key rather than a detail hanging off it.
+ *
+ * Deliberately *not* `deckKey` from royale-decks.ts, which `myDecks` and
+ * `deckStats` depend on the exact behaviour of. The tower troop is left out,
+ * matching `deckLink` -- the game's own copy-deck URL carries only the eight.
+ */
 export function metaDeckKey(cards: ApiRecord[]): string {
   const ids = cards.map((c) => text(c['id'])).sort();
   const evolved = cards
@@ -65,45 +106,54 @@ export function metaDeckKey(cards: ApiRecord[]): string {
 export type MetaDeck = {
   key: string;
   cards: ApiRecord[];
-
+  /** The tower troop seen most often with this deck, where one was reported. */
   towerCard?: ApiRecord;
   wins: number;
   losses: number;
   draws: number;
   matches: number;
-
+  /** Plain win rate, 0-100. Honest, and not what the list is sorted by. */
   winRate: number;
-
+  /** Lower bound of the 95% Wilson interval, 0-1. Small samples sink. */
   confidence: number;
-
+  /** Share of this bracket's deck observations, 0-1. */
   usage: number;
   score: number;
   averageElixir: number | null;
-
+  /** Record against decks containing each of the bracket's most-used cards. */
   counters: Record<string, { wins: number; matches: number }>;
 };
 
 export type BracketStats = {
   bracket: Bracket;
-
+  /** Deck observations -- two per battle, one for each side. */
   observations: number;
   decks: MetaDeck[];
-
+  /** Most-used cards, commonest first. Far more reliable than any deck row. */
   popularCards: { card: ApiRecord; uses: number; share: number }[];
 };
 
 export type MetaSnapshot = {
   brackets: BracketStats[];
-
+  /** Competitive battles that went into it, after filtering. */
   battles: number;
-
+  /** Battles rejected as friendlies, 2v2, or otherwise uncountable. */
   skipped: number;
 };
 
-
+/**
+ * Minimum matches before a deck is listed.
+ *
+ * The arithmetic, not a round number: ~100 battle logs is ~3,000 battles, of
+ * which ~75% are competitive, each contributing two deck observations -- call
+ * it 4,500, spread over many hundreds of distinct decks. The 30-match floor
+ * the textbook method uses would empty the list at this sample size. Eight is
+ * low enough to show something and high enough that `confidence` can do its
+ * job, and every row prints its own match count so a thin one reads as thin.
+ */
 export const MIN_MATCHES = 8;
 
-
+/** How many of a bracket's top cards the counter table is built against. */
 export const COUNTER_CARDS = 6;
 
 /**
@@ -125,7 +175,7 @@ export function wilsonLower(wins: number, n: number): number {
 
 type Side = { cards: ApiRecord[]; support: ApiRecord[]; crowns: number };
 
-
+/** The two sides of a countable 1v1, or undefined if it is not one. */
 function sidesOf(battle: ApiRecord): [Side, Side] | undefined {
   const team = rows(battle['team']);
   const opponent = rows(battle['opponent']);
@@ -153,11 +203,19 @@ type Building = {
   wins: number;
   losses: number;
   draws: number;
-
+  /** Opponent card id -> record against decks containing it. */
   versus: Map<string, { wins: number; matches: number }>;
 };
 
-
+/**
+ * Count every competitive battle in the sample into its bracket.
+ *
+ * **Both sides count.** One battle is two deck observations -- a win for one
+ * deck and a loss for the other -- which doubles the sample for free and, more
+ * importantly, removes the bias of only ever counting the decks of the players
+ * we happened to sample. Their opponents are a broader population than they
+ * are.
+ */
 export function aggregate(battles: ApiRecord[]): MetaSnapshot {
   const buckets = new Map<string, { bracket: Bracket; decks: Map<string, Building>; obs: number }>();
   const cardUse = new Map<string, Map<string, { card: ApiRecord; n: number }>>();
@@ -280,7 +338,14 @@ export function aggregate(battles: ApiRecord[]): MetaSnapshot {
   return { brackets, battles: counted, skipped };
 }
 
-
+/**
+ * The bracket this player is actually in.
+ *
+ * Path of Legends if they have reached it -- `currentPathOfLegendSeasonResult`
+ * is `null` below Legend arena, which is the common case -- otherwise their
+ * Trophy Road arena. Same two-system split as `bracketOf`, read from the other
+ * end.
+ */
 export function playerBracketId(player: ApiRecord): string | undefined {
   const pol = record(player['currentPathOfLegendSeasonResult']);
   const league = Number(pol['leagueNumber']);

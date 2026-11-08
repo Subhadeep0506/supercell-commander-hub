@@ -18,7 +18,15 @@ import player from '../scripts/fixtures/cr-player.json';
 const ladder = ladderLog as ApiRecord[];
 const ranked = rankedLog as ApiRecord[];
 
-
+/**
+ * Two real captures, and the pair is the point.
+ *
+ * `cr-battlelog.json` is the calibration account, which sits below Legend
+ * arena and so only ever plays Trophy Road. `cr-ranked-battlelog.json` is a
+ * top-ranked account. The two report their tier through *different fields*,
+ * and each one's field is junk in the other -- which is the whole reason
+ * `bracketOf` exists.
+ */
 describe('bracketOf', () => {
   const ladderBattle = ladder.find((b) => b['type'] === 'PvP')!;
   const rankedBattle = ranked.find((b) => b['type'] === 'pathOfLegend')!;

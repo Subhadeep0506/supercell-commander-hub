@@ -24,7 +24,16 @@ const catalog = [
 const TAG = '#LJ9V8LCYQ';
 const TH = 13;
 
-
+/**
+ * Supercell tags are drawn from a 14-character alphabet, and the app validates
+ * against it before making a request (see `gameRequestSchema`).
+ *
+ * Invented tags like "#MEMBER0" or "#OPP3" contain letters outside it, so
+ * every one of them is rejected with a 400. That went unnoticed while nothing
+ * in the fixtures was tappable; now that roster rows, war opponents and raid
+ * attackers all open a profile, each generated tag has to be a tag the app
+ * would actually accept.
+ */
 const TAG_ALPHABET = '0289PYLQGRJCUV';
 function fakeTag(prefix, index) {
   let n = Math.abs(index);
@@ -40,10 +49,10 @@ function fakeTag(prefix, index) {
 // the fallback path gets exercised when it is unreachable. Declared up here
 // because the clan fixture needs them too, not just the rankings below.
 const CDN = 'https://api-assets.clashofclans.com';
-
+/** Plausible previousRank drift, so the up/down chevrons have something to show. */
 const drift = (i) => (i % 4 === 0 ? i + 3 : i % 3 === 0 ? i - 2 : i + 1);
 
-
+/** Real names from the catalog, so book lookups and artwork resolve. */
 const pick = (category, base, n) =>
   catalog.filter((i) => i.category === category && i.base === base).slice(0, n);
 
@@ -58,7 +67,14 @@ const heroes = [
   ...pick('hero', 'home', 4).map((h, i) => unit(h, [43, 41, 31, 40][i] ?? 30, 75)),
   ...pick('hero', 'builder', 2).map((h, i) => unit(h, [14, 16][i] ?? 10, 35, 'builderBase')),
 ];
-
+/**
+ * Super Troops, taken from the catalog like everything else.
+ *
+ * Their levels continue the base troop's numbering -- Super Barbarian is
+ * levels 8-12, not 1-5 -- which is what the live API reports and what the
+ * book's level table expects. The previous hardcoded 1..5 matched neither and
+ * made every Super Troop look like an unknown level.
+ */
 const superTroops = catalog
   .filter((i) => i.category === 'super-troop')
   .map((i) => {
@@ -92,14 +108,23 @@ const ACHIEVEMENTS = [
   ['War Hero', 2, 91, 1000],
 ];
 
-
+/**
+ * League Tiers, the system that replaced Home Village trophy leagues.
+ *
+ * Shaped to match a live capture exactly: the id is 105000000 plus a number
+ * that counts across the *whole* ladder 1-36 rather than within the family,
+ * and the name repeats that same number. "Wizard League 11" is the second of
+ * the three Wizard tiers, which the game calls Wizard League II.
+ *
+ * Twelve families, three tiers each, lowest first.
+ */
 const LEAGUE_FAMILIES = [
   'Skeleton', 'Barbarian', 'Archer', 'Wizard', 'Valkyrie', 'Witch',
   'Golem', 'P.E.K.K.A', 'Titan', 'Dragon', 'Electro', 'Legend',
 ];
 const LEAGUE_TIER_BASE = 105000000;
 
-
+/** 11 -> `{ id: 105000011, name: 'Wizard League 11' }`. 0 is Unranked. */
 const leagueTier = (n) =>
   n < 1
     ? { id: LEAGUE_TIER_BASE, name: 'Unranked', iconUrls: { small: `${CDN}/leaguetiers/125/unranked.png` } }
@@ -186,7 +211,15 @@ const player = {
   })),
 };
 
-
+/**
+ * Which of the 36 tiers member `i` sits in.
+ *
+ * 24 rows cannot show all 36, so this spends them on coverage instead of
+ * realism: every one of the twelve families appears, and the tier rotates
+ * I/II/III across them, which is what proves both the family lookup and the
+ * numeral. The second pass over the families shifts the tier by one so the
+ * same badge is never drawn twice.
+ */
 const memberTier = (i) => {
   const family = (i % 12) + 1;
   const tier = ((i + Math.floor(i / 12)) % 3) + 1;
@@ -222,7 +255,7 @@ const members = Array.from({ length: 24 }, (_, i) => ({
   donationsReceived: 900 - i * 21,
 }));
 
-
+/** Real district names, in the order the game unlocks them. */
 const DISTRICTS = [
   ['Capital Peak', 10],
   ['Barbarian Camp', 5],
@@ -286,7 +319,14 @@ const clan = {
 
 // `offset` keeps the two rosters' tags distinct -- without it member 3 of each
 // side would share a tag, and tapping either would open the same village.
-
+/**
+ * One side of a regular war.
+ *
+ * Attacks carry `defenderTag` and a `bestOpponentAttack` is set on most
+ * members, because the rebuilt board reads both: the first to turn an attack
+ * into "→ #7", the second for the defence line. Without them every row would
+ * render its fallback and the real layout would never be seen.
+ */
 const warSide = (name, tag, offset = 0) => {
   // Skews the defending side so the two do not post identical totals. A war
   // tied to the decimal reads as a generator artefact, and the war log's
@@ -343,7 +383,7 @@ function totals(members, size) {
  */
 const apiTime = (date) => `${date.toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, '.000Z')}`;
 
-
+/** `hours` from now, as an API timestamp. Negative is in the past. */
 const hoursFromNow = (hours) => apiTime(new Date(Date.now() + hours * 3600_000));
 
 // Timestamps matter now that the board counts down: without them the clock
@@ -361,7 +401,22 @@ const war = {
   opponent: warSide('Rivals', fakeTag('V', 90), 100),
 };
 
-
+/**
+ * Puts the calibration account on a war roster, by rewriting one generated
+ * tag into `TAG` everywhere it appears.
+ *
+ * Rewriting rather than special-casing the member is the point: an attack
+ * names its defender by tag, so swapping only the roster entry would leave
+ * every `defenderTag` pointing at a member that no longer exists, and the
+ * opposing side's attacks would stop resolving. This walks the whole tree, so
+ * the roster entry, the attacks the player made and the attacks made against
+ * them all move together.
+ *
+ * Home-side member 2 is the one chosen on purpose: the generator gives it two
+ * attacks *and* two attacks against it, so the home screen's Battles section
+ * has both roles to show rather than a list of attacks and an empty defence
+ * filter.
+ */
 function adopt(node, from, to) {
   if (Array.isArray(node)) {
     for (const item of node) adopt(item, from, to);
@@ -380,7 +435,7 @@ adopt(war, fakeTag('Y', 1), TAG);
 war.clan.members[1].name = player.name;
 war.clan.members[1].townhallLevel = TH;
 
-
+/** The Friday 07:00 UTC that opens the raid weekend `weeksAgo` weeks back. */
 function raidStart(weeksAgo) {
   const now = new Date();
   const d = new Date(
@@ -397,14 +452,23 @@ const RAIDERS = [
   'DeModification', 'Muffin', 'Kaito',
 ];
 
-
+/** Clans on the other end of a raid, offence or defence. */
 const RAID_CLANS = [
   'BRINGIN JAYO', 'animal brothers', 'UNLV Rebels', 'BISDHAKERZ', 'الصاعقه',
   'MISFITS', 'LAVA SCOPERS', 'Ehrenkrieger', 'zayden d great', 'CLAN OF KINGS',
   'Reckoning', 'Lost Vikings', 'Nine Tails',
 ];
 
-
+/**
+ * One capital raided, in the shape both `attackLog` and `defenseLog` use --
+ * they are identical apart from the clan field being `defender` on offence and
+ * `attacker` on defence.
+ *
+ * Every fifth raid is left unfinished. With all of them perfect the "Perfect
+ * raid · all districts" line, the partially filled pip strip and the 1- and
+ * 0-star district rows would never render, so three branches of the UI would
+ * go untested.
+ */
 function raidEntry(side, index, seed) {
   const districtCount = DISTRICTS.length;
   const partial = index % 5 === 3;
@@ -611,7 +675,14 @@ const TROPHY_LEAGUES = [
   'Bronze League I',
 ];
 
-
+/**
+ * A page of the player ladder.
+ *
+ * `page` exists so one board is genuinely paged. The real ladders carry
+ * `paging.cursors.after` and the app now walks it a page at a time; with every
+ * fixture answering a single capped page, that path would ship unexercised.
+ * Only the Home player board is paged -- one of each branch beats five.
+ */
 const playerBoard = (mode, page = 0) => ({
   ...(page === 0 && mode === 'home'
     ? { paging: { cursors: { after: PLAYER_CURSOR } } }
@@ -655,7 +726,7 @@ const playerBoard = (mode, page = 0) => ({
   }),
 });
 
-
+/** Opaque, like Supercell's own -- base64 of `{"pos":25}`. */
 const PLAYER_CURSOR = 'eyJwb3MiOjI1fQ';
 
 const COUNTRIES = [
@@ -700,7 +771,19 @@ mkdirSync(OUT, { recursive: true });
 /* Clan War League                                                             */
 /* -------------------------------------------------------------------------- */
 
-
+/**
+ * Eight clans, seven rounds.
+ *
+ * The saved account's own clan (#2PP) is one of them, so the screen's "this is
+ * you" highlighting has something to match. Town Halls deliberately span 3 to
+ * 18: the distribution bars, the legend's end caps and the Town Hall artwork
+ * added for levels 1-8 are all unexercised by a roster of maxed accounts.
+ *
+ * Rounds 1-3 are finished, 4 is being fought and 5 is in preparation. Rounds 6
+ * and 7 are left as `#0` placeholders, which is exactly what the API sends for
+ * a round that has not been drawn -- and the only way to reach the "Upcoming"
+ * and "Not drawn yet" branches.
+ */
 const LEAGUE_CLANS = [
   { name: 'bruh', tag: '#2PP', level: 10, topTh: 16, size: 17 },
   { name: 'THE DRAGONS', tag: fakeTag('U', 1), level: 18, topTh: 18, size: 15 },
@@ -715,7 +798,7 @@ const LEAGUE_CLANS = [
 ];
 
 const LEAGUE_ROUNDS = 7;
-
+/** Rounds with real war tags; the rest stay as `#0`. */
 const DRAWN_ROUNDS = 5;
 const ROUND_STATES = ['warEnded', 'warEnded', 'warEnded', 'inWar', 'preparation'];
 const LIVE_ROUND = ROUND_STATES.indexOf('inWar');
@@ -739,7 +822,7 @@ const leagueClanRecord = (c, index) => ({
   })),
 });
 
-
+/** Circle-method round robin: eight clans, a different pairing every round. */
 function pairings(count, round) {
   const order = [...Array(count).keys()];
   const rotated = [order[0], ...order.slice(1).map((_, k) => order[1 + ((k + round) % (count - 1))])];

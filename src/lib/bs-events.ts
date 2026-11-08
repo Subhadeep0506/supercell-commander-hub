@@ -1,18 +1,30 @@
 import { record, rows } from '@/api/game-api';
 import { modeLabel, parseBattleTime } from './bs-battles';
 
-
+/**
+ * `/v1/events/rotation` -- the live event schedule.
+ *
+ * The one Brawl Stars response with real clock data on it. **Every slot
+ * carries a genuine `startTime` and `endTime`**, which is what separates it
+ * from Clash Royale's `/v1/events`: those are a bare list of what is running
+ * with no timestamps at all, so they can be listed but never counted down.
+ * These can, which is why they are allowed into the Today timeline.
+ *
+ * Captured shape: a **bare array**, not an `{items}` envelope -- 13 slots in
+ * the first capture, 14 in the second. Twelve run 24 hours and one ran 2, so
+ * nothing may assume a fixed cadence.
+ */
 
 export type BsEvent = {
   slotId: number;
   eventId?: number;
-
+  /** `event.mode`, camelCase as the service spells it (`megaShowdown`). */
   mode: string;
   modeLabel: string;
-
+  /** For the icon: `modeArt` applies the 48000000 offset. */
   modeId?: number;
   mapName: string;
-
+  /** Live as a string array (`["fastBrawlers"]`), though the schema says object. */
   modifiers: string[];
   start?: Date;
   end?: Date;
@@ -68,7 +80,7 @@ export function liveEvents(events: BsEvent[], now = new Date()): BsEvent[] {
   );
 }
 
-
+/** `event.id`s running now, for the battle log's "live now" marker. */
 export function liveEventIds(events: BsEvent[], now = new Date()): Set<number> {
   return new Set(
     liveEvents(events, now)

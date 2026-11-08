@@ -1,7 +1,15 @@
 import meta from '@/data/bs/brawler-meta.json';
 import { record, rows, type ApiRecord } from '@/api/game-api';
 
-
+/**
+ * Brawler metadata and collection maths.
+ *
+ * `/v1/brawlers` returns `{id, name, starPowers, gadgets, gears, hyperCharges}`
+ * and nothing else -- no rarity, no class, no description. Both come from the
+ * game's own csv_logic tables instead, converted once by
+ * `scripts/fetch-bs-data.mjs` into `src/data/bs/brawler-meta.json`. That file
+ * resolves all 111 live brawlers; the script refuses to write a partial one.
+ */
 
 type BrawlerMeta = { name: string; code: string; class: string; rarity: string };
 type RankBand = { name: string; rank: number; minElo: number; maxElo: number; hex: string };
@@ -9,7 +17,14 @@ type RankBand = { name: string; rank: number; minElo: number; maxElo: number; he
 const BRAWLERS = meta.brawlers as Record<string, BrawlerMeta>;
 const RANKS = meta.rankedRanks as RankBand[];
 
-
+/**
+ * Display names for the seven rarities.
+ *
+ * Hand-mapped rather than pulled from `locales.csv`, for one reason that is
+ * not laziness: the internal name `mega_epic` is **"Mythic"** in game. A
+ * mechanical de-snake-casing would print "Mega Epic", which no player has ever
+ * seen, on the 45 brawlers that carry it -- the single largest rarity bucket.
+ */
 export const RARITY_LABEL: Record<string, string> = {
   common: 'Common',
   rare: 'Rare',
@@ -20,7 +35,7 @@ export const RARITY_LABEL: Record<string, string> = {
   ultra_legendary: 'Ultra Legendary',
 };
 
-
+/** Ascending, for sorting and for the order of the filter chips. */
 export const RARITY_ORDER = [
   'common',
   'rare',
@@ -48,7 +63,7 @@ export const RARITY_COLOR: Record<string, string> = {
   ultra_legendary: '#f0a3ff',
 };
 
-
+/** Display names for the seven class archetypes. */
 export const CLASS_LABEL: Record<string, string> = {
   damage_dealer: 'Damage',
   tank: 'Tank',
@@ -81,12 +96,26 @@ export const classLabel = (name: unknown): string =>
 
 /* ---- ranked ------------------------------------------------------------ */
 
-
+/**
+ * The Elo band for a `rankedRank`.
+ *
+ * Keyed on the number rather than on `rankedRankName`, because the number is
+ * unambiguous and the name is not: the API shouts ("MYTHIC III") while the
+ * tables title-case, and a missing `rankedRankName` is a real response -- the
+ * ghost profile in the capture has `rankedRank: 0` and no name field at all.
+ */
 export function rankBand(rankedRank: unknown): RankBand | undefined {
   return typeof rankedRank === 'number' ? RANKS.find((r) => r.rank === rankedRank) : undefined;
 }
 
-
+/**
+ * How far through the current rank's Elo band a player is, 0-1.
+ *
+ * Returns undefined where no meter should be drawn: unranked, or Pro, which is
+ * the top band and carries `maxElo: 0` to mean "no ceiling" rather than an
+ * empty range. Drawing a bar that is always full, or always empty, says less
+ * than drawing none.
+ */
 export function rankProgress(rankedRank: unknown, elo: unknown): number | undefined {
   const band = rankBand(rankedRank);
   if (!band || typeof elo !== 'number' || band.maxElo <= band.minElo) return undefined;
@@ -94,19 +123,19 @@ export function rankProgress(rankedRank: unknown, elo: unknown): number | undefi
   return Math.max(0, Math.min(1, (elo - band.minElo) / span));
 }
 
-
+/** The next band up, or undefined at the top of the ladder. */
 export const nextRank = (rankedRank: unknown): RankBand | undefined =>
   typeof rankedRank === 'number' ? RANKS.find((r) => r.rank === rankedRank + 1) : undefined;
 
 /* ---- collection -------------------------------------------------------- */
 
-
+/** One brawler as the collection grid needs it: catalog kit plus what you own. */
 export type CollectionEntry = {
   id: number;
   name: string;
   rarity: string;
   className: string;
-
+  /** Undefined when the brawler is not unlocked. */
   owned?: {
     power: number;
     rank: number;
@@ -121,7 +150,7 @@ export type CollectionEntry = {
     gears: ApiRecord[];
     hyperCharges: ApiRecord[];
   };
-
+  /** Everything that exists for this brawler, from `/v1/brawlers`. */
   catalog: {
     gadgets: ApiRecord[];
     starPowers: ApiRecord[];
@@ -180,7 +209,7 @@ export function collection(catalogItems: unknown, playerBrawlers: unknown): Coll
     });
 }
 
-
+/** Headline numbers for the collection panel. */
 export function collectionSummary(entries: CollectionEntry[]) {
   const owned = entries.filter((e) => e.owned);
   const trophies = owned.reduce((sum, e) => sum + (e.owned?.trophies ?? 0), 0);
@@ -196,7 +225,7 @@ export function collectionSummary(entries: CollectionEntry[]) {
      * needs no second source and cannot disagree with the headline figure.
      */
     trophies,
-
+    /** Of the four kit slots, how many are filled across the owned roster. */
     gadgets: owned.reduce((n, e) => n + (e.owned?.gadgets.length ?? 0), 0),
     starPowers: owned.reduce((n, e) => n + (e.owned?.starPowers.length ?? 0), 0),
     hyperCharges: owned.reduce((n, e) => n + (e.owned?.hyperCharges.length ?? 0), 0),

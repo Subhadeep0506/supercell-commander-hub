@@ -22,16 +22,26 @@ import { BsEmpty, Source } from './BsBits';
  * The `club` view therefore has no search box at all: it either resolves your
  * club off the saved player or explains that it cannot.
  */
-export function BsLookup({
-  view,
-  initialTag = '',
-  children,
-}: {
+type LookupProps = {
   view: 'player' | 'clan';
   initialTag?: string;
   /** Rendered with the resolved record once it loads. */
   children: (data: ApiRecord, tag: string) => ReactNode;
-}) {
+};
+
+/**
+ * Remounts the whole lookup when the active passport changes.
+ *
+ * See the note on `CocLookup`: without this, switching accounts leaves the
+ * screen showing the previous one, because `useLiveAccount`'s search override
+ * outlives the switch and beats the saved tag.
+ */
+export function BsLookup(props: LookupProps) {
+  const { passport } = useHub();
+  return <BsLookupView key={passport.id} {...props} />;
+}
+
+function BsLookupView({ view, initialTag = '', children }: LookupProps) {
   const theme = useTheme();
   const s = useMemo(() => build(theme), [theme]);
 

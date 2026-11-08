@@ -57,7 +57,19 @@ await page.setViewport({ width: 430, height: 932 });
  */
 page.setDefaultNavigationTimeout(120000);
 
-
+/**
+ * Best-effort network idle after a navigation.
+ *
+ * Navigating with `networkidle2` used to be enough, but the dev server now
+ * serves roughly 6,700 image modules on a cold load and may never reach it
+ * inside the timeout. Navigation therefore waits only for
+ * `domcontentloaded`, and this mops up afterwards -- which the assertions
+ * that count <img> elements need, because an image that has not loaded yet
+ * reports naturalWidth 0 and looks exactly like missing artwork.
+ *
+ * It swallows its own timeout on purpose: not reaching idle is a slow dev
+ * server, not a failing check.
+ */
 const idle = () => page.waitForNetworkIdle({ idleTime: 600, timeout: 45000 }).catch(() => {});
 await serveFixtures(page);
 
@@ -110,7 +122,7 @@ async function seed({ coc = COC_TAG, cr = CR_TAG } = {}) {
   await settle(2600);
 }
 
-
+/** A "3d 10h" / "40m 12s" clock, which is what proves a card is live. */
 const CLOCK = /\b\d+[dhms]\b/;
 
 /**

@@ -1,7 +1,16 @@
 import { endpoint, gameRequestSchema, type GameRequest } from '@/api/game-api';
 import { SIZES, countActive, sizeId, type ClanFilterValues } from '@/components/ui/ClanFilters';
 
-
+/**
+ * The clan-search filter options, checked against the request they produce.
+ *
+ * The size control is the reason this file exists. It presents one dropdown
+ * but writes *two* keys, `minMembers` and `maxMembers`, and an earlier pass
+ * mapped every option onto `minMembers` alone -- so "under 10" asked the
+ * service for "at least 1", the opposite of what it said. Nothing in the type
+ * system or the browser checks could have caught that: both bounds are
+ * numbers, and the API answers either one happily.
+ */
 
 const req = (input: Partial<GameRequest> & Pick<GameRequest, 'game' | 'resource'>) =>
   input as GameRequest;

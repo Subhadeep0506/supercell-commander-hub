@@ -52,7 +52,19 @@ await page.setViewport({ width: 430, height: 932 });
  */
 page.setDefaultNavigationTimeout(120000);
 
-
+/**
+ * Best-effort network idle after a navigation.
+ *
+ * Navigating with `networkidle2` used to be enough, but the dev server now
+ * serves roughly 6,700 image modules on a cold load and may never reach it
+ * inside the timeout. Navigation therefore waits only for
+ * `domcontentloaded`, and this mops up afterwards -- which the assertions
+ * that count <img> elements need, because an image that has not loaded yet
+ * reports naturalWidth 0 and looks exactly like missing artwork.
+ *
+ * It swallows its own timeout on purpose: not reaching idle is a slow dev
+ * server, not a failing check.
+ */
 const idle = () => page.waitForNetworkIdle({ idleTime: 600, timeout: 45000 }).catch(() => {});
 await serveFixtures(page);
 
@@ -74,7 +86,7 @@ const check = (label, condition, detail = '') => {
   }
 };
 
-
+/** How many <img> on the page have a src matching this pattern. */
 const imgs = (pattern) =>
   page.evaluate(
     (p) => [...document.querySelectorAll('img')].filter((i) => new RegExp(p).test(i.src)).length,
@@ -95,7 +107,7 @@ page.on('console', (m) => {
   errors.push(m.text());
 });
 
-
+/** Save the calibration tag into the passport the way a user would. */
 async function adoptAccount() {
   await go('/cr');
   const field = await page.$('input');
@@ -141,7 +153,7 @@ check('names a real opponent', /TRollJaaKKO/.test(t), t);
 // Collapsed rows carry no deck, no tower HP and no tags.
 check('keeps battle detail collapsed', !/King tower destroyed/i.test(t), t);
 
-
+/** Click the nth element whose text matches, by accessibility label. */
 const clickLabel = async (pattern) =>
   page.evaluate((p) => {
     const re = new RegExp(p, 'i');

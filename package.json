@@ -32,6 +32,7 @@
     "check:cr-api": "node --use-system-ca --no-warnings scripts/check-cr-api.mjs"
   },
   "dependencies": {
+    "@notifee/react-native": "^9.1.8",
     "@react-native-async-storage/async-storage": "^3.1.1",
     "@react-native/new-app-screen": "0.88.1",
     "@react-navigation/native": "^7.5.1",

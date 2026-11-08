@@ -6,6 +6,8 @@ import { gameQuery } from '@/api/queries';
 import { record, text, type ApiRecord, type GameResult } from '@/api/game-api';
 import { buildRounds, warSides } from '@/lib/cwl';
 import { useLeagueWars } from '@/hooks/use-league-wars';
+import { useRefresh } from '@/hooks/use-refresh';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { WarDetail } from '@/components/coc/war/WarDetail';
 import { EmptyState } from '@/components/coc/clan/ClanBits';
 import { ClanBadge } from '@/components/coc/clan/ClanBits';
@@ -48,9 +50,18 @@ export function CocWarRoundScreen({ route, navigation }: Props) {
 
   const activeTag = ordered[Math.min(match, ordered.length - 1)];
   const war = activeTag ? warsByTag.get(activeTag) : undefined;
+  const { refreshing, onRefresh } = useRefresh();
 
   return (
-    <ScrollView style={s.scroll} contentContainerStyle={s.shell}>
+    // The one screen that scrolls without going through a game shell, so it
+    // wires the gesture itself. It also carries a horizontal match rail below,
+    // which is exactly what PullToRefresh's |dy| > |dx| guard is there for.
+    <PullToRefresh
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      style={s.scroll}
+      contentContainerStyle={s.shell}
+    >
       <View style={s.header}>
         <Pressable
           accessibilityRole="button"
@@ -100,7 +111,7 @@ export function CocWarRoundScreen({ route, navigation }: Props) {
           body="This round's matchups are published when the one before it finishes."
         />
       )}
-    </ScrollView>
+    </PullToRefresh>
   );
 }
 

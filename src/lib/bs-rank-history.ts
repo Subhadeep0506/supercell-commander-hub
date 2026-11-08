@@ -1,14 +1,31 @@
 import { readJson, writeJson } from '@/state/storage';
 
-
+/**
+ * Rank movement for the Brawl Stars ladders, remembered on the device.
+ *
+ * **The service publishes no movement at all.** A ranking row is
+ * `{tag, name, nameColor, icon, trophies, rank, club}` — no previous rank, no
+ * delta, no timestamp. So an arrow cannot be read from a response; it can only
+ * be worked out by comparing two responses, and the only two this app will
+ * ever have are the one on screen and the last one it saw.
+ *
+ * That makes the claim a narrow one, and the UI has to say so: movement is
+ * **since you last opened this board**, which may be an hour or a month, not
+ * "since yesterday" or any fixed period. The first visit to a board shows no
+ * arrows at all, because there is nothing to compare against.
+ *
+ * Stored under its own key rather than inside the settings blob: it is
+ * rewritten on every board view and `patchJson` would re-serialise the whole
+ * of settings each time — the same reasoning that keeps the village separate.
+ */
 
 const KEY = 'sch:bs-ranks';
 
-
+/** One board's last-seen state. */
 export type RankSnapshot = {
-
+  /** ISO timestamp of the reading. */
   at: string;
-
+  /** Tag -> rank, for every row that had been loaded. */
   ranks: Record<string, number>;
 };
 
@@ -67,7 +84,7 @@ export function movement(
   return rank < before ? 'up' : 'down';
 }
 
-
+/** How many places, for the arrow's label. Undefined unless it actually moved. */
 export function movedBy(
   snapshot: RankSnapshot | undefined,
   tag: string,
@@ -78,7 +95,7 @@ export function movedBy(
   return before === undefined || before === rank ? undefined : Math.abs(before - rank);
 }
 
-
+/** "3 days ago", for the caption that qualifies the whole column. */
 export function sinceLabel(at: string | undefined): string | undefined {
   if (!at) return undefined;
   const then = Date.parse(at);

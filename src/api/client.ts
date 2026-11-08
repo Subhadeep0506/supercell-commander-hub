@@ -2,7 +2,17 @@ import { KEYS } from '@/config/keys';
 import { apiBase } from './base';
 import { endpoint, gameRequestSchema, type GameRequest, type GameResult } from './game-api';
 
-
+/**
+ * Replaces frontend/src/lib/game-data.functions.ts.
+ *
+ * That was a TanStack Start server function calling Lovable's connector
+ * gateway with platform-injected keys. There is no server here, so this is a
+ * plain fetch straight at the RoyaleAPI proxies -- but the GameResult shape is
+ * unchanged, so every call site ports without edits.
+ *
+ * The token is embedded in the client bundle. That is extractable from the
+ * APK by anyone who unzips it, and unavoidable without a backend.
+ */
 export async function getGameData(input: GameRequest): Promise<GameResult> {
   const parsed = gameRequestSchema.safeParse(input);
   if (!parsed.success) {

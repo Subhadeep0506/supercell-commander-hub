@@ -12,7 +12,20 @@ import {
 import { brawlerMeta, collection, collectionSummary, rankBand, rankProgress } from '@/lib/bs-brawlers';
 import { modeArt, rankArt } from '@/assets/brawl';
 
-
+/**
+ * The Brawl Stars battle log, run over the REAL captured responses.
+ *
+ * Every assertion that names a number here was read off
+ * native/brawl-stars-player-api-dump_v2.json, not invented. If one starts
+ * failing after a recapture, the API changed, not us.
+ *
+ * Four of these exist specifically because the bug they guard renders
+ * *plausibly wrong* rather than crashing -- an inverted team, a mislabelled
+ * ladder, a zero that should be a dash. None of them would be caught by the
+ * type system or by the browser checks.
+ *
+ * Captured 2026-11-06 from #Q8R0UP09R.
+ */
 
 import playerJson from '../scripts/fixtures/bs-player.json';
 import battlelogJson from '../scripts/fixtures/bs-battlelog.json';

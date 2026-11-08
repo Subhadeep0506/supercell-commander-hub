@@ -2,23 +2,36 @@ import { bookLevels, type BookItem, type BookRecord } from './clash-book';
 import type { CollectionEntry, CollectionSection } from './player-collection';
 import { RUSHED_BELOW, hallOnly, levelTime, maxLevelAt } from './village-plan';
 
+/**
+ * How far through its Town Hall an account is, from the player endpoint alone.
+ *
+ * The Builder Plan already answers this question, but only for you: it is
+ * driven by a pasted village export, so a clan member's profile could never
+ * show it. Everything here is derived from `playerCollection` -- which is
+ * itself derived from the Clash Book catalog -- so it works for any player the
+ * service will return, including one whose village you have never seen.
+ *
+ * **Army only.** The player endpoint publishes no building levels at all, so
+ * the percentages cover heroes, pets, troops, spells and siege machines and
+ * say so on screen. They are not the same number the Builder Plan shows for
+ * the same account, and they are not meant to be.
+ */
 
-
-
+/** One category row: Heroes, Troops, Spells, Sieges, Hero Equipment. */
 export type ProgressRow = {
   id: string;
   name: string;
-
+  /** A name the `Art` component resolves. */
   icon: string;
-
+  /** Level-weighted against this hall's caps. */
   have: number;
   total: number;
   pct: number;
-
+  /** Entries sitting below the *previous* hall's cap -- the ⚠ count. */
   behind: number;
-
+  /** Not yet maxed for this hall, each carrying how many levels are left. */
   left: RemainingEntry[];
-
+  /** False for hero equipment, which is bought with ore rather than levelled. */
   inHeadline: boolean;
 };
 
@@ -27,23 +40,39 @@ export type RemainingEntry = CollectionEntry & { toGo: number };
 export type PlayerProgress = {
   base: 'home' | 'builder';
   hallLevel: number;
-
+  /** "Town Hall 13" / "Builder Hall 10". */
   hallName: string;
-
+  /** "TH13" / "BH10". */
   hallLabel: string;
   have: number;
   total: number;
   pct: number;
-
+  /**
+   * How far short of the *previous* hall the army is, as a percentage.
+   *
+   * A village is supposed to finish a hall level before taking the next one.
+   * Measuring against the hall you have already left is what separates "still
+   * working through this one" from "skipped the last one" -- the headline
+   * percentage cannot tell those apart, because a freshly upgraded hall and a
+   * rushed one both read low.
+   */
   rushedPct: number;
   rushed: boolean;
   rows: ProgressRow[];
 };
 
-
+/**
+ * Super Troops are excluded from every figure here.
+ *
+ * Their catalog entries carry a level table copied from the troop they are a
+ * variant of, so counting them adds a second copy of a third of the army: at
+ * Town Hall 13 the level total goes from 548 to 705 and the percentage moves
+ * for a reason no player could account for. They are still listed in the Army
+ * panel, which is a collection view rather than a measure of progress.
+ */
 const EXCLUDED_ROWS = ['super-troops'];
 
-
+/** Hero equipment: real progress, but not against a hall. See `inHeadline`. */
 const OFF_HEADLINE_ROWS = ['equipment'];
 
 export function playerProgress(
@@ -141,7 +170,14 @@ function ratio(have: number, total: number): number {
   return total > 0 ? Math.min(100, (have / total) * 100) : 0;
 }
 
-
+/**
+ * What the player knows about one village, for the item sheet.
+ *
+ * The sheet needs levels from *outside* the section the tile was tapped in --
+ * the Giant Gauntlet's card names the Barbarian King who wears it, and heroes
+ * and equipment are different sections. So this is built once per village from
+ * all of them rather than threaded through each grid.
+ */
 export type PlayerContext = {
   hallLevel: number;
   hallLabel: string;
@@ -172,7 +208,19 @@ export function playerContext(
   };
 }
 
-
+/**
+ * Everything the levels between `from` and `to` cost, added up.
+ *
+ * Returned as a raw record rather than formatted rows so the caller can run it
+ * through the same `flattenBook` -> `mergeCostRows` -> `Fields` pipeline the
+ * per-level sections already use, and so inherit the ore, resource and clock
+ * artwork without a second copy of that mapping.
+ *
+ * The `… Resource` strings are carried through untouched, because that is what
+ * lets "Upgrade Cost: 10,200" be folded back onto its currency. Time is
+ * summed separately: it is an object in the data, so no amount of adding
+ * numeric fields would have found it.
+ */
 export function remainingUpgradeCost(
   item: BookItem,
   from: number,

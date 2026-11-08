@@ -28,6 +28,9 @@ export function BuildersPanel({
   const builderJobs = side.inProgress.filter((u) => laneOf(u.category) === 'builder');
   const labJobs = side.inProgress.filter((u) => laneOf(u.category) !== 'builder');
   const free = Math.max(0, side.builders - builderJobs.filter((u) => u.finishesAt > now).length);
+  // Something was recorded as upgrading, and all of it has since finished.
+  const stale =
+    side.inProgress.length > 0 && side.inProgress.every((u) => u.finishesAt <= now);
 
   return (
     <Panel>
@@ -35,6 +38,26 @@ export function BuildersPanel({
 
       {side.inProgress.length === 0 ? (
         <Text style={s.idle}>Nothing was upgrading when you copied it.</Text>
+      ) : null}
+
+      {/*
+        Every timer in the import has run out.
+
+        The export records a *relative* timer frozen at the moment it was
+        copied, so a day-old paste describes a village that has moved on: every
+        job below reads "Done", the plan below that is built on finished work,
+        and no notification can be scheduled from any of it. Saying so is the
+        only honest option -- the app cannot refresh this itself, because the
+        player API publishes no construction timers at all.
+      */}
+      {stale ? (
+        <View style={s.stale}>
+          <Text style={s.staleTitle}>This import has gone stale</Text>
+          <Text style={s.staleBody}>
+            Every upgrade it recorded has finished. Paste a fresh export with ↻ Re-import above to
+            get live countdowns and notifications again.
+          </Text>
+        </View>
       ) : null}
 
       {free > 0 && side.inProgress.length > 0 ? (
@@ -130,6 +153,25 @@ const build = (t: Theme) =>
     },
     freeTitle: { fontFamily: t.fonts.display, fontSize: 13, color: t.primary },
     freeBody: { marginTop: 3, fontSize: 11, color: t.mutedForeground, fontFamily: t.fonts.sans },
+
+    // Gold rather than the dashed neutral the "builders free" note uses: this
+    // is the one state on the panel where what is on screen is actively wrong.
+    stale: {
+      marginTop: 12,
+      padding: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: t.gold,
+      backgroundColor: t.muted,
+    },
+    staleTitle: { fontFamily: t.fonts.display, fontSize: 13, color: t.gold },
+    staleBody: {
+      marginTop: 4,
+      fontSize: 11,
+      lineHeight: 16,
+      color: t.mutedForeground,
+      fontFamily: t.fonts.sans,
+    },
 
     lane: { marginTop: 14, fontSize: 10, color: t.mutedForeground, fontFamily: t.fonts.sans },
 

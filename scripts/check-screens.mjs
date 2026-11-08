@@ -41,7 +41,19 @@ await page.setViewport({ width: 430, height: 932 });
  */
 page.setDefaultNavigationTimeout(120000);
 
-
+/**
+ * Best-effort network idle after a navigation.
+ *
+ * Navigating with `networkidle2` used to be enough, but the dev server now
+ * serves roughly 6,700 image modules on a cold load and may never reach it
+ * inside the timeout. Navigation therefore waits only for
+ * `domcontentloaded`, and this mops up afterwards -- which the assertions
+ * that count <img> elements need, because an image that has not loaded yet
+ * reports naturalWidth 0 and looks exactly like missing artwork.
+ *
+ * It swallows its own timeout on purpose: not reaching idle is a slow dev
+ * server, not a failing check.
+ */
 const idle = () => page.waitForNetworkIdle({ idleTime: 600, timeout: 45000 }).catch(() => {});
 
 await serveFixtures(page);
@@ -57,7 +69,16 @@ const go = async (path) => {
   await idle();
 };
 
-
+/**
+ * Clicks the *visible* element carrying an exact aria-label, scrolling it into
+ * view first.
+ *
+ * Both qualifications matter. The detail sheet keeps every layer of its
+ * back-stack mounted (hidden with display:none), so a plain querySelector
+ * finds the copy on a buried layer first -- which Puppeteer cannot click, and
+ * which is not what a user would be touching either. And the clan sheet runs
+ * to several thousand pixels, so a target below the fold has no click point.
+ */
 const findVisible = (label) =>
   page.evaluateHandle((l) => {
     const el = [...document.querySelectorAll('[aria-label]')].find(
@@ -75,7 +96,7 @@ const clickLabel = async (label, wait = 1200) => {
   await settle(wait);
 };
 
-
+/** Whether a visible element with that label exists at all. */
 const hasLabel = async (label) => Boolean((await findVisible(label)).asElement());
 
 /**

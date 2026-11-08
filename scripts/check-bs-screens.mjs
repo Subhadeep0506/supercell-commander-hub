@@ -32,7 +32,7 @@ if (!CHROME) {
 
 const BASE = process.env.CHECK_BASE ?? 'http://localhost:5173';
 const SHOTS = resolve(here, '../.shots');
-
+/** The capture's owner. His in-game name really is "ERROR 404". */
 const TAG = '#Q8R0UP09R';
 
 const browser = await puppeteer.launch({
@@ -56,7 +56,19 @@ await page.setViewport({ width: 430, height: 932 });
  */
 page.setDefaultNavigationTimeout(120000);
 
-
+/**
+ * Best-effort network idle after a navigation.
+ *
+ * Navigating with `networkidle2` used to be enough, but the dev server now
+ * serves roughly 6,700 image modules on a cold load and may never reach it
+ * inside the timeout. Navigation therefore waits only for
+ * `domcontentloaded`, and this mops up afterwards -- which the assertions
+ * that count <img> elements need, because an image that has not loaded yet
+ * reports naturalWidth 0 and looks exactly like missing artwork.
+ *
+ * It swallows its own timeout on purpose: not reaching idle is a slow dev
+ * server, not a failing check.
+ */
 const idle = () => page.waitForNetworkIdle({ idleTime: 600, timeout: 45000 }).catch(() => {});
 await serveFixtures(page);
 
@@ -84,7 +96,7 @@ const imgs = (pattern) =>
     pattern,
   );
 
-
+/** Click the first *visible* element whose accessibility label matches. */
 const clickLabel = async (pattern) =>
   page.evaluate((p) => {
     const re = new RegExp(p, 'i');
@@ -110,7 +122,7 @@ page.on('console', (m) => {
   errors.push(m.text());
 });
 
-
+/** Save the capture's tag into the passport the way a user would. */
 async function adoptAccount() {
   await go('/bs');
   const field = await page.$('input');

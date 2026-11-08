@@ -1,6 +1,23 @@
 import { record, rows, type ApiRecord } from '@/api/game-api';
 
-
+/**
+ * Normalises `/v1/players/{tag}/battlelog`.
+ *
+ * This module exists because the raw battle object is three different shapes
+ * wearing one name, and because four of its quirks each render plausibly-wrong
+ * rather than crashing. Every one of them is covered by __tests__/bs-battles.
+ *
+ * The shapes, discriminated by which container key is present:
+ *
+ *   team modes      `teams: [[3], [3]]`   result, duration, starPlayer. No rank.
+ *   duo showdown    `teams: [[2] x 10]`   rank 1-10. No result, duration, star.
+ *   solo showdown   `players: [20]`       rank 1-20. No teams either.
+ *
+ * Verified against the 23-battle capture in
+ * native/brawl-stars-player-api-dump_v2.json, which covers brawlBall, knockout,
+ * duoShowdown and soloShowdown. Battle types beyond `ranked` and `soloRanked`
+ * were not sampled; `typeLabel` passes those through rather than guessing.
+ */
 
 export type Participant = {
   tag: string;
@@ -14,13 +31,13 @@ export type Participant = {
 export type BattleShape = 'team' | 'showdown' | 'unknown';
 
 export type NormalBattle = {
-
+  /** Stable within a log: battleTime plus event, which no two entries share. */
   key: string;
   at?: Date;
-
+  /** `battle.mode`, camelCase as the service spells it. */
   mode: string;
   modeLabel: string;
-
+  /** `battle.type`, raw. */
   type: string;
   typeLabel: string;
   shape: BattleShape;
@@ -29,15 +46,15 @@ export type NormalBattle = {
   mapName: string;
   result?: 'victory' | 'defeat' | 'draw';
   rank?: number;
-
+  /** Absent on some battles. Must render as "—", never as 0. */
   trophyChange?: number;
   duration?: number;
   starPlayer?: Participant;
-
+  /** You, found by tag. Undefined only if the log belongs to someone else. */
   me?: Participant;
-
+  /** Which entry of `teams` you are in. See the warning on `normalize`. */
   myTeamIndex?: number;
-
+  /** Always populated: solo showdown's flat `players` becomes one-per-team. */
   teams: Participant[][];
   isStarPlayer: boolean;
 };
@@ -57,7 +74,14 @@ export function parseBattleTime(value: unknown): Date | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
 
-
+/**
+ * `"brawlBall"` -> `"Brawl Ball"`; `"megaDuoShowdown"` -> `"Mega Duo Showdown"`.
+ *
+ * The team-size suffix is split off **before** the camelCase pass, not after.
+ * Seven live modes end in one -- `brawlBall5V5`, `gemGrab2V2` and the rest --
+ * and splitting on case first turns `5V5` into `5 V5`, after which no amount
+ * of tidying puts it back together.
+ */
 export function modeLabel(mode: unknown): string {
   if (typeof mode !== 'string' || !mode) return 'Unknown';
   return mode
@@ -66,7 +90,18 @@ export function modeLabel(mode: unknown): string {
     .replace(/^./, (c) => c.toUpperCase());
 }
 
-
+/**
+ * What the player would call this match.
+ *
+ * **`type: "ranked"` is the trophy ladder, not Ranked mode.** The competitive
+ * queue is `soloRanked` / `teamRanked`. Printing the API's own word would put
+ * "Ranked" on 22 of the 23 battles in the capture, every one of which was a
+ * trophy game -- the same trap as Clash Royale's `type: "PvP"` not meaning a
+ * ladder match.
+ *
+ * Unsampled types pass through de-camel-cased rather than being forced into
+ * one of these two buckets.
+ */
 export function battleTypeLabel(type: unknown): string {
   if (typeof type !== 'string' || !type) return 'Battle';
   if (type === 'ranked') return 'Trophies';
@@ -89,7 +124,16 @@ function participant(raw: ApiRecord): Participant {
 const maybeNumber = (value: unknown): number | undefined =>
   typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 
-
+/**
+ * One raw entry -> one NormalBattle.
+ *
+ * **`myTag` is required and must be the log's owner.** Team order is arbitrary
+ * -- you are in `teams[1]` in battle 22 of the capture, and `teams[0]` is not
+ * the winner either (battle 1 is `teams[0]` and a defeat). Anything that
+ * assumes "my team is first" or "the winner is first" inverts the whole render
+ * silently, which is why the tag is threaded all the way down here rather than
+ * resolved at the call site.
+ */
 export function normalizeBattle(entry: ApiRecord, myTag: string): NormalBattle {
   const battle = record(entry['battle']);
   const event = record(entry['event']);
@@ -152,7 +196,7 @@ export function normalizeBattle(entry: ApiRecord, myTag: string): NormalBattle {
   };
 }
 
-
+/** The whole log, newest first as the service already returns it. */
 export function normalizeBattles(items: unknown, myTag: string): NormalBattle[] {
   return rows(items).map((entry) => normalizeBattle(entry, myTag));
 }
@@ -161,17 +205,17 @@ export function normalizeBattles(items: unknown, myTag: string): NormalBattle[] 
 
 export type BattleSummary = {
   total: number;
-
+  /** Battles that carry a victory/defeat. Showdowns do not. */
   decided: number;
   wins: number;
   losses: number;
-
+  /** Over `decided` only, or undefined when nothing was decided. */
   winRate?: number;
-
+  /** Over battles that reported one. */
   trophyChange: number;
   trophyCounted: number;
   starPlayer: number;
-
+  /** Showdown placements, for the half of the log that has no win/loss. */
   showdowns: number;
   averageRank?: number;
 };
@@ -200,9 +244,9 @@ export function summarize(battles: NormalBattle[]): BattleSummary {
 export type Breakdown = {
   key: string;
   label: string;
-
+  /** Mode icon lookup, where the group is a mode. */
   modeId?: number;
-
+  /** Brawler art lookup, where the group is a brawler. */
   brawlerId?: number;
   played: number;
   wins: number;
@@ -262,7 +306,7 @@ export const byMode = (battles: NormalBattle[]): Breakdown[] =>
     b.mode ? { key: b.mode, label: b.modeLabel, modeId: b.eventModeId } : undefined,
   );
 
-
+/** Grouped by the brawler you played. Battles where you are absent are skipped. */
 export const byBrawler = (battles: NormalBattle[]): Breakdown[] =>
   fold(battles, (b) =>
     b.me?.brawlerId !== undefined

@@ -4,7 +4,17 @@ import { gameQuery } from '@/api/queries';
 import { normalizeTag, record, type Game, type GameRequest } from '@/api/game-api';
 import { useHub } from '@/state/HubProvider';
 
-
+/**
+ * Ported from frontend/src/hooks/use-live-account.ts.
+ *
+ * Resolves which account a screen should show: an explicitly entered tag wins,
+ * otherwise the saved passport tag. For clan and war views the saved *player*
+ * is fetched first so the clan tag can be read off it.
+ *
+ * One addition over the reference: the passport now loads asynchronously, so
+ * queries stay disabled until `ready`. Without that, every lookup screen fires
+ * a request for an empty tag on first render and shows a spurious error.
+ */
 export function useLiveAccount(
   game: Game,
   resource: 'player' | 'clan' | 'war',

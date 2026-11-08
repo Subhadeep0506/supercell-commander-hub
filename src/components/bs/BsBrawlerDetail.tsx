@@ -97,7 +97,7 @@ export function BsBrawlerBody({
       )}
 
       <Section title="Gadgets">
-        <KitList
+        <KitGrid
           catalog={entry.catalog.gadgets}
           owned={ownedIds(owned?.gadgets ?? [])}
           unlocked={Boolean(owned)}
@@ -105,7 +105,7 @@ export function BsBrawlerBody({
       </Section>
 
       <Section title="Star Powers">
-        <KitList
+        <KitGrid
           catalog={entry.catalog.starPowers}
           owned={ownedIds(owned?.starPowers ?? [])}
           unlocked={Boolean(owned)}
@@ -113,7 +113,7 @@ export function BsBrawlerBody({
       </Section>
 
       <Section title="Hypercharge">
-        <KitList
+        <KitGrid
           catalog={entry.catalog.hyperCharges}
           owned={ownedIds(owned?.hyperCharges ?? [])}
           unlocked={Boolean(owned)}
@@ -135,7 +135,7 @@ export function BsBrawlerBody({
           ) : undefined
         }
       >
-        <KitList
+        <KitGrid
           catalog={entry.catalog.gears}
           owned={ownedIds(owned?.gears ?? [])}
           unlocked={Boolean(owned)}
@@ -184,8 +184,19 @@ export function BsBrawlerBody({
   );
 }
 
-/** One kit slot: everything that exists, yours lit and the rest greyed. */
-function KitList({
+/**
+ * One kit slot: everything that exists, yours lit and the rest greyed.
+ *
+ * A grid rather than the list this used to be, and the same grid "Your stats"
+ * uses -- three to a row, art over name. The sheet previously ran four stacked
+ * single-file lists below one grid, so the page changed shape halfway down for
+ * no reason the reader could see.
+ *
+ * Deliberately built on the `metric` geometry from BsBits rather than a second
+ * grid of its own, so the two halves of the sheet stay the same size and the
+ * same rhythm if either is ever retuned.
+ */
+function KitGrid({
   catalog,
   owned,
   unlocked,
@@ -206,26 +217,40 @@ function KitList({
   }
 
   return (
-    <View style={s.kitList}>
+    <View style={s.kitGrid}>
       {catalog.map((item) => {
         const id = typeof item.id === 'number' ? item.id : -1;
         const has = owned.has(id);
         const art = noArt ? undefined : kitArt(id);
         const level = levels?.get(id);
         return (
-          <View key={id} style={[s.kitRow, !has && s.kitRowOff]}>
+          <View key={id} style={[s.kitTile, !has && s.kitTileOff]}>
             {art ? (
               <Image source={art} style={[s.kitArt, !has && s.kitArtOff]} resizeMode="contain" />
             ) : (
-              <View style={[s.kitDot, has && { backgroundColor: theme.brawl.highlight }]} />
+              // Hypercharge only. Brawlify has no hypercharge art at all and
+              // the fan kit has eight of 106, so this is the common case
+              // there rather than a fallback -- it stands in for the art and
+              // takes its footprint so the tiles in a row stay level.
+              <View style={s.kitDotSlot}>
+                <View style={[s.kitDot, has && { backgroundColor: theme.brawl.highlight }]} />
+              </View>
             )}
-            <Text style={[s.kitName, !has && s.kitNameOff]} numberOfLines={1}>
+            <Text style={[s.kitName, !has && s.kitNameOff]} numberOfLines={2}>
               {text(item.name)}
             </Text>
-            {level ? <Text style={s.kitLevel}>Lv {level}</Text> : null}
-            <Text style={[s.kitMark, has && s.kitMarkOn]}>
-              {has ? 'Owned' : unlocked ? 'Locked' : '—'}
-            </Text>
+            {/*
+              A gear's level replaces the state word rather than joining it:
+              "Lv 2" already says you own it, and two lines of metadata under a
+              92px tile is more than the tile can hold.
+            */}
+            {level ? (
+              <Text style={s.kitLevel}>Lv {level}</Text>
+            ) : (
+              <Text style={[s.kitMark, has && s.kitMarkOn]}>
+                {has ? 'Owned' : unlocked ? 'Locked' : '—'}
+              </Text>
+            )}
           </View>
         );
       })}
@@ -271,13 +296,17 @@ const build = (t: Theme) =>
     portrait: { width: '100%', height: '100%' },
     headerChips: { flexDirection: 'row', gap: 6 },
     skin: { fontFamily: t.fonts.sans, fontSize: 11, color: t.mutedForeground },
-    kitList: { gap: 6 },
-    kitRow: {
-      flexDirection: 'row',
+    // Mirrors `metricGrid`/`metric` in BsBits, so a kit tile and a stat tile
+    // are the same object at the same size.
+    kitGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    kitTile: {
+      flexGrow: 1,
+      flexBasis: '30%',
+      minWidth: 92,
       alignItems: 'center',
-      gap: 8,
-      paddingVertical: 7,
-      paddingHorizontal: 9,
+      gap: 3,
+      paddingVertical: 10,
+      paddingHorizontal: 6,
       borderRadius: t.radius.lg,
       backgroundColor: t.muted,
       borderWidth: 1,
@@ -286,16 +315,24 @@ const build = (t: Theme) =>
     /*
       0.72, not 0.5.
 
-      A locked row still has to be readable -- it names a gadget you can go and
+      A locked tile still has to be readable -- it names a gadget you can go and
       unlock. At half opacity on this background the icon and the name both
       dropped close to the fill, which is what made the sheet look like it was
       missing art rather than showing it greyed.
     */
-    kitRowOff: { opacity: 0.72 },
-    kitArt: { width: 28, height: 28 },
+    kitTileOff: { opacity: 0.72 },
+    kitArt: { width: 36, height: 36, borderRadius: t.radius.sm },
     kitArtOff: { opacity: 0.65 },
-    kitDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: t.border, marginHorizontal: 9 },
-    kitName: { flex: 1, minWidth: 0, fontFamily: t.fonts.display, fontSize: 12, color: t.foreground },
+    // Keeps the art's footprint so a dotted tile lines up with a drawn one.
+    kitDotSlot: { height: 36, justifyContent: 'center' },
+    kitDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: t.border },
+    kitName: {
+      fontFamily: t.fonts.display,
+      fontSize: 11,
+      lineHeight: 14,
+      textAlign: 'center',
+      color: t.foreground,
+    },
     kitNameOff: { color: t.mutedForeground },
     kitLevel: { fontFamily: t.fonts.sans, fontSize: 10, color: t.brawl.heading },
     kitMark: { fontFamily: t.fonts.sans, fontSize: 9, color: t.mutedForeground },
